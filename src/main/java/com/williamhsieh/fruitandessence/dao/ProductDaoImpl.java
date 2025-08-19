@@ -1,11 +1,16 @@
 package com.williamhsieh.fruitandessence.dao;
 
+import com.williamhsieh.fruitandessence.dto.ProductRequest;
 import com.williamhsieh.fruitandessence.model.Product;
 import com.williamhsieh.fruitandessence.rowmapper.ProductRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +24,11 @@ public class ProductDaoImpl  implements ProductDao {
     @Override
     public Product getProductById(Integer productId) {
 
-        String sql = "SELECT product_id, product_name, category, image_url, price, stock, description, created_date, last_modified_date FROM product WHERE product_id = :productId";
+        String sql = "SELECT product_id, product_name, category, image_url, " +
+                     "price_per_unit, stock, unit, unit_type, weight, quantity, " +
+                     "description, created_date, last_modified_date " +
+                     "FROM product " +
+                     "WHERE product_id = :productId";
 
         Map<String,Object> map = new HashMap<>();
         map.put("productId", productId);
@@ -31,5 +40,41 @@ public class ProductDaoImpl  implements ProductDao {
         } else {
             return productList.get(0);
         }
+    }
+
+    @Override
+    public Integer createProduct(ProductRequest productRequest) {
+
+        String sql = "INSERT INTO product(product_name, category, image_url, " +
+                     "price_per_unit, stock, unit, unit_type, weight, quantity, " +
+                     "description, created_date, last_modified_date) " +
+                     "VALUES (:product_name, :category, :image_url, " +
+                     ":price_per_unit, :stock, :unit, :unit_type, :weight, :quantity, " +
+                     ":description, :created_date, :last_modified_date) ";
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("product_name", productRequest.getProductName());
+        map.put("category", productRequest.getCategory().toString());
+        map.put("image_url", productRequest.getImageUrl());
+        map.put("price_per_unit", productRequest.getPricePerUnit());
+        map.put("stock", productRequest.getStock());
+        map.put("unit", productRequest.getUnit());
+        map.put("unit_type", productRequest.getUnitType().toString());
+        map.put("weight", productRequest.getWeight());
+        map.put("quantity", productRequest.getQuantity());
+        map.put("description", productRequest.getDescription());
+
+        LocalDateTime now = LocalDateTime.now();
+        map.put("created_date", now);
+        map.put("last_modified_date", now);
+
+        // 取得與儲存資料庫自動生成的 id
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map), keyHolder);
+
+        int productId = keyHolder.getKey().intValue();
+
+        return productId;
     }
 }

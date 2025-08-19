@@ -1,35 +1,38 @@
-package com.williamhsieh.fruitandessence.model;
+package com.williamhsieh.fruitandessence.dto;
 
 import com.williamhsieh.fruitandessence.constant.ProductCategory;
 import com.williamhsieh.fruitandessence.constant.ProductUnitType;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-import java.time.LocalDateTime;
+public class ProductRequest {
 
-public class Product {
-
-    private Integer productId;
+    @NotNull
     private String productName;
+
+    @NotNull
     private ProductCategory category;
+
+    @NotNull
     private String imageUrl;
 
+    @NotNull
     private Integer stock; // 庫存量
+
+    @NotNull
     private Integer pricePerUnit; // 每單位價格
+
+    @NotNull
     private String unit; // 單位
+
+    @NotNull
     private ProductUnitType unitType; // WEIGHT 或 COUNT
+
     private Double weight;     // 購買重量
     private Integer quantity; // 購買數量
 
+    @NotNull
     private String description;
-    private LocalDateTime createdDate;
-    private LocalDateTime lastModifiedDate;
-
-    public Integer getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Integer productId) {
-        this.productId = productId;
-    }
 
     public String getProductName() {
         return productName;
@@ -109,29 +112,5 @@ public class Product {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public LocalDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public int getTotalPrice() {
-        if (unitType == ProductUnitType.WEIGHT) {
-            return (int) Math.round((weight == null ? 0 : weight) * pricePerUnit);
-        } else {
-            return (quantity == null ? 0 : quantity * pricePerUnit);
-        }
     }
 }

@@ -2,11 +2,10 @@ package com.williamhsieh.fruitandessence.constant;
 
 public enum ProductCategory {
 
-    BERRIES,
-    DRUPES,
-    POME_FRUITS,
-    CITRUS_FRUITS,
-    AGGREGATE_FRUITS,
-    MULTIPLE_FRUITS,
-
+    CITRUS, // 柑橘類
+    BERRY, // 漿果類
+    STONE_FRUIT, // 核果類
+    POME, // 仁果類
+    MELON, // 瓜類
+    TROPICAL, // 熱帶水果
 }
