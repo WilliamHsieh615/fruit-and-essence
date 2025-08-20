@@ -7,13 +7,17 @@ import com.williamhsieh.fruitandessence.dto.ProductRequest;
 import com.williamhsieh.fruitandessence.dto.ProductResponse;
 import com.williamhsieh.fruitandessence.service.ProductService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Validated
 @RestController
 public class ProductController {
 
@@ -22,20 +26,28 @@ public class ProductController {
 
     @GetMapping("/products")
     public ResponseEntity<List<ProductResponse>> getProducts(
+
             // 查詢條件 Filtering
             @RequestParam(required = false) ProductCategory category,
             @RequestParam(required = false) String search,
 
             // 排序 Sorting
             @RequestParam(defaultValue = "productName") String orderBy,
-            @RequestParam(defaultValue = "asc") String sort) {
-        // asc升序、desc降序
+            @RequestParam(defaultValue = "asc") String sort, // asc升序、desc降序
+
+            // 分頁 Pagination
+            @RequestParam(defaultValue = "8") @Max(1000) @Min(0) Integer limit, // 取得的資料數，最大取得筆數為 1000，最小為 0
+            @RequestParam(defaultValue = "0") @Min(0) Integer offset // 跳過前幾筆數據，最小為 0
+
+    ) {
 
         ProductQueryParams productQueryParams = new ProductQueryParams();
         productQueryParams.setCategory(category);
         productQueryParams.setSearch(search);
         productQueryParams.setOrderBy(orderBy);
         productQueryParams.setSort(sort);
+        productQueryParams.setLimit(limit);
+        productQueryParams.setOffset(offset);
 
         List<ProductResponse> productList = productService.getProducts(productQueryParams);
 
