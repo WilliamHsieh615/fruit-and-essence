@@ -3,7 +3,6 @@ package com.williamhsieh.fruitandessence.service;
 import com.williamhsieh.fruitandessence.dto.ProductQueryParams;
 import com.williamhsieh.fruitandessence.dto.ProductRequest;
 import com.williamhsieh.fruitandessence.dto.ProductResponse;
-import com.williamhsieh.fruitandessence.model.Product;
 
 import java.util.List;
 

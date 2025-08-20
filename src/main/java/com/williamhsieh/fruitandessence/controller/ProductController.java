@@ -5,7 +5,6 @@ import com.williamhsieh.fruitandessence.constant.ProductUnitType;
 import com.williamhsieh.fruitandessence.dto.ProductQueryParams;
 import com.williamhsieh.fruitandessence.dto.ProductRequest;
 import com.williamhsieh.fruitandessence.dto.ProductResponse;
-import com.williamhsieh.fruitandessence.model.Product;
 import com.williamhsieh.fruitandessence.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class ProductController {
             // 排序 Sorting
             @RequestParam(defaultValue = "productName") String orderBy,
             @RequestParam(defaultValue = "asc") String sort) {
-            // asc升序、desc降序
+        // asc升序、desc降序
 
         ProductQueryParams productQueryParams = new ProductQueryParams();
         productQueryParams.setCategory(category);
