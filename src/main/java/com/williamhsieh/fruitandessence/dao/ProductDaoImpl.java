@@ -29,30 +29,11 @@ public class ProductDaoImpl  implements ProductDao {
         Map<String, Object> map = new HashMap<>();
 
         // 查詢條件
-        if (productQueryParams.getCategory() != null) {
-            sql = sql + " AND category = :category";
-            map.put("category", productQueryParams.getCategory().name());
-        }
-
-        if (productQueryParams.getSearch() != null) {
-            sql = sql + " AND product_name LIKE :search";
-            map.put("search", "%" + productQueryParams.getSearch() + "%");
-        }
+        sql = addFilteringSql(sql, map, productQueryParams);
 
         Integer total = namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
 
         return total;
-    }
-
-    // 前端統一用駝峰呼叫，再轉底線命名，從資料庫撈取資料
-    private String mapOrderByToColumn(String orderBy) {
-        switch (orderBy) {
-            case "pricePerUnit": return "price_per_unit";
-            case "createdDate": return "created_date";
-            case "lastModifiedDate": return "last_modified_date";
-            case "stock": return "stock";
-            default: return "product_name"; // 預設
-        }
     }
 
     @Override
@@ -65,15 +46,7 @@ public class ProductDaoImpl  implements ProductDao {
         Map<String, Object> map = new HashMap<>();
 
         // 查詢條件
-        if (productQueryParams.getCategory() != null) {
-            sql = sql + " AND category = :category";
-            map.put("category", productQueryParams.getCategory().name());
-        }
-
-        if (productQueryParams.getSearch() != null) {
-            sql = sql + " AND product_name LIKE :search";
-            map.put("search", "%" + productQueryParams.getSearch() + "%");
-        }
+        sql = addFilteringSql(sql, map, productQueryParams);
 
         // 排序
         sql = sql + " ORDER BY " + mapOrderByToColumn(productQueryParams.getOrderBy()) + " " + productQueryParams.getSort();
@@ -185,4 +158,32 @@ public class ProductDaoImpl  implements ProductDao {
 
         namedParameterJdbcTemplate.update(sql, map);
     }
+
+    // 前端統一用駝峰呼叫，再轉底線命名，從資料庫撈取資料
+    private String mapOrderByToColumn(String orderBy) {
+        switch (orderBy) {
+            case "pricePerUnit": return "price_per_unit";
+            case "createdDate": return "created_date";
+            case "lastModifiedDate": return "last_modified_date";
+            case "stock": return "stock";
+            default: return "product_name"; // 預設
+        }
+    }
+
+    private String addFilteringSql(String sql, Map<String, Object> map, ProductQueryParams productQueryParams) {
+
+        // 查詢條件
+        if (productQueryParams.getCategory() != null) {
+            sql = sql + " AND category = :category";
+            map.put("category", productQueryParams.getCategory().name());
+        }
+
+        if (productQueryParams.getSearch() != null) {
+            sql = sql + " AND product_name LIKE :search";
+            map.put("search", "%" + productQueryParams.getSearch() + "%");
+        }
+
+        return sql;
+    }
+
 }
