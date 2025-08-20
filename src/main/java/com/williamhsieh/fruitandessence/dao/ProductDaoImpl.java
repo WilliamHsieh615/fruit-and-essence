@@ -22,6 +22,17 @@ public class ProductDaoImpl  implements ProductDao {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+    // 前端統一用駝峰呼叫，再轉底線命名，從資料庫撈取資料
+    private String mapOrderByToColumn(String orderBy) {
+        switch (orderBy) {
+            case "pricePerUnit": return "price_per_unit";
+            case "createdDate": return "created_date";
+            case "lastModifiedDate": return "last_modified_date";
+            case "stock": return "stock";
+            default: return "product_name"; // 預設
+        }
+    }
+
     @Override
     public List<Product> getProducts(ProductQueryParams productQueryParams) {
 
@@ -40,6 +51,8 @@ public class ProductDaoImpl  implements ProductDao {
             sql = sql + " AND product_name LIKE :search";
             map.put("search", "%" + productQueryParams.getSearch() + "%");
         }
+
+        sql = sql + " ORDER BY " + mapOrderByToColumn(productQueryParams.getOrderBy()) + " " + productQueryParams.getSort();
 
         List<Product> productList = namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
 

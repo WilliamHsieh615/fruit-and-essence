@@ -4,6 +4,7 @@ import com.williamhsieh.fruitandessence.constant.ProductCategory;
 import com.williamhsieh.fruitandessence.constant.ProductUnitType;
 import com.williamhsieh.fruitandessence.dto.ProductQueryParams;
 import com.williamhsieh.fruitandessence.dto.ProductRequest;
+import com.williamhsieh.fruitandessence.dto.ProductResponse;
 import com.williamhsieh.fruitandessence.model.Product;
 import com.williamhsieh.fruitandessence.service.ProductService;
 import jakarta.validation.Valid;
@@ -21,22 +22,30 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getProducts(
+    public ResponseEntity<List<ProductResponse>> getProducts(
+            // 查詢條件 Filtering
             @RequestParam(required = false) ProductCategory category,
-            @RequestParam(required = false) String search) {
+            @RequestParam(required = false) String search,
+
+            // 排序 Sorting
+            @RequestParam(defaultValue = "productName") String orderBy,
+            @RequestParam(defaultValue = "asc") String sort) {
+            // asc升序、desc降序
 
         ProductQueryParams productQueryParams = new ProductQueryParams();
         productQueryParams.setCategory(category);
         productQueryParams.setSearch(search);
+        productQueryParams.setOrderBy(orderBy);
+        productQueryParams.setSort(sort);
 
-        List<Product> productList = productService.getProducts(productQueryParams);
+        List<ProductResponse> productList = productService.getProducts(productQueryParams);
 
         return ResponseEntity.status(HttpStatus.OK).body(productList);
     }
 
     @GetMapping("/products/{productId}")
-    public ResponseEntity<Product> getProduct(@PathVariable Integer productId) {
-        Product product = productService.getProductById(productId);
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable Integer productId) {
+        ProductResponse product = productService.getProductById(productId);
 
         if (product == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -46,7 +55,7 @@ public class ProductController {
     }
 
     @PostMapping("/products")
-    public ResponseEntity<Product> createProduct(@RequestBody @Valid ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid ProductRequest productRequest) {
 
         // 預設 unit
         if (productRequest.getUnit() == null) {
@@ -71,21 +80,21 @@ public class ProductController {
         }
 
         Integer productId = productService.createProduct(productRequest);
-        Product product = productService.getProductById(productId);
+        ProductResponse product = productService.getProductById(productId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
     @PutMapping("/products/{productId}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Integer productId, @RequestBody @Valid ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Integer productId, @RequestBody @Valid ProductRequest productRequest) {
 
         // 先檢查 product 是否存在
-        Product product = productService.getProductById(productId);
+        ProductResponse product = productService.getProductById(productId);
         if (product == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } else {
             productService.updateProduct(productId, productRequest);
-            Product updateProduct = productService.getProductById(productId);
+            ProductResponse updateProduct = productService.getProductById(productId);
             return ResponseEntity.status(HttpStatus.OK).body(updateProduct);
         }
     }
