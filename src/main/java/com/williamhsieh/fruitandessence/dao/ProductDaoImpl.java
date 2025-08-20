@@ -1,6 +1,6 @@
 package com.williamhsieh.fruitandessence.dao;
 
-import com.williamhsieh.fruitandessence.constant.ProductCategory;
+import com.williamhsieh.fruitandessence.dto.ProductQueryParams;
 import com.williamhsieh.fruitandessence.dto.ProductRequest;
 import com.williamhsieh.fruitandessence.model.Product;
 import com.williamhsieh.fruitandessence.rowmapper.ProductRowMapper;
@@ -23,7 +23,7 @@ public class ProductDaoImpl  implements ProductDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public List<Product> getProducts(ProductCategory category, String search) {
+    public List<Product> getProducts(ProductQueryParams productQueryParams) {
 
         String sql = "SELECT product_id, product_name, category, image_url, " +
                      "price_per_unit, stock, unit, unit_type, weight, quantity, " +
@@ -31,34 +31,20 @@ public class ProductDaoImpl  implements ProductDao {
                      "FROM product WHERE 1=1";
         Map<String, Object> map = new HashMap<>();
 
-        if (category != null) {
+        if (productQueryParams.getCategory() != null) {
             sql = sql + " AND category = :category";
-            map.put("category", category.name());
+            map.put("category", productQueryParams.getCategory().name());
         }
 
-        if (search != null) {
+        if (productQueryParams.getSearch() != null) {
             sql = sql + " AND product_name LIKE :search";
-            map.put("search", "%" + search + "%");
+            map.put("search", "%" + productQueryParams.getSearch() + "%");
         }
 
         List<Product> productList = namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
 
         return productList;
     }
-
-//    @Override
-//    public List<Product> getAllProducts() {
-//
-//        String sql = "SELECT product_id, product_name, category, image_url, " +
-//                     "price_per_unit, stock, unit, unit_type, weight, quantity, " +
-//                     "description, created_date, last_modified_date " +
-//                     "FROM product ";
-//        Map<String, Object> map = new HashMap<>();
-//
-//        List<Product> productList = namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
-//
-//        return productList;
-//    }
 
     @Override
     public Product getProductById(Integer productId) {

@@ -2,6 +2,7 @@ package com.williamhsieh.fruitandessence.controller;
 
 import com.williamhsieh.fruitandessence.constant.ProductCategory;
 import com.williamhsieh.fruitandessence.constant.ProductUnitType;
+import com.williamhsieh.fruitandessence.dto.ProductQueryParams;
 import com.williamhsieh.fruitandessence.dto.ProductRequest;
 import com.williamhsieh.fruitandessence.model.Product;
 import com.williamhsieh.fruitandessence.service.ProductService;
@@ -24,18 +25,14 @@ public class ProductController {
             @RequestParam(required = false) ProductCategory category,
             @RequestParam(required = false) String search) {
 
-        List<Product> productList = productService.getProducts(category, search);
+        ProductQueryParams productQueryParams = new ProductQueryParams();
+        productQueryParams.setCategory(category);
+        productQueryParams.setSearch(search);
+
+        List<Product> productList = productService.getProducts(productQueryParams);
 
         return ResponseEntity.status(HttpStatus.OK).body(productList);
     }
-
-//    @GetMapping("/products")
-//    public ResponseEntity<List<Product>> getAllProducts() {
-//
-//        List<Product> productList = productService.getAllProducts();
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(productList);
-//    }
 
     @GetMapping("/products/{productId}")
     public ResponseEntity<Product> getProduct(@PathVariable Integer productId) {

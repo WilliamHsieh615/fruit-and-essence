@@ -1,7 +1,7 @@
 package com.williamhsieh.fruitandessence.service;
 
-import com.williamhsieh.fruitandessence.constant.ProductCategory;
 import com.williamhsieh.fruitandessence.dao.ProductDao;
+import com.williamhsieh.fruitandessence.dto.ProductQueryParams;
 import com.williamhsieh.fruitandessence.dto.ProductRequest;
 import com.williamhsieh.fruitandessence.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +16,9 @@ public class ProductServiceImpl implements ProductService {
     private ProductDao productDao;
 
     @Override
-    public List<Product> getProducts(ProductCategory category, String search) {
-        return productDao.getProducts(category, search);
+    public List<Product> getProducts(ProductQueryParams productQueryParams) {
+        return productDao.getProducts(productQueryParams);
     }
-
-//    @Override
-//    public List<Product> getAllProducts() {
-//        return productDao.getAllProducts();
-//    }
 
     @Override
     public Product getProductById(Integer productId) {
