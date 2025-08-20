@@ -1,5 +1,6 @@
 package com.williamhsieh.fruitandessence.controller;
 
+import com.williamhsieh.fruitandessence.constant.ProductCategory;
 import com.williamhsieh.fruitandessence.constant.ProductUnitType;
 import com.williamhsieh.fruitandessence.dto.ProductRequest;
 import com.williamhsieh.fruitandessence.model.Product;
@@ -19,12 +20,22 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<Product>> getProducts(
+            @RequestParam(required = false) ProductCategory category,
+            @RequestParam(required = false) String search) {
 
-        List<Product> productList = productService.getAllProducts();
+        List<Product> productList = productService.getProducts(category, search);
 
         return ResponseEntity.status(HttpStatus.OK).body(productList);
     }
+
+//    @GetMapping("/products")
+//    public ResponseEntity<List<Product>> getAllProducts() {
+//
+//        List<Product> productList = productService.getAllProducts();
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(productList);
+//    }
 
     @GetMapping("/products/{productId}")
     public ResponseEntity<Product> getProduct(@PathVariable Integer productId) {
