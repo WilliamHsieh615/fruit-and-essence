@@ -1,6 +1,7 @@
 package com.williamhsieh.fruitandessence.service;
 
 import com.williamhsieh.fruitandessence.dao.MemberDao;
+import com.williamhsieh.fruitandessence.dto.MemberLoginRequest;
 import com.williamhsieh.fruitandessence.dto.MemberRegisterRequest;
 import com.williamhsieh.fruitandessence.model.Member;
 import org.slf4j.Logger;
@@ -37,5 +38,23 @@ public class MemberServiceImpl implements MemberService {
 
         // 創建帳號
         return memberDao.createMember(memberRegisterRequest);
+    }
+
+    @Override
+    public Member login(MemberLoginRequest memberLoginRequest) {
+
+        Member member = memberDao.getMemberByEmail(memberLoginRequest.getEmail());
+
+        if (member == null) {
+            log.warn("{}, Email does not exist!", memberLoginRequest.getEmail());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if(member.getPassword().equals(memberLoginRequest.getPassword())) {
+            return member;
+        }else{
+            log.warn("{}, Wrong password!", memberLoginRequest.getEmail());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 }

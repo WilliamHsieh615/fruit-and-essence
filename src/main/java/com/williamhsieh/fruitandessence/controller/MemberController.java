@@ -1,5 +1,6 @@
 package com.williamhsieh.fruitandessence.controller;
 
+import com.williamhsieh.fruitandessence.dto.MemberLoginRequest;
 import com.williamhsieh.fruitandessence.dto.MemberRegisterRequest;
 import com.williamhsieh.fruitandessence.model.Member;
 import com.williamhsieh.fruitandessence.service.MemberService;
@@ -7,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,4 +27,15 @@ public class MemberController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(member);
     }
+
+    @PostMapping("/members/login")
+    public ResponseEntity<Member> login(@RequestBody @Valid MemberLoginRequest memberLoginRequest) {
+
+        Member member = memberService.login(memberLoginRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).body(member);
+
+    }
+
 }
+
