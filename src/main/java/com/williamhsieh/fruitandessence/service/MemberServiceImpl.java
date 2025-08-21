@@ -4,6 +4,7 @@ import com.williamhsieh.fruitandessence.dao.MemberDao;
 import com.williamhsieh.fruitandessence.dto.MemberLoginRequest;
 import com.williamhsieh.fruitandessence.dto.MemberRegisterRequest;
 import com.williamhsieh.fruitandessence.model.Member;
+import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,10 @@ public class MemberServiceImpl implements MemberService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
+        // 使用 jBCrypt 生成密碼的雜湊值
+        String hashedPassword = BCrypt.hashpw(memberRegisterRequest.getPassword(), BCrypt.gensalt(12));
+        memberRegisterRequest.setPassword(hashedPassword);
+
         // 創建帳號
         return memberDao.createMember(memberRegisterRequest);
     }
@@ -45,12 +50,14 @@ public class MemberServiceImpl implements MemberService {
 
         Member member = memberDao.getMemberByEmail(memberLoginRequest.getEmail());
 
+        // 檢查 member 是否存在
         if (member == null) {
             log.warn("{}, Email does not exist!", memberLoginRequest.getEmail());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        if(member.getPassword().equals(memberLoginRequest.getPassword())) {
+        // 比較密碼
+        if(BCrypt.checkpw(memberLoginRequest.getPassword(), member.getPassword())) {
             return member;
         }else{
             log.warn("{}, Wrong password!", memberLoginRequest.getEmail());
