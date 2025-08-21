@@ -45,6 +45,26 @@ public class MemberDaoImpl implements MemberDao {
     }
 
     @Override
+    public Member getMemberByEmail(String email) {
+
+        String sql = "SELECT member_id, email, password, " +
+                     "name, phone, birthday, created_date, last_modified_date " +
+                     "FROM member WHERE email = :email";
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("email", email);
+
+        List<Member> memberList = namedParameterJdbcTemplate.query(sql, map, new MemberRowMapper());
+
+        if(memberList.isEmpty()){
+            return null;
+        } else {
+            return memberList.get(0);
+        }
+
+    }
+
+    @Override
     public Integer createMember(MemberRegisterRequest memberRegisterRequest) {
 
         String sql = "INSERT INTO member(email, password, name, phone, birthday, " +

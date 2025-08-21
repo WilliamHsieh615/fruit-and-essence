@@ -1,5 +1,6 @@
 package com.williamhsieh.fruitandessence.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 public class MemberRegisterRequest {
 
     @NotBlank
+    @Email
     private String email;
 
     @NotBlank

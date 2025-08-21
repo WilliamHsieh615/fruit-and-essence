@@ -1,13 +1,23 @@
 package com.williamhsieh.fruitandessence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Member {
 
     private Integer memberId;
+
+    // 客制化 JSON key 值
+//    @JsonProperty("e_mail")
     private String email;
+
+    // 忽略密碼，不要回傳給前端
+    @JsonIgnore
     private String password;
+
     private String name;
     private String phone;
     private LocalDate birthday;

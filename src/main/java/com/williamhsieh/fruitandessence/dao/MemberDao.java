@@ -7,6 +7,8 @@ public interface MemberDao {
 
     Member getMemberById(Integer memberId);
 
+    Member getMemberByEmail(String email);
+
     Integer createMember(MemberRegisterRequest memberRegisterRequest);
 
 }
