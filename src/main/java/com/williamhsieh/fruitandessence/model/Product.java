@@ -17,7 +17,7 @@ public class Product {
     private String unit; // 單位
     private ProductUnitType unitType; // WEIGHT 或 COUNT
     private Double weight;     // 購買重量
-    private Integer quantity; // 購買數量
+    private Integer count; // 購買數量
 
     private String description;
     private LocalDateTime createdDate;
@@ -95,12 +95,12 @@ public class Product {
         this.weight = weight;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public Integer getCount() {
+        return count;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setCount(Integer count) {
+        this.count = count;
     }
 
     public String getDescription() {
@@ -131,7 +131,7 @@ public class Product {
         if (unitType == ProductUnitType.WEIGHT) {
             return (int) Math.round((weight == null ? 0 : weight) * pricePerUnit);
         } else {
-            return (quantity == null ? 0 : quantity * pricePerUnit);
+            return (count == null ? 0 : count * pricePerUnit);
         }
     }
 }

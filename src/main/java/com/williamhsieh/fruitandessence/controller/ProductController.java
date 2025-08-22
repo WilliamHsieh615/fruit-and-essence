@@ -88,15 +88,15 @@ public class ProductController {
             );
         }
 
-        // weight / quantity 互斥
+        // weight / count 互斥
         if (productRequest.getUnitType() == ProductUnitType.WEIGHT) {
             if (productRequest.getWeight() == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(null);
             }
-            productRequest.setQuantity(null); // 清掉不必要欄位
+            productRequest.setCount(null); // 清掉不必要欄位
         } else {
-            if (productRequest.getQuantity() == null) {
+            if (productRequest.getCount() == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(null);
             }

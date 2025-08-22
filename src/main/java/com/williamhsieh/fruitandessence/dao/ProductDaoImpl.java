@@ -40,7 +40,7 @@ public class ProductDaoImpl  implements ProductDao {
     public List<Product> getProducts(ProductQueryParams productQueryParams) {
 
         String sql = "SELECT product_id, product_name, category, image_url, " +
-                     "price_per_unit, stock, unit, unit_type, weight, quantity, " +
+                     "price_per_unit, stock, unit, unit_type, weight, count, " +
                      "description, created_date, last_modified_date " +
                      "FROM product WHERE 1=1";
         Map<String, Object> map = new HashMap<>();
@@ -65,7 +65,7 @@ public class ProductDaoImpl  implements ProductDao {
     public Product getProductById(Integer productId) {
 
         String sql = "SELECT product_id, product_name, category, image_url, " +
-                     "price_per_unit, stock, unit, unit_type, weight, quantity, " +
+                     "price_per_unit, stock, unit, unit_type, weight, count, " +
                      "description, created_date, last_modified_date " +
                      "FROM product " +
                      "WHERE product_id = :productId";
@@ -86,10 +86,10 @@ public class ProductDaoImpl  implements ProductDao {
     public Integer createProduct(ProductRequest productRequest) {
 
         String sql = "INSERT INTO product(product_name, category, image_url, " +
-                     "price_per_unit, stock, unit, unit_type, weight, quantity, " +
+                     "price_per_unit, stock, unit, unit_type, weight, count, " +
                      "description, created_date, last_modified_date) " +
                      "VALUES (:product_name, :category, :image_url, " +
-                     ":price_per_unit, :stock, :unit, :unit_type, :weight, :quantity, " +
+                     ":price_per_unit, :stock, :unit, :unit_type, :weight, :count, " +
                      ":description, :created_date, :last_modified_date) ";
 
         Map<String,Object> map = new HashMap<>();
@@ -101,7 +101,7 @@ public class ProductDaoImpl  implements ProductDao {
         map.put("unit", productRequest.getUnit());
         map.put("unit_type", productRequest.getUnitType().toString());
         map.put("weight", productRequest.getWeight());
-        map.put("quantity", productRequest.getQuantity());
+        map.put("count", productRequest.getCount());
         map.put("description", productRequest.getDescription());
 
         LocalDateTime now = LocalDateTime.now();
@@ -123,7 +123,7 @@ public class ProductDaoImpl  implements ProductDao {
     public void updateProduct(Integer productId, ProductRequest productRequest) {
 
         String sql = "UPDATE product SET product_name = :productName, category = :category, image_url = :imageUrl, " +
-                     "price_per_unit = :pricePerUnit, stock = :stock, unit = :unit, unit_type = :unitType, weight = :weight, quantity = :quantity, " +
+                     "price_per_unit = :pricePerUnit, stock = :stock, unit = :unit, unit_type = :unitType, weight = :weight, count = :count, " +
                      "description = :description, last_modified_date = :lastModifiedDate " +
                      "WHERE product_id = :productId";
 
@@ -138,7 +138,7 @@ public class ProductDaoImpl  implements ProductDao {
         map.put("unit", productRequest.getUnit());
         map.put("unitType", productRequest.getUnitType().toString());
         map.put("weight", productRequest.getWeight());
-        map.put("quantity", productRequest.getQuantity());
+        map.put("count", productRequest.getCount());
         map.put("description", productRequest.getDescription());
 
         map.put("lastModifiedDate", LocalDateTime.now());

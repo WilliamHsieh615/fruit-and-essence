@@ -18,7 +18,7 @@ public class ProductResponse {
     private String unit;
     private ProductUnitType unitType;
     private Double weight;      // 只有 WEIGHT 類型才會有值
-    private Integer quantity;   // 只有 COUNT 類型才會有值
+    private Integer count;   // 只有 COUNT 類型才會有值
     private String description;
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
@@ -41,7 +41,7 @@ public class ProductResponse {
             this.weight = product.getWeight();
         }
         if (unitType == ProductUnitType.COUNT) {
-            this.quantity = product.getQuantity();
+            this.count = product.getCount();
         }
 
         this.createdDate = product.getCreatedDate();
@@ -85,8 +85,8 @@ public class ProductResponse {
         return weight;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public Integer getCount() {
+        return count;
     }
 
     public String getDescription() {
