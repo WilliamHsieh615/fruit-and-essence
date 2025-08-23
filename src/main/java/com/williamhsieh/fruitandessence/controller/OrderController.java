@@ -1,6 +1,7 @@
 package com.williamhsieh.fruitandessence.controller;
 
 import com.williamhsieh.fruitandessence.dto.CreatedOrderRequest;
+import com.williamhsieh.fruitandessence.model.Order;
 import com.williamhsieh.fruitandessence.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,9 @@ public class OrderController {
                                          @RequestBody @Valid CreatedOrderRequest createdOrderRequest) {
         Integer orderId = orderService.createOrder(memberId, createdOrderRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderId);
+        Order order = orderService.getOrderById(orderId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(order);
 
     }
 

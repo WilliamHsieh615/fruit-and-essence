@@ -2,7 +2,11 @@ package com.williamhsieh.fruitandessence.dao;
 
 import com.williamhsieh.fruitandessence.constant.OrderStatus;
 import com.williamhsieh.fruitandessence.dto.CreatedOrderRequest;
+import com.williamhsieh.fruitandessence.dto.OrderItemResponse;
+import com.williamhsieh.fruitandessence.model.Order;
 import com.williamhsieh.fruitandessence.model.OrderItem;
+import com.williamhsieh.fruitandessence.rowmapper.OrderItemRowMapper;
+import com.williamhsieh.fruitandessence.rowmapper.OrderRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -10,6 +14,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +25,44 @@ public class OrderDaoImpl implements OrderDao {
 
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @Override
+    public Order getOrderById(Integer orderId) {
+
+        String sql = "SELECT order_id, member_id, total_amount, shipping_phone, shipping_address, " +
+                "status, order_date, created_date, last_modified_date " +
+                "FROM orders WHERE order_Id = :orderId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderId", orderId);
+
+        List<Order> orderList = namedParameterJdbcTemplate.query(sql, map, new OrderRowMapper());
+
+        if (orderList.isEmpty()) {
+            return null;
+        } else {
+            return orderList.get(0);
+        }
+
+    }
+
+    @Override
+    public List<OrderItemResponse> getOrderItemsById(Integer orderId) {
+
+        String sql = "SELECT oi.order_item_id, oi.order_id, oi.product_id, " +
+                     "oi.purchased_count, oi.purchased_weight, oi.amount, " +
+                     "p.product_name, p.image_url, p.price_per_unit, p.unit " +
+                     "FROM order_item as oi " +
+                     "LEFT JOIN product as p ON oi.product_id = p.product_id " +
+                     "WHERE oi.order_id = :orderId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderId", orderId);
+
+        List<OrderItemResponse> orderItemListResponse = namedParameterJdbcTemplate.query(sql, map, new OrderItemRowMapper());
+
+        return orderItemListResponse;
+    }
 
     @Override
     public Integer createOrder(Integer memberId, Integer totalAmount, CreatedOrderRequest createdOrderRequest) {
@@ -36,8 +79,9 @@ public class OrderDaoImpl implements OrderDao {
         map.put("shippingAddress", createdOrderRequest.getShippingAddress());
         map.put("status", OrderStatus.PENDING.toString()); // 訂單狀態不透過前端傳入，而是由後端設定
 
+        LocalDate orderDate = LocalDate.now().plusDays(2); // 兩天後
+        map.put("orderDate", orderDate);
         LocalDateTime now = LocalDateTime.now();
-        map.put("orderDate", now);
         map.put("createdDate", now);
         map.put("lastModifiedDate", now);
 
@@ -56,7 +100,7 @@ public class OrderDaoImpl implements OrderDao {
         // 第一種方法：使用 for loop 加入數據
 //        for (OrderItem orderItem : orderItemList) {
 //
-//            String sql = "INSTER INTO order_item(order_id, product_id, " +
+//            String sql = "INSERT INTO order_item(order_id, product_id, " +
 //                         "purchased_count, purchase_weight, amount) " +
 //                         "VALUES (:orderId, :productId, :purchaseCount, :purchaseWeight, :amount)";
 //

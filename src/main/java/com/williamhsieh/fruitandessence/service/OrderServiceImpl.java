@@ -3,7 +3,9 @@ package com.williamhsieh.fruitandessence.service;
 import com.williamhsieh.fruitandessence.dao.OrderDao;
 import com.williamhsieh.fruitandessence.dao.ProductDao;
 import com.williamhsieh.fruitandessence.dto.CreatedOrderRequest;
+import com.williamhsieh.fruitandessence.dto.OrderItemResponse;
 import com.williamhsieh.fruitandessence.dto.PurchaseItem;
+import com.williamhsieh.fruitandessence.model.Order;
 import com.williamhsieh.fruitandessence.model.OrderItem;
 import com.williamhsieh.fruitandessence.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private ProductDao productDao;
+
+    @Override
+    public Order getOrderById(Integer orderId) {
+
+        Order order = orderDao.getOrderById(orderId);
+
+        List<OrderItemResponse> orderItemListResponse = orderDao.getOrderItemsById(orderId);
+
+        order.setOrderItemListResponse(orderItemListResponse);
+
+        return order;
+    }
 
     @Transactional
     @Override

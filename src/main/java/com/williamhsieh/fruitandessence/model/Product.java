@@ -16,8 +16,8 @@ public class Product {
     private Integer pricePerUnit; // 每單位價格
     private String unit; // 單位
     private ProductUnitType unitType; // WEIGHT 或 COUNT
-    private Double weight;     // 購買重量
-    private Integer count; // 購買數量
+    private Double weight; // 單位重量 1 kg
+    private Integer count; // 單位數量 1 piece
 
     private String description;
     private LocalDateTime createdDate;

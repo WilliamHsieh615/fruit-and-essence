@@ -1,8 +1,11 @@
 package com.williamhsieh.fruitandessence.model;
 
 import com.williamhsieh.fruitandessence.constant.OrderStatus;
+import com.williamhsieh.fruitandessence.dto.OrderItemResponse;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Order {
 
@@ -12,9 +15,11 @@ public class Order {
     private String shippingAddress;
     private String shippingPhone;
     private OrderStatus status;
-    private LocalDateTime orderDate;
-    private LocalDateTime created_date;
-    private LocalDateTime last_modified_date;
+    private LocalDate orderDate; // 預計訂單完成日期
+    private LocalDateTime createdDate; // 訂單建立時間
+    private LocalDateTime lastModifiedDate; // 追蹤訂單狀態最後更新的時間，隨著 status 的變更而改變
+
+    private List<OrderItemResponse> orderItemListResponse;
 
     public Integer getOrderId() {
         return orderId;
@@ -64,27 +69,35 @@ public class Order {
         this.status = status;
     }
 
-    public LocalDateTime getOrderDate() {
+    public LocalDate getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(LocalDateTime orderDate) {
+    public void setOrderDate(LocalDate orderDate) {
         this.orderDate = orderDate;
     }
 
-    public LocalDateTime getCreated_date() {
-        return created_date;
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
     }
 
-    public void setCreated_date(LocalDateTime created_date) {
-        this.created_date = created_date;
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
     }
 
-    public LocalDateTime getLast_modified_date() {
-        return last_modified_date;
+    public LocalDateTime getLastModifiedDate() {
+        return lastModifiedDate;
     }
 
-    public void setLast_modified_date(LocalDateTime last_modified_date) {
-        this.last_modified_date = last_modified_date;
+    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public List<OrderItemResponse> getOrderItemListResponse() {
+        return orderItemListResponse;
+    }
+
+    public void setOrderItemListResponse(List<OrderItemResponse> orderItemListResponse) {
+        this.orderItemListResponse = orderItemListResponse;
     }
 }
