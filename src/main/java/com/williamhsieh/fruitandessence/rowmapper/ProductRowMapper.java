@@ -19,7 +19,7 @@ public class ProductRowMapper implements RowMapper<Product> {
         product.setCategory(ProductCategory.valueOf(resultSet.getString("category")));
         product.setImageUrl(resultSet.getString("image_url"));
 
-        product.setStock(resultSet.getInt("stock"));
+        product.setStock(resultSet.getDouble("stock"));
         product.setPricePerUnit(resultSet.getInt("price_per_unit"));
         product.setUnit(resultSet.getString("unit")); // 如果資料庫有存，否則用預設 "kg"
         product.setUnitType(ProductUnitType.valueOf(resultSet.getString("unit_type")));

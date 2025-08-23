@@ -17,7 +17,7 @@ public class ProductRequest {
     private String imageUrl;
 
     @NotNull
-    private Integer stock; // 庫存量
+    private Double stock; // 庫存量
 
     @NotNull
     private Integer pricePerUnit; // 每單位價格
@@ -58,11 +58,11 @@ public class ProductRequest {
         this.imageUrl = imageUrl;
     }
 
-    public Integer getStock() {
+    public Double getStock() {
         return stock;
     }
 
-    public void setStock(Integer stock) {
+    public void setStock(Double stock) {
         this.stock = stock;
     }
 

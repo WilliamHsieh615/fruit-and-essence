@@ -13,7 +13,7 @@ public class ProductResponse {
     private String productName;
     private String category;
     private String imageUrl;
-    private Integer stock;
+    private Double stock;
     private Integer pricePerUnit;
     private String unit;
     private ProductUnitType unitType;
@@ -65,7 +65,7 @@ public class ProductResponse {
         return imageUrl;
     }
 
-    public Integer getStock() {
+    public Double getStock() {
         return stock;
     }
 
