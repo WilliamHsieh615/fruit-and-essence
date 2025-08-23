@@ -5,6 +5,7 @@ import com.williamhsieh.fruitandessence.dao.OrderDao;
 import com.williamhsieh.fruitandessence.dao.ProductDao;
 import com.williamhsieh.fruitandessence.dto.CreatedOrderRequest;
 import com.williamhsieh.fruitandessence.dto.OrderItemResponse;
+import com.williamhsieh.fruitandessence.dto.OrderQueryParams;
 import com.williamhsieh.fruitandessence.dto.PurchaseItem;
 import com.williamhsieh.fruitandessence.model.Member;
 import com.williamhsieh.fruitandessence.model.Order;
@@ -36,11 +37,30 @@ public class OrderServiceImpl implements OrderService {
     private MemberDao memberDao;
 
     @Override
+    public Integer countOrder(OrderQueryParams orderQueryParams) {
+        return orderDao.countOrder(orderQueryParams);
+    }
+
+    @Override
+    public List<Order> getOrders(OrderQueryParams orderQueryParams) {
+
+        List<Order> orderList = orderDao.getOrders(orderQueryParams);
+
+        for (Order order : orderList) {
+            List<OrderItemResponse> orderItemListResponse = orderDao.getOrderItemsByOrderId(order.getOrderId());
+
+            order.setOrderItemListResponse(orderItemListResponse);
+        }
+
+        return orderList;
+    }
+
+    @Override
     public Order getOrderById(Integer orderId) {
 
         Order order = orderDao.getOrderById(orderId);
 
-        List<OrderItemResponse> orderItemListResponse = orderDao.getOrderItemsById(orderId);
+        List<OrderItemResponse> orderItemListResponse = orderDao.getOrderItemsByOrderId(orderId);
 
         order.setOrderItemListResponse(orderItemListResponse);
 
