@@ -1,33 +1,109 @@
-HELP.md
+##############################
+# Backend (Spring Boot / Java)
+##############################
+
+# Build outputs
 target/
-.mvn/wrapper/maven-wrapper.jar
+build/
 !**/src/main/**/target/
 !**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Compiled files
+*.class
+*.war
+*.ear
+*.jar
 
-### IntelliJ IDEA ###
-.idea
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/MavenWrapperDownloader.java
+
+# Gradle
+.gradle/
+.gradle-cache/
+.gradle-build/
+
+##############################
+# Frontend (Nuxt / Node.js)
+##############################
+
+# Nuxt build & cache
+.nuxt/
+.nitro/
+.output/
+.generate/
+.data/
+.cache/
+dist/
+
+# Node dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+
+##############################
+# IDE / Editors
+##############################
+
+# IntelliJ IDEA
+.idea/
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# Eclipse / STS
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+# VS Code
 .vscode/
+
+# JetBrains Fleet
+.fleet/
+
+##############################
+# OS / Misc
+##############################
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+##############################
+# Env & Secrets
+##############################
+
+.env
+.env.*
+!.env.example
+
+##############################
+# Package Manager Locks
+# (依專案需求可選擇保留一個版本管理)
+##############################
+
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
