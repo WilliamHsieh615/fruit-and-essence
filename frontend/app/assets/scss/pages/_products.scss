@@ -1,0 +1,17 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.banner {
+  @include banner(60vh,
+    "/images/banner/banner2.jpg",
+    cover,
+    repeat,
+    scroll);
+}
+
+.sort {
+  max-width: 1000px;
+  margin: 30px auto 0;
+  text-align: end;
+  font-size: 20px;
+}

@@ -1,0 +1,86 @@
+@use '../../abstracts/variables' as *;
+
+.product-list {
+    padding: 10px 0 50px;
+
+    .product-card-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px 20px;
+
+        .product-card {
+            display: flex;
+            max-width: 31.4%;
+            flex: 1 1 31.4%;
+            flex-direction: column;
+            background: $background_secondary_color;
+            border-radius: 8px;
+            box-shadow: 3px 3px 4px 0px rgba(0, 0, 0, 0.16);
+            transition: filter 0.3s ease;
+
+            &:hover {
+                filter: brightness(1.05);
+
+                .window img {
+                    transform: scale(1.05) rotate(1deg);
+                    filter: brightness(1.1);
+                }
+            }
+
+            .window {
+                overflow: hidden;
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+            }
+
+            img {
+                display: block;
+                width: 100%;
+                aspect-ratio: 5 / 3;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+            }
+
+            .product-card-content {
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 20px;
+
+                h3 {
+                    font-size: 1.5rem;
+                    font-weight: bold;
+                }
+
+                .price {
+                    font-size: 1.2rem;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 750px) {
+    .product-list {
+        .product-card-container {
+            .product-card {
+                max-width: 47%;
+                flex: 1 1 47%;
+            }
+        }
+    }
+}
+
+@media (max-width: 450px) {
+    .product-list {
+        .product-card-container {
+            .product-card {
+                max-width: 100%;
+                flex: 1 1 100%;
+            }
+        }
+    }
+}

@@ -1,0 +1,40 @@
+@use './abstracts/variables' as *;
+@use './abstracts/mixins' as *;
+@use './base/reset';
+
+html,
+body {
+  scroll-behavior: smooth;
+}
+
+.wrap {
+  background-color: $background_tertiary_color;
+  font-family: $primary_font-family;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.index-main {
+  padding: 0 0 180px;
+}
+
+.form-main {
+  padding: 160px 0;
+  background: url("/images/banner/tablecloth.jpg") center / cover repeat fixed;
+}
+
+.products-main,
+.member-main,
+.help_center-main {
+  padding: 50px 10px 160px;
+}
+
+.member-main {
+  background: url("/images/banner/tablecloth.jpg") center / cover repeat fixed;
+}
+
+.loading,
+.noProduct {
+  font-size: 30px;
+  margin: 100px 0;
+  text-align: center;
+}

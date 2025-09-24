@@ -1,0 +1,78 @@
+{
+    "faqs": [
+        {
+            "title": "Product FAQ",
+            "icon": "<i class='bi bi-box-seam-fill'></i>",
+            "items": [
+                {
+                    "question": "What type of juice is your product?",
+                    "answer": "Our product is cold-pressed juice, made by slowly pressing fruits at low temperature using a hydraulic press to produce 100% pure juice."
+                },
+                {
+                    "question": "What are the features of your product?",
+                    "answer": "Made from fresh local fruits and processed at low temperatures to maximize the retention of vitamins, enzymes, and antioxidants."
+                },
+                {
+                    "question": "What is the shelf life of your product?",
+                    "answer": "Since it is not pasteurized, it must be refrigerated. The recommended consumption period is 13 to 30 days."
+                }
+            ]
+        },
+        {
+            "title": "Member FAQ",
+            "icon": "<i class='bi bi-person-arms-up'></i>",
+            "items": [
+                {
+                    "question": "How do I place an order?",
+                    "answer": "Log in or register as a member, then add the desired products to your shopping cart to place an order."
+                },
+                {
+                    "question": "What if I forget my member account (email)?",
+                    "answer": "Please contact our customer service center for assistance."
+                },
+                {
+                    "question": "What if I forget my password?",
+                    "answer": "On the login page, click 'Forgot Password', enter your registered email, and we will send a verification code. Enter the code to reset your password."
+                },
+                {
+                    "question": "How can I update my member information?",
+                    "answer": "For account or birthday changes: please contact customer service.\nFor name and phone number changes: log in to the member center → Personal Information → Edit your details."
+                }
+            ]
+        },
+        {
+            "title": "Shopping FAQ",
+            "icon": "<i class='bi bi-bag-check-fill'></i>",
+            "items": [
+                {
+                    "question": "Do you offer cash on delivery? What payment methods are available?",
+                    "answer": "Cash on delivery is not available. Payment methods include credit card, LINE PAY, JKPAY, PayPal, Google Pay, Apple Pay, and Samsung Pay."
+                },
+                {
+                    "question": "What are the delivery methods?",
+                    "answer": "We only offer refrigerated home delivery. Orders are prepared within 48 hours after payment, and shipped within one week. You can specify the delivery time."
+                },
+                {
+                    "question": "How can I check my order status?",
+                    "answer": "Log in to the member center to view the status of your orders."
+                },
+                {
+                    "question": "How is the shipping fee calculated?",
+                    "answer": "Orders over NT$1,000 qualify for free shipping; otherwise, a logistics fee of NT$80 will be charged."
+                },
+                {
+                    "question": "How long does it take to receive my order?",
+                    "answer": "Regular orders are shipped within 2-3 business days (no shipping on Sundays and public holidays)."
+                },
+                {
+                    "question": "Can I track my package?",
+                    "answer": "Log in to the member center to check the delivery status of your package."
+                },
+                {
+                    "question": "Do you deliver outside Taiwan?",
+                    "answer": "Yes, estimated delivery is 3-7 days, but actual time may vary due to weather and shipping schedules."
+                }
+            ]
+        }
+    ]
+}

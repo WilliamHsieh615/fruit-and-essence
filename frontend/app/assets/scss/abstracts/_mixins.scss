@@ -1,0 +1,21 @@
+// _mixins.scss
+@mixin banner($height, $image, $size, $repeat, $attachment) {
+    width: 100vw;
+    height: $height;
+    background: url($image);
+    background-position: center;
+    background-size: $size;
+    background-repeat: $repeat;
+    background-attachment: $attachment;
+    position: relative;
+
+    &::before {
+        position: absolute;
+        content: "";
+        background: url('/images/banner/Top-Curve.png') no-repeat center/cover;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 160px;
+    }
+}

@@ -1,0 +1,7 @@
+@use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
+
+.cart-list {
+    padding: 160px 50px;
+    background: url("/images/banner/curtain.jpg") no-repeat center/cover fixed;
+}

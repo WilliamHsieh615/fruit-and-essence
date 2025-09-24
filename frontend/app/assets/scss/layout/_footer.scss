@@ -1,0 +1,99 @@
+@use '../abstracts/variables' as *;
+
+footer {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    .content {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        background-color: $background_secondary_color;
+        padding: 50px;
+        line-height: 1.5;
+        gap: 20px;
+
+        .info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px 30px;
+
+            &>div {
+                display: flex;
+                flex-direction: column;
+                gap: 8px
+            }
+
+            h2 {
+                font-size: 30px;
+                font-weight: bold;
+            }
+
+            p {
+                font-size: 20px;
+            }
+        }
+
+        .map-wrapper {
+            // margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-left: auto;
+            align-self: flex-end;
+
+
+            h1 {
+                font-family: $logo_font-family;
+                font-size: 50px;
+                color: $tertiary_color;
+            }
+        }
+    }
+
+    .allRightsReserved {
+        background-color: $background_primary_color;
+        text-align: center;
+        padding: 30px 20px;
+    }
+
+    &::before {
+        position: absolute;
+        content: "";
+        background: url('/images/banner/Bottom-Curve.png') no-repeat center/cover;
+        top: 0;
+        left: 0;
+        right: 0;
+        transform: translateY(-100%);
+        height: 160px;
+    }
+}
+
+@media (max-width: 450px) {
+    footer {
+        .content {
+            .info {
+                h2 {
+                    font-size: 20px;
+                }
+
+                p {
+                    font-size: 16px;
+                }
+            }
+
+            .brand {
+                h1 {
+                    font-size: 40px;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,43 @@
+@use '../../abstracts/variables' as *;
+
+.feature {
+    background-color: $background_secondary_color;
+    padding: 50px 0;
+
+    ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+
+        li {
+            width: 350px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        img {
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        h3 {
+            font-size: 20px;
+            color: #FFFFFF;
+            background-color: $primary_color;
+            border-radius: 30px;
+            text-align: center;
+            padding: 20px;
+            position: absolute;
+            top: 55%;
+            left: 8%;
+            right: 8%;
+        }
+
+        p {
+            margin-top: 20px;
+            line-height: 1.5;
+            padding: 0 20px;
+        }
+    }
+}

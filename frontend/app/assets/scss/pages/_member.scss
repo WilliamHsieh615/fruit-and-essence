@@ -1,0 +1,10 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.banner {
+    @include banner(60vh,
+        "/images/banner/banner3.jpg",
+        cover,
+        repeat,
+        scroll);
+}

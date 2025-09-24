@@ -1,0 +1,41 @@
+@use '../../abstracts/variables' as *;
+
+.contact_support {
+    max-width: 1000px;
+    display: flex;
+    margin: 0 auto;
+
+    .map-wrapper {
+        width: 50%;
+    }
+
+    .info {
+        width: 50%;
+        background-color: $background_quaternary_color;
+        padding: 30px;
+        font-size: 1.2rem;
+        line-height: 1.5;
+
+        h2 {
+            color: $background_tertiary_color;
+            background-color: $quinary_color;
+            padding: 1rem 1.2rem;
+        }
+
+        p {
+            background-color: $background_tertiary_color;
+            padding: 1rem 1.2rem;
+        }
+    }
+}
+
+@media (max-width: 850px) {
+    .contact_support {
+        flex-direction: column;
+        .map-wrapper,
+        .info {
+            width: 100%;
+            padding: 10px;
+        }
+    }
+}

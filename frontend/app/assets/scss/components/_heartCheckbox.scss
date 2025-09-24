@@ -1,0 +1,90 @@
+.heart-checkbox {
+    position: absolute;
+    top: 5%;
+    right: 3%;
+}
+
+.heart-checkbox input {
+    display: none;
+}
+
+/* 愛心底層 */
+.heart-checkbox label {
+    cursor: pointer;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    transform: rotate(-45deg);
+    background-color: #ccc;
+    transition: background-color 0.3s ease-in-out;
+    margin: 10px;
+}
+
+/* 愛心兩個圓 */
+.heart-checkbox label::before,
+.heart-checkbox label::after {
+    content: "";
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #ccc;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/* 上方圓 */
+.heart-checkbox label::before {
+    top: -15px;
+    left: 0;
+}
+
+/* 右方圓 */
+.heart-checkbox label::after {
+    left: 15px;
+    top: 0;
+}
+
+/* 勾選後變紅色 */
+.heart-checkbox input:checked+label,
+.heart-checkbox input:checked+label::before,
+.heart-checkbox input:checked+label::after {
+    background-color: red;
+}
+
+/* 加跳動動畫 */
+.heart-checkbox input:checked+label {
+    animation: heartbeat 0.4s ease;
+}
+
+@keyframes heartbeat {
+    0% {
+        transform: scale(1) rotate(-45deg);
+    }
+
+    25% {
+        transform: scale(1.2) rotate(-45deg);
+    }
+
+    50% {
+        transform: scale(0.9) rotate(-45deg);
+    }
+
+    100% {
+        transform: scale(1) rotate(-45deg);
+    }
+}
+
+@media (max-width: 650px) {
+    .heart-checkbox {
+        top: 38%;
+        right: 8%;
+    }
+}
+
+@media (max-width: 450px) {
+    .heart-checkbox {
+        top: 30%;
+        right: 8%;
+    }
+}

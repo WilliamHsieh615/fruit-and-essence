@@ -1,0 +1,44 @@
+@use '../abstracts/variables' as *;
+
+.banner {
+    display: flex;
+    align-items: center;
+
+    .title {
+        color: $font_secondary_color;
+        text-shadow:
+            2px 2px 0 $tertiary_color,
+            -2px 2px 0 $tertiary_color,
+            2px -2px 0 $tertiary_color,
+            -2px -2px 0 $tertiary_color;
+        font-family: $banner_font-family;
+        padding: 0 30px;
+
+        h2 {
+            font-size: 50px;
+        }
+
+        p {
+            font-size: 30px;
+        }
+    }
+}
+
+@media (max-width: 550px) {
+    .banner {
+        justify-content: center;
+
+        .title {
+            padding: 0 10px;
+            text-align: center;
+
+            h2 {
+                font-size: 40px;
+            }
+
+            p {
+                font-size: 20px;
+            }
+        }
+    }
+}
