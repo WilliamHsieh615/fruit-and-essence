@@ -4,13 +4,17 @@ import com.williamhsieh.fruitandessence.dao.MemberDao;
 import com.williamhsieh.fruitandessence.dto.MemberLoginRequest;
 import com.williamhsieh.fruitandessence.dto.MemberRegisterRequest;
 import com.williamhsieh.fruitandessence.model.Member;
+import com.williamhsieh.fruitandessence.model.Role;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Component
 public class MemberServiceImpl implements MemberService {
@@ -20,6 +24,9 @@ public class MemberServiceImpl implements MemberService {
 
     @Autowired
     private MemberDao memberDao;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public Member getMemberById(Integer memberId) {
@@ -37,12 +44,18 @@ public class MemberServiceImpl implements MemberService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        // 使用 jBCrypt 生成密碼的雜湊值
-        String hashedPassword = BCrypt.hashpw(memberRegisterRequest.getPassword(), BCrypt.gensalt(12));
+        // 使用統一的 PasswordEncoder 進行加密
+        String hashedPassword = passwordEncoder.encode(memberRegisterRequest.getPassword());
         memberRegisterRequest.setPassword(hashedPassword);
 
+        Integer memberId = memberDao.createMember(memberRegisterRequest);
+
+        // 為 Member 添加預設的 Role
+        Role normalRole = memberDao.getRoleByName("ROLE_NORMAL_MEMBER");
+        memberDao.addRoleForMemberId(memberId, normalRole);
+
         // 創建帳號
-        return memberDao.createMember(memberRegisterRequest);
+        return memberId;
     }
 
     @Override
@@ -57,11 +70,57 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 比較密碼
-        if(BCrypt.checkpw(memberLoginRequest.getPassword(), member.getPassword())) {
+        if(passwordEncoder.matches(memberLoginRequest.getPassword(), member.getPassword())) {
             return member;
         }else{
             log.warn("{}, Wrong password!", memberLoginRequest.getEmail());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Override
+    public String subscribe(Integer memberId) {
+
+        List<Role> roleList = memberDao.getRolesByMemberId(memberId);
+
+        // 檢查訂閱狀態
+        boolean isSubscribed = checkSubscribeStatus(roleList);
+
+        if (isSubscribed) {
+            return "已訂閱過，不需重複訂閱";
+        } else {
+            Role vipRole = memberDao.getRoleByName("ROLE_VIP_MEMBER");
+            memberDao.addRoleForMemberId(memberId, vipRole);
+            return "訂閱成功！請刪除 Cookie 重新登入";
+        }
+    }
+
+    @Override
+    public String unsubscribe(Integer memberId) {
+
+        List<Role> roleList = memberDao.getRolesByMemberId(memberId);
+
+        // 檢查訂閱狀態
+        boolean isSubscribed = checkSubscribeStatus(roleList);
+
+        if (isSubscribed) {
+            Role vipRole = memberDao.getRoleByName("ROLE_VIP_MEMBER");
+            memberDao.removeRoleForMemberId(memberId, vipRole);
+            return "取消訂閱成功！請刪除 Cookie 重新登入";
+        } else {
+            return "尚未訂閱，無法執行取消訂閱操作";
+        }
+    }
+
+    private boolean checkSubscribeStatus(List<Role> roleList) {
+        boolean isSubscribed = false;
+
+        for (Role role : roleList) {
+            if (role.getRoleName().equals("ROLE_VIP_MEMBER")) {
+                isSubscribed = true;
+            }
+        }
+
+        return isSubscribed;
     }
 }

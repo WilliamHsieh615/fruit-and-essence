@@ -3,8 +3,10 @@ package com.williamhsieh.fruitandessence.dao;
 import com.williamhsieh.fruitandessence.dto.MemberRegisterRequest;
 import com.williamhsieh.fruitandessence.model.Member;
 import com.williamhsieh.fruitandessence.model.Product;
+import com.williamhsieh.fruitandessence.model.Role;
 import com.williamhsieh.fruitandessence.rowmapper.MemberRowMapper;
 import com.williamhsieh.fruitandessence.rowmapper.ProductRowMapper;
+import com.williamhsieh.fruitandessence.rowmapper.RoleRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -91,5 +93,59 @@ public class MemberDaoImpl implements MemberDao {
         int memberId = keyHolder.getKey().intValue();
 
         return memberId;
+    }
+
+    @Override
+    public List<Role> getRolesByMemberId(Integer memberId) {
+
+        String sql = """
+                SELECT role.role_id, role.role_name FROM role
+                JOIN member_has_role ON role.role_id = member_has_role.role_id
+                WHERE member_has_role.member_id = :memberId
+                """;
+        Map<String,Object> map = new HashMap<>();
+        map.put("memberId", memberId);
+
+        List<Role> roleList = namedParameterJdbcTemplate.query(sql, map, new RoleRowMapper());
+
+        return roleList;
+    }
+
+    @Override
+    public Role getRoleByName(String roleName) {
+        String sql = "SELECT role_id, role_name FROM role WHERE role_name = :roleName";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("roleName", roleName);
+
+        List<Role> roleList = namedParameterJdbcTemplate.query(sql, map, new RoleRowMapper());
+
+        if (roleList.isEmpty()) {
+            return null;
+        } else {
+            return roleList.get(0);
+        }
+    }
+
+    @Override
+    public void addRoleForMemberId(Integer memberId, Role role) {
+        String sql = "INSERT INTO member_has_role(member_id, role_id) VALUES (:memberId, :roleId)";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberId", memberId);
+        map.put("roleId", role.getRoleId());
+
+        namedParameterJdbcTemplate.update(sql, map);
+    }
+
+    @Override
+    public void removeRoleForMemberId(Integer memberId, Role role) {
+        String sql = "DELETE FROM member_has_role WHERE member_id = :memberId AND role_id = :roleId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberId", memberId);
+        map.put("roleId", role.getRoleId());
+
+        namedParameterJdbcTemplate.update(sql, map);
     }
 }

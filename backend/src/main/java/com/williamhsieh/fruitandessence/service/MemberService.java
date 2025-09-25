@@ -12,4 +12,8 @@ public interface MemberService {
 
     Member login(MemberLoginRequest memberLoginRequest);
 
+    String subscribe(Integer memberId);
+
+    String unsubscribe(Integer memberId);
+
 }

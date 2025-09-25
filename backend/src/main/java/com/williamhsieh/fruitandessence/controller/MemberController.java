@@ -2,16 +2,21 @@ package com.williamhsieh.fruitandessence.controller;
 
 import com.williamhsieh.fruitandessence.dto.MemberLoginRequest;
 import com.williamhsieh.fruitandessence.dto.MemberRegisterRequest;
+import com.williamhsieh.fruitandessence.dto.SubscribeRequest;
+import com.williamhsieh.fruitandessence.dto.UnsubscribeRequest;
 import com.williamhsieh.fruitandessence.model.Member;
 import com.williamhsieh.fruitandessence.service.MemberService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collection;
 
 @RestController
 public class MemberController {
@@ -34,6 +39,27 @@ public class MemberController {
         Member member = memberService.login(memberLoginRequest);
 
         return ResponseEntity.status(HttpStatus.OK).body(member);
+
+    }
+
+//    @PostMapping("/members/verify")
+//    @PostMapping("/members/retrieve")
+
+    @PostMapping("/members/subscribe")
+    public ResponseEntity<String> subscribe(@RequestBody SubscribeRequest subscribeRequest) {
+
+        String result = memberService.subscribe(subscribeRequest.getMemberId());
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+
+    }
+
+    @PostMapping("/members/unsubscribe")
+    public ResponseEntity<String> unsubscribe(@RequestBody UnsubscribeRequest unsubscribeRequest) {
+
+        String result = memberService.unsubscribe(unsubscribeRequest.getMemberId());
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
 
     }
 

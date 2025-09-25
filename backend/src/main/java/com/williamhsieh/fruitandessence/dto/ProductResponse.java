@@ -23,6 +23,7 @@ public class ProductResponse {
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
     private Integer totalPrice;
+//    private Integer discountedPrice;
 
     public ProductResponse(Product product) {
         this.productId = product.getProductId();
