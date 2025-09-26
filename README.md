@@ -1,6 +1,5 @@
 # Fruit & Essence
 
-    ```sql
     
     -- product table
     CREATE TABLE product (
