@@ -1,5 +1,7 @@
 # Fruit & Essence
 
+![資料表關聯圖](https://github.com/WilliamHsieh615/fruit-and-essence/blob/main/demo/%E8%B3%87%E6%96%99%E8%A1%A8%E9%97%9C%E8%81%AF%E5%9C%96.png?raw=true)
+
     -- member table
     CREATE TABLE member (
         member_id              INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
