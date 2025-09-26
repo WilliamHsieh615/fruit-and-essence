@@ -1,5 +1,31 @@
 # Fruit & Essence
 
+    -- member table
+    CREATE TABLE member (
+        member_id          INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        email              varchar(256) NOT NULL UNIQUE,
+        password           varchar(256) NOT NULL,
+        name               varchar(100) NOT NULL,
+        phone              varchar(20)  NOT NULL,
+        birthday           date         NOT NULL,
+        created_date       TIMESTAMP    NOT NULL,
+        last_modified_date TIMESTAMP    NOT NULL
+    );
+
+    -- role table
+    CREATE TABLE role (
+        role_id   INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        role_name VARCHAR(256) NOT NULL UNIQUE
+    );
+
+    -- member_has_role table
+    CREATE TABLE member_has_role (
+        member_id          INT NOT NULL,
+        role_id            INT NOT NULL,
+        PRIMARY KEY (member_id, role_id),
+        FOREIGN KEY (member_id) REFERENCES member(member_id),
+        FOREIGN KEY (role_id) REFERENCES role(role_id)
+    );
     
     -- product table
     CREATE TABLE product (
