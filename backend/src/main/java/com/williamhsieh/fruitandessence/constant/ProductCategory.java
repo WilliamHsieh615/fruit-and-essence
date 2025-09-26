@@ -2,10 +2,9 @@ package com.williamhsieh.fruitandessence.constant;
 
 public enum ProductCategory {
 
-    CITRUS, // 柑橘類
-    BERRY, // 漿果類
-    STONE_FRUIT, // 核果類
-    POME, // 仁果類
-    MELON, // 瓜類
-    TROPICAL, // 熱帶水果
+    REFRESHING, // 清爽消暑
+    SWEET_AND_FRUITY, // 甜美水果
+    SUPERFOODS, // 超級食物，莓果抗氧化
+    HEALTHY_VEGGIES, // 健康蔬果
+    WELLNESS_AND_HERBAL, // 養生養顏
 }

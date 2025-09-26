@@ -1,6 +1,5 @@
 package com.williamhsieh.fruitandessence.dto;
 
-import com.williamhsieh.fruitandessence.constant.ProductUnitType;
 import com.williamhsieh.fruitandessence.model.Product;
 import com.fasterxml.jackson.annotation.JsonInclude;
 

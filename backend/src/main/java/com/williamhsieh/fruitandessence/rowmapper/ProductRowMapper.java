@@ -1,7 +1,6 @@
 package com.williamhsieh.fruitandessence.rowmapper;
 
 import com.williamhsieh.fruitandessence.constant.ProductCategory;
-import com.williamhsieh.fruitandessence.constant.ProductUnitType;
 import com.williamhsieh.fruitandessence.model.Product;
 import org.springframework.jdbc.core.RowMapper;
 

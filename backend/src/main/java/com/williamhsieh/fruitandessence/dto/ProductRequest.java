@@ -1,9 +1,7 @@
 package com.williamhsieh.fruitandessence.dto;
 
 import com.williamhsieh.fruitandessence.constant.ProductCategory;
-import com.williamhsieh.fruitandessence.constant.ProductUnitType;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 public class ProductRequest {
 

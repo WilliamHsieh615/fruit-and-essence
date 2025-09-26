@@ -1,7 +1,6 @@
 package com.williamhsieh.fruitandessence.controller;
 
 import com.williamhsieh.fruitandessence.constant.ProductCategory;
-import com.williamhsieh.fruitandessence.constant.ProductUnitType;
 import com.williamhsieh.fruitandessence.dto.ProductQueryParams;
 import com.williamhsieh.fruitandessence.dto.ProductRequest;
 import com.williamhsieh.fruitandessence.dto.ProductResponse;
@@ -10,7 +9,6 @@ import com.williamhsieh.fruitandessence.util.Page;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import org.hibernate.validator.internal.constraintvalidators.bv.time.pastorpresent.PastOrPresentValidatorForOffsetTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
