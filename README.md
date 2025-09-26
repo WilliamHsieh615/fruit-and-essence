@@ -2,8 +2,7 @@
 
 
 
-  
-  ```sql
+    ```sql
     -- product table
     CREATE TABLE product (
         product_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
