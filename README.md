@@ -46,7 +46,7 @@
         discount_price         DECIMAL(10,2),
         unit                   VARCHAR(50),
         stock                  INT DEFAULT 0,
-        sku V                  ARCHAR(100) UNIQUE,
+        sku                    VARCHAR(100) UNIQUE,
         barcode                VARCHAR(100),
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
