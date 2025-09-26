@@ -3,8 +3,7 @@
 
 
   
-  ```
-  sql
+  ```sql
     -- product table
     CREATE TABLE product (
         product_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -26,5 +25,37 @@
         stock INT DEFAULT 0,
         sku VARCHAR(100) UNIQUE,
         barcode VARCHAR(100),
+        FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
+    );
+
+    -- product_nutrition_facts table
+    CREATE TABLE product_nutrition_facts (
+        product_nutrition_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        product_id INT NOT NULL,
+        serving_size VARCHAR(50),
+        calories INT,
+        protein DECIMAL(10,2),
+        fat DECIMAL(10,2),
+        carbohydrates DECIMAL(10,2),
+        sugar DECIMAL(10,2),
+        fiber DECIMAL(10,2),
+        sodium DECIMAL(10,2),
+        vitaminC DECIMAL(10,2),
+        FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
+    );
+
+    -- product_ingredient table
+    CREATE TABLE product_ingredient (
+        product_ingredient_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        product_id INT NOT NULL,
+        ingredient_name VARCHAR(100) NOT NULL,
+        FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
+    );
+
+    -- product_images table
+    CREATE TABLE product_images (
+        product_image_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        product_id INT NOT NULL,
+        image_url VARCHAR(255) NOT NULL,
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
