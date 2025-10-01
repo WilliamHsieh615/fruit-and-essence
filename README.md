@@ -47,7 +47,6 @@
         price                  DECIMAL(10,2) NOT NULL,
         discount_price         DECIMAL(10,2),
         unit                   VARCHAR(50),
-        stock                  INT DEFAULT 0,
         sku                    VARCHAR(100) UNIQUE,
         barcode                VARCHAR(100),
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
@@ -83,6 +82,18 @@
         product_id             INT           NOT NULL,
         image_url              VARCHAR(255)  NOT NULL,
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
+    );
+
+    -- stock_history table
+    CREATE TABLE stock_history (
+        stock_history_id       INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        product_variant_id     INT           NOT NULL,
+        change_amount          INT           NOT NULL,
+        stock_after            INT           NOT NULL,
+        reason ENUM('ORDER', 'RETURN', 'MANUAL_ADJUST') NOT NULL,
+        created_date           TIMESTAMP     NOT NULL,
+        last_modified_date     TIMESTAMP     NOT NULL,
+        FOREIGN KEY (product_variant_id) REFERENCES product_variant(product_variant_id)
     );
 
     -- orders table
