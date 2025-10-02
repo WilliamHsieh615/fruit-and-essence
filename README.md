@@ -90,7 +90,7 @@
         product_variant_id     INT           NOT NULL,
         change_amount          INT           NOT NULL,
         stock_after            INT           NOT NULL,
-        reason ENUM('ORDER', 'RETURN', 'MANUAL_ADJUST') NOT NULL,
+        reason ENUM('ORDER', 'RETURN', 'PURCHASE', 'DAMAGE', 'PROMOTION', 'MANUAL_ADJUST') NOT NULL,
         created_date           TIMESTAMP     NOT NULL,
         last_modified_date     TIMESTAMP     NOT NULL,
         FOREIGN KEY (product_variant_id) REFERENCES product_variant(product_variant_id)
