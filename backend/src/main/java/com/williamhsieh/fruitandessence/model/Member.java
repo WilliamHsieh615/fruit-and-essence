@@ -11,7 +11,7 @@ public class Member {
     private Integer memberId;
 
     // 客制化 JSON key 值
-    @JsonProperty("userName")
+    @JsonProperty("account")
     private String email;
 
     // 忽略密碼，不要回傳給前端

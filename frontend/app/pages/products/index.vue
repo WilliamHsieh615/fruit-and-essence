@@ -97,28 +97,24 @@ const productMenu = reactive([
         action: () => filterByCategory(""),
     },
     {
-        label: "POME",
-        action: () => filterByCategory("POME"),
+        label: "REFRESHING",
+        action: () => filterByCategory("REFRESHING"),
     },
     {
-        label: "TROPICAL",
-        action: () => filterByCategory("TROPICAL"),
+        label: "SWEET & FRUITY",
+        action: () => filterByCategory("SWEET & FRUITY"),
     },
     {
-        label: "BERRY",
-        action: () => filterByCategory("BERRY"),
+        label: "SUPERFOODS",
+        action: () => filterByCategory("SUPERFOODS"),
     },
     {
-        label: "CITRUS",
-        action: () => filterByCategory("CITRUS"),
+        label: "HEALTHY VEGGIES",
+        action: () => filterByCategory("HEALTHY VEGGIES"),
     },
     {
-        label: "MELON",
-        action: () => filterByCategory("MELON"),
-    },
-    {
-        label: "STONE FRUIT",
-        action: () => filterByCategory("STONE_FRUIT"),
+        label: "WELLNESS & HERBAL",
+        action: () => filterByCategory("WELLNESS & HERBAL"),
     }
 ])
 

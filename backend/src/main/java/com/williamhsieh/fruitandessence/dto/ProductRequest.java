@@ -1,36 +1,33 @@
 package com.williamhsieh.fruitandessence.dto;
 
 import com.williamhsieh.fruitandessence.constant.ProductCategory;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+
+import java.util.List;
 
 public class ProductRequest {
 
-    @NotNull
+    @NotBlank
     private String productName;
 
     @NotNull
-    private ProductCategory category;
+    private ProductCategory productCategory;
+
+    @NotEmpty
+    private List<String> productImages;
+
+    @NotEmpty
+    private List<ProductVariantRequest> productVariants;
+
+    @NotEmpty
+    private List<String> productIngredients;
 
     @NotNull
-    private String imageUrl;
+    private ProductNutritionFactsRequest productNutritionFacts;
 
-    @NotNull
-    private Double stock; // 庫存量
-
-    @NotNull
-    private Integer pricePerUnit; // 每單位價格
-
-    @NotNull
-    private String unit; // 單位
-
-    @NotNull
-    private ProductUnitType unitType; // WEIGHT 或 COUNT
-
-    private Double weight;     // 購買重量
-    private Integer count; // 購買數量
-
-    @NotNull
-    private String description;
+    private String productDescription;
 
     public String getProductName() {
         return productName;
@@ -40,75 +37,51 @@ public class ProductRequest {
         this.productName = productName;
     }
 
-    public ProductCategory getCategory() {
-        return category;
+    public ProductCategory getProductCategory() {
+        return productCategory;
     }
 
-    public void setCategory(ProductCategory category) {
-        this.category = category;
+    public void setProductCategory(ProductCategory productCategory) {
+        this.productCategory = productCategory;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public List<String> getProductImages() {
+        return productImages;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setProductImages(List<String> productImages) {
+        this.productImages = productImages;
     }
 
-    public Double getStock() {
-        return stock;
+    public List<ProductVariantRequest> getProductVariants() {
+        return productVariants;
     }
 
-    public void setStock(Double stock) {
-        this.stock = stock;
+    public void setProductVariants(List<ProductVariantRequest> productVariants) {
+        this.productVariants = productVariants;
     }
 
-    public Integer getPricePerUnit() {
-        return pricePerUnit;
+    public List<String> getProductIngredients() {
+        return productIngredients;
     }
 
-    public void setPricePerUnit(Integer pricePerUnit) {
-        this.pricePerUnit = pricePerUnit;
+    public void setProductIngredients(List<String> productIngredients) {
+        this.productIngredients = productIngredients;
     }
 
-    public String getUnit() {
-        return unit;
+    public ProductNutritionFactsRequest getProductNutritionFacts() {
+        return productNutritionFacts;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
+    public void setProductNutritionFacts(ProductNutritionFactsRequest productNutritionFacts) {
+        this.productNutritionFacts = productNutritionFacts;
     }
 
-    public ProductUnitType getUnitType() {
-        return unitType;
+    public String getProductDescription() {
+        return productDescription;
     }
 
-    public void setUnitType(ProductUnitType unitType) {
-        this.unitType = unitType;
-    }
-
-    public Double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Double weight) {
-        this.weight = weight;
-    }
-
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(Integer count) {
-        this.count = count;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
     }
 }

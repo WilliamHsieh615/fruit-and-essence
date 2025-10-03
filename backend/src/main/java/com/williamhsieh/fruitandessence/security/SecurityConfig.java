@@ -27,7 +27,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
 
         return http
                 .csrf(csrf -> csrf.disable())
@@ -36,10 +36,11 @@ public class SecurityConfig {
                         .configurationSource(createCorsConfig())
                 )
 
-                .addFilterBefore(new LoginTimeFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new LoginTimeFilter(), JwtAuthenticationFilter.class)
 
-                .httpBasic(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(formLogin -> formLogin.disable())
 
                 .authorizeHttpRequests(request -> request
 
@@ -84,3 +85,10 @@ public class SecurityConfig {
     }
 
 }
+
+/*
+接下來的注意事項（必讀，3 件事）
+將 SECRET 改為環境變數（或 application.yml），切勿把真實金鑰硬寫到程式碼。
+本機開發測試 cookie：若你在 http://localhost:3000 測試，CookieUtil.COOKIE_SECURE_FOR_PRODUCTION 或 createTokenCookie(..., secure) 要設 false，否則瀏覽器不會設定 cookie。
+確保你的 Role 類有 getRoleName()（或改成你實際 getter 名稱），memberDao.getRolesByMemberId() 能回傳 List<Role>。
+ */

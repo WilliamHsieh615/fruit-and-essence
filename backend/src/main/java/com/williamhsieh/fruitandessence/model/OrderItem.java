@@ -1,13 +1,16 @@
 package com.williamhsieh.fruitandessence.model;
 
+import java.math.BigDecimal;
+
 public class OrderItem {
 
     private Integer orderItemId;
     private Integer orderId;
     private Integer productId;
-    private Integer purchasedCount;
-    private Double purchasedWeight;
-    private Integer amount;
+    private Integer productVariantId;
+    private Integer quantity;
+    private BigDecimal price;
+    private BigDecimal itemTotal;
 
     public Integer getOrderItemId() {
         return orderItemId;
@@ -33,27 +36,35 @@ public class OrderItem {
         this.productId = productId;
     }
 
-    public Integer getPurchasedCount() {
-        return purchasedCount;
+    public Integer getProductVariantId() {
+        return productVariantId;
     }
 
-    public void setPurchasedCount(Integer purchasedCount) {
-        this.purchasedCount = purchasedCount;
+    public void setProductVariantId(Integer productVariantId) {
+        this.productVariantId = productVariantId;
     }
 
-    public Double getPurchasedWeight() {
-        return purchasedWeight;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setPurchasedWeight(Double purchasedWeight) {
-        this.purchasedWeight = purchasedWeight;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
-    public Integer getAmount() {
-        return amount;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setAmount(Integer amount) {
-        this.amount = amount;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public BigDecimal getItemTotal() {
+        return itemTotal;
+    }
+
+    public void setItemTotal(BigDecimal itemTotal) {
+        this.itemTotal = itemTotal;
     }
 }

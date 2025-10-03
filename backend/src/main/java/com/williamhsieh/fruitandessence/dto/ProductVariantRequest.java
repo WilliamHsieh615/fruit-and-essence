@@ -1,21 +1,32 @@
-package com.williamhsieh.fruitandessence.model;
+package com.williamhsieh.fruitandessence.dto;
 
 import com.williamhsieh.fruitandessence.constant.ProductSize;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
-import java.util.List;
 
-public class ProductVariant {
+public class ProductVariantRequest {
 
     private Integer productVariantId;
-    private Integer productId;
-    private ProductSize productSize; // 規格
-    private BigDecimal price; // 價格
-    private BigDecimal discountPrice; // 折扣後價格
-    private String unit; // 單位
+
+    @NotNull
+    private ProductSize productSize;
+
+    @NotNull
+    private BigDecimal price;
+
+    private BigDecimal discountPrice;
+
+    private String unit;
+
+    @Min(0)
+    private Integer stock;
+
     private String sku;
+
     private String barcode;
-    private List<StockHistory> stockHistoryList;
 
     public Integer getProductVariantId() {
         return productVariantId;
@@ -23,14 +34,6 @@ public class ProductVariant {
 
     public void setProductVariantId(Integer productVariantId) {
         this.productVariantId = productVariantId;
-    }
-
-    public Integer getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Integer productId) {
-        this.productId = productId;
     }
 
     public ProductSize getProductSize() {
@@ -65,6 +68,14 @@ public class ProductVariant {
         this.unit = unit;
     }
 
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
     public String getSku() {
         return sku;
     }
@@ -79,13 +90,5 @@ public class ProductVariant {
 
     public void setBarcode(String barcode) {
         this.barcode = barcode;
-    }
-
-    public List<StockHistory> getStockHistoryList() {
-        return stockHistoryList;
-    }
-
-    public void setStockHistoryList(List<StockHistory> stockHistoryList) {
-        this.stockHistoryList = stockHistoryList;
     }
 }

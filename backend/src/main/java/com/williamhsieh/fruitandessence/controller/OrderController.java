@@ -4,7 +4,7 @@ import com.williamhsieh.fruitandessence.dto.CreatedOrderRequest;
 import com.williamhsieh.fruitandessence.dto.OrderQueryParams;
 import com.williamhsieh.fruitandessence.model.Order;
 import com.williamhsieh.fruitandessence.service.OrderService;
-import com.williamhsieh.fruitandessence.util.Page;
+import com.williamhsieh.fruitandessence.util.PageUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -24,7 +24,7 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping("/members/{memberId}/orders")
-    public ResponseEntity<Page<Order>> getOrders(
+    public ResponseEntity<PageUtil<Order>> getOrders(
             @PathVariable Integer memberId,
             @RequestParam(defaultValue = "10") @Max(1000) @Min(0) Integer limit,
             @RequestParam(defaultValue = "0") @Min(0) Integer offset
@@ -43,13 +43,13 @@ public class OrderController {
         Integer count = orderService.countOrder(orderQueryParams);
 
         // 分頁
-        Page<Order> page = new Page<>();
-        page.setLimit(limit);
-        page.setOffset(offset);
-        page.setTotal(count);
-        page.setResults(orderList);
+        PageUtil<Order> pageUtil = new PageUtil<>();
+        pageUtil.setLimit(limit);
+        pageUtil.setOffset(offset);
+        pageUtil.setTotal(count);
+        pageUtil.setResults(orderList);
 
-        return ResponseEntity.status(HttpStatus.OK).body(page);
+        return ResponseEntity.status(HttpStatus.OK).body(pageUtil);
 
     }
 

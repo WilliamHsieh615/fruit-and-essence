@@ -5,7 +5,7 @@ import com.williamhsieh.fruitandessence.dto.ProductQueryParams;
 import com.williamhsieh.fruitandessence.dto.ProductRequest;
 import com.williamhsieh.fruitandessence.dto.ProductResponse;
 import com.williamhsieh.fruitandessence.service.ProductService;
-import com.williamhsieh.fruitandessence.util.Page;
+import com.williamhsieh.fruitandessence.util.PageUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -25,7 +25,7 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/products")
-    public ResponseEntity<Page<ProductResponse>> getProducts(
+    public ResponseEntity<PageUtil<ProductResponse>> getProducts(
 
             // 查詢條件 Filtering
             @RequestParam(required = false) ProductCategory category,
@@ -56,13 +56,13 @@ public class ProductController {
         Integer total = productService.countProduct(productQueryParams);
 
         // 分頁
-        Page<ProductResponse> page = new Page<>();
-        page.setLimit(limit);
-        page.setOffset(offset);
-        page.setTotal(total);
-        page.setResults(productList);
+        PageUtil<ProductResponse> pageUtil = new PageUtil<>();
+        pageUtil.setLimit(limit);
+        pageUtil.setOffset(offset);
+        pageUtil.setTotal(total);
+        pageUtil.setResults(productList);
 
-        return ResponseEntity.status(HttpStatus.OK).body(page);
+        return ResponseEntity.status(HttpStatus.OK).body(pageUtil);
     }
 
     @GetMapping("/products/{productId}")
@@ -78,28 +78,6 @@ public class ProductController {
 
     @PostMapping("/products")
     public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid ProductRequest productRequest) {
-
-        // 預設 unit
-        if (productRequest.getUnit() == null) {
-            productRequest.setUnit(
-                    productRequest.getUnitType() == ProductUnitType.WEIGHT ? "kg" : "piece"
-            );
-        }
-
-        // weight / count 互斥
-        if (productRequest.getUnitType() == ProductUnitType.WEIGHT) {
-            if (productRequest.getWeight() == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(null);
-            }
-            productRequest.setCount(null); // 清掉不必要欄位
-        } else {
-            if (productRequest.getCount() == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(null);
-            }
-            productRequest.setWeight(null); // 清掉不必要欄位
-        }
 
         Integer productId = productService.createProduct(productRequest);
         ProductResponse product = productService.getProductById(productId);

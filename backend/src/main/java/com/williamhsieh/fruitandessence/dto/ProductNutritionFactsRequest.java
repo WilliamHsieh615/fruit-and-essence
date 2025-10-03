@@ -1,11 +1,9 @@
-package com.williamhsieh.fruitandessence.model;
+package com.williamhsieh.fruitandessence.dto;
 
 import java.math.BigDecimal;
 
-public class ProductNutritionFacts {
+public class ProductNutritionFactsRequest {
 
-    private Integer productNutritionId;
-    private Integer productId;
     private String servingSize; // 份量大小，用於「每份含」
     private Integer calories; // 熱量 (kcal)
     private BigDecimal protein; // 蛋白質 (克, g)
@@ -15,22 +13,6 @@ public class ProductNutritionFacts {
     private BigDecimal fiber; // 纖維 (克, g)
     private BigDecimal sodium; // 鈉含量 (毫克, mg)
     private BigDecimal vitaminC; // 維生素 C 含量 (毫克, mg)
-
-    public Integer getProductNutritionId() {
-        return productNutritionId;
-    }
-
-    public void setProductNutritionId(Integer productNutritionId) {
-        this.productNutritionId = productNutritionId;
-    }
-
-    public Integer getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Integer productId) {
-        this.productId = productId;
-    }
 
     public String getServingSize() {
         return servingSize;

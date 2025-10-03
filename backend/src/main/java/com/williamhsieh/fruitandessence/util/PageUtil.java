@@ -2,7 +2,7 @@ package com.williamhsieh.fruitandessence.util;
 
 import java.util.List;
 
-public class Page<T> {
+public class PageUtil<T> {
 
     private Integer limit;
     private Integer offset;

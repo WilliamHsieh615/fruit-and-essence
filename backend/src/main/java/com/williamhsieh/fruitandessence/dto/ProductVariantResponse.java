@@ -1,21 +1,21 @@
-package com.williamhsieh.fruitandessence.model;
+package com.williamhsieh.fruitandessence.dto;
 
 import com.williamhsieh.fruitandessence.constant.ProductSize;
 
 import java.math.BigDecimal;
-import java.util.List;
 
-public class ProductVariant {
+public class ProductVariantResponse {
 
     private Integer productVariantId;
-    private Integer productId;
-    private ProductSize productSize; // 規格
-    private BigDecimal price; // 價格
-    private BigDecimal discountPrice; // 折扣後價格
-    private String unit; // 單位
+    private ProductSize productSize;
+    private BigDecimal price;
+    private BigDecimal discountPrice;
+    private String unit;
     private String sku;
     private String barcode;
-    private List<StockHistory> stockHistoryList;
+
+    private Integer stock; // 取 stockHistoryList 的最後一筆 stockAfter
+    private ProductNutritionFactsResponse nutritionFacts;
 
     public Integer getProductVariantId() {
         return productVariantId;
@@ -23,14 +23,6 @@ public class ProductVariant {
 
     public void setProductVariantId(Integer productVariantId) {
         this.productVariantId = productVariantId;
-    }
-
-    public Integer getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Integer productId) {
-        this.productId = productId;
     }
 
     public ProductSize getProductSize() {
@@ -65,6 +57,14 @@ public class ProductVariant {
         this.unit = unit;
     }
 
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
     public String getSku() {
         return sku;
     }
@@ -81,11 +81,11 @@ public class ProductVariant {
         this.barcode = barcode;
     }
 
-    public List<StockHistory> getStockHistoryList() {
-        return stockHistoryList;
+    public ProductNutritionFactsResponse getNutritionFacts() {
+        return nutritionFacts;
     }
 
-    public void setStockHistoryList(List<StockHistory> stockHistoryList) {
-        this.stockHistoryList = stockHistoryList;
+    public void setNutritionFacts(ProductNutritionFactsResponse nutritionFacts) {
+        this.nutritionFacts = nutritionFacts;
     }
 }

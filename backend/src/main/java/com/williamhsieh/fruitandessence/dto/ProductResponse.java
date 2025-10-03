@@ -1,108 +1,94 @@
 package com.williamhsieh.fruitandessence.dto;
 
-import com.williamhsieh.fruitandessence.model.Product;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.williamhsieh.fruitandessence.constant.ProductCategory;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductResponse {
 
     private Integer productId;
     private String productName;
-    private String category;
-    private String imageUrl;
-    private Double stock;
-    private Integer pricePerUnit;
-    private String unit;
-    private ProductUnitType unitType;
-    private Double weight;      // 只有 WEIGHT 類型才會有值
-    private Integer count;   // 只有 COUNT 類型才會有值
-    private String description;
+    private ProductCategory productCategory;
+    private List<String> productImages;
+    private List<ProductVariantResponse> productVariants;
+    private List<String> productIngredients;
+    private String productDescription;
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
-    private Integer totalPrice;
-//    private Integer discountedPrice;
 
-    public ProductResponse(Product product) {
-        this.productId = product.getProductId();
-        this.productName = product.getProductName();
-        this.category = product.getCategory().name();
-        this.imageUrl = product.getImageUrl();
-        this.stock = product.getStock();
-        this.pricePerUnit = product.getPricePerUnit();
-        this.unit = product.getUnit();
-        this.unitType = product.getUnitType();
-        this.description = product.getDescription();
-        this.totalPrice = product.getTotalPrice();
-
-        // 根據 unitType 判斷要回傳哪個欄位
-        if (unitType == ProductUnitType.WEIGHT) {
-            this.weight = product.getWeight();
-        }
-        if (unitType == ProductUnitType.COUNT) {
-            this.count = product.getCount();
-        }
-
-        this.createdDate = product.getCreatedDate();
-        this.lastModifiedDate = product.getLastModifiedDate();
-    }
-
-    // getters
     public Integer getProductId() {
         return productId;
+    }
+
+    public void setProductId(Integer productId) {
+        this.productId = productId;
     }
 
     public String getProductName() {
         return productName;
     }
 
-    public String getCategory() {
-        return category;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public ProductCategory getProductCategory() {
+        return productCategory;
     }
 
-    public Double getStock() {
-        return stock;
+    public void setProductCategory(ProductCategory productCategory) {
+        this.productCategory = productCategory;
     }
 
-    public Integer getPricePerUnit() {
-        return pricePerUnit;
+    public List<String> getProductImages() {
+        return productImages;
     }
 
-    public String getUnit() {
-        return unit;
+    public void setProductImages(List<String> productImages) {
+        this.productImages = productImages;
     }
 
-    public ProductUnitType getUnitType() {
-        return unitType;
+    public List<ProductVariantResponse> getProductVariants() {
+        return productVariants;
     }
 
-    public Double getWeight() {
-        return weight;
+    public void setProductVariants(List<ProductVariantResponse> productVariants) {
+        this.productVariants = productVariants;
     }
 
-    public Integer getCount() {
-        return count;
+    public List<String> getProductIngredients() {
+        return productIngredients;
     }
 
-    public String getDescription() {
-        return description;
+    public void setProductIngredients(List<String> productIngredients) {
+        this.productIngredients = productIngredients;
+    }
+
+    public String getProductDescription() {
+        return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
     }
 
     public LocalDateTime getCreatedDate() {
         return createdDate;
     }
 
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
     public LocalDateTime getLastModifiedDate() {
         return lastModifiedDate;
     }
 
-    public Integer getTotalPrice() {
-        return totalPrice;
+    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 }
 

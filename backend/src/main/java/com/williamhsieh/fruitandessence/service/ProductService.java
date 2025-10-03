@@ -1,10 +1,9 @@
 package com.williamhsieh.fruitandessence.service;
 
-import com.williamhsieh.fruitandessence.dto.ProductQueryParams;
-import com.williamhsieh.fruitandessence.dto.ProductRequest;
-import com.williamhsieh.fruitandessence.dto.ProductResponse;
+import com.williamhsieh.fruitandessence.dto.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProductService {
 
@@ -14,7 +13,15 @@ public interface ProductService {
 
     ProductResponse getProductById(Integer productId);
 
+    Map<Integer, List<StockHistoryResponse>> getStockHistory(List<Integer> productVariantIds);
+
     Integer createProduct(ProductRequest productRequest);
+
+    StockHistoryResponse increaseStock(StockHistoryRequest request);
+
+    StockHistoryResponse decreaseStock(StockHistoryRequest request);
+
+    StockHistoryResponse adjustStock(StockHistoryRequest request);
 
     void updateProduct(Integer productId, ProductRequest productRequest);
 
