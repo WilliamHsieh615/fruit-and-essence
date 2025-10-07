@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
 
                         // 公開 API
-                        .requestMatchers("/members/register", "/members/login", "/members/verify", "/members/retrieve").permitAll()
+                        .requestMatchers("/members/register", "/members/login", "/members/forgot-password", "/members/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products").permitAll()
 
                         // 管理員專屬操作
@@ -54,10 +54,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/products/{productId}").hasRole("ADMIN")
 
                         // 登入用戶專屬操作
-                        .requestMatchers(HttpMethod.GET, "/members/profile").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/members/profile").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/members/{memberId}/orders").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/members/{memberId}/orders").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/members/{memberId}/orders", "/members/{memberId}", "/members/{memberId}/subscriptions").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/members/{memberId}/orders", "/members/logout").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/members/{memberId}/change-password", "/members/{memberId}", "/members/{memberId}/subscriptions").authenticated()
 
                         // 其餘通用路徑
                         .requestMatchers("/members/**", "/products/**").permitAll()

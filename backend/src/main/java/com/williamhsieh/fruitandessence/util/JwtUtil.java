@@ -66,4 +66,16 @@ public class JwtUtil {
         return claims.getExpiration().before(new Date());
     }
 
+
+    public static String generateResetPasswordToken(String email) {
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + 1000 * 60 * 15); // 15分鐘有效
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(exp)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
 }

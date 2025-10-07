@@ -27,14 +27,3 @@ public class LoginTimeFilter extends OncePerRequestFilter {
     }
 }
 
-/* 之後再把登入紀錄寫入資料庫
-CREATE TABLE login_history (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    member_id INT NOT NULL,
-    login_time TIMESTAMP NOT NULL,
-    user_agent VARCHAR(255),
-    ip_address VARCHAR(50),
-    success BOOLEAN NOT NULL,
-    FOREIGN KEY (member_id) REFERENCES member(id)
-); */
-

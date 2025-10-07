@@ -1,18 +1,24 @@
-package com.williamhsieh.fruitandessence.model;
+package com.williamhsieh.fruitandessence.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Member {
+public class MemberResponse {
 
     private Integer memberId;
     private String email;
+
+    // 忽略密碼，不要回傳給前端
+    @JsonIgnore
     private String password;
+
     private String name;
     private String phone;
     private LocalDate birthday;
-    private List<MemberSubscription> memberSubscriptions;
+    private List<MemberSubscriptionResponse> memberSubscriptionResponses;
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
 
@@ -64,12 +70,12 @@ public class Member {
         this.birthday = birthday;
     }
 
-    public List<MemberSubscription> getMemberSubscriptions() {
-        return memberSubscriptions;
+    public List<MemberSubscriptionResponse> getMemberSubscriptionResponses() {
+        return memberSubscriptionResponses;
     }
 
-    public void setMemberSubscriptions(List<MemberSubscription> memberSubscriptions) {
-        this.memberSubscriptions = memberSubscriptions;
+    public void setMemberSubscriptionResponses(List<MemberSubscriptionResponse> memberSubscriptionResponses) {
+        this.memberSubscriptionResponses = memberSubscriptionResponses;
     }
 
     public LocalDateTime getCreatedDate() {

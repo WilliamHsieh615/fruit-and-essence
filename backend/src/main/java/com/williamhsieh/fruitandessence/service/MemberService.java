@@ -1,19 +1,32 @@
 package com.williamhsieh.fruitandessence.service;
 
-import com.williamhsieh.fruitandessence.dto.MemberLoginRequest;
-import com.williamhsieh.fruitandessence.dto.MemberRegisterRequest;
+import com.williamhsieh.fruitandessence.dto.*;
 import com.williamhsieh.fruitandessence.model.Member;
+import com.williamhsieh.fruitandessence.model.MemberSubscription;
+import com.williamhsieh.fruitandessence.model.Role;
+
+import java.util.List;
 
 public interface MemberService {
-
-    Member getMemberById(Integer memberId);
 
     Integer register(MemberRegisterRequest memberRegisterRequest);
 
     Member login(MemberLoginRequest memberLoginRequest);
 
-    String subscribe(Integer memberId);
+    MemberResponse getMemberById(Integer memberId);
 
-    String unsubscribe(Integer memberId);
+    MemberResponse updateMemberProfile(Integer memberId, MemberProfileRequest memberProfileRequest);
+
+    String sendResetPasswordLink(String email);
+
+    String resetPassword(String token,ResetPasswordRequest resetPasswordRequest);
+
+    String changePassword(Integer memberId, ChangePasswordRequest changePasswordRequest);
+
+    List<MemberSubscriptionResponse> getSubscriptionsByMemberId(Integer memberId);
+
+    List<MemberSubscriptionResponse> updateMemberSubscriptions(Integer memberId, List<MemberSubscriptionRequest> memberSubscriptionRequests);
+
+    List<Role> getRolesByMemberId(Integer memberId);
 
 }

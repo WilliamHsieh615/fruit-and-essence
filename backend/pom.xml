@@ -96,6 +96,12 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- 匯入 email 套件 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -38,6 +38,10 @@ const memberMenu = reactive([
         to: "/member/changePassword"
     },
     {
+        label: "SUBSCRIPTION PREFERENCES",
+        to: "/member/subscriptionPreferences.vue"
+    },
+    {
         label: "ORDER",
         to: "/member/order"
     }
