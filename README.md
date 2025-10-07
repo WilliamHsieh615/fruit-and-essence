@@ -30,6 +30,29 @@
         FOREIGN KEY (member_id) REFERENCES member(member_id),
         FOREIGN KEY (role_id) REFERENCES role(role_id)
     );
+
+    -- member_subscription table
+    CREATE TABLE member_subscription (
+        member_subscription_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        member_id INT NOT NULL,
+        subscription_type VARCHAR(50) NOT NULL,
+        subscribed BOOLEAN DEFAULT TRUE,
+        created_date TIMESTAMP NOT NULL,
+        last_modified_date TIMESTAMP NOT NULL,
+        UNIQUE KEY uniq_member_subscription (member_id, subscription_type),
+        FOREIGN KEY (member_id) REFERENCES member(member_id)
+    );
+
+    -- login_history table
+    CREATE TABLE login_history (
+        login_history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        member_id INT NOT NULL,
+        login_time TIMESTAMP NOT NULL,
+        user_agent VARCHAR(255),
+        ip_address VARCHAR(45),
+        success BOOLEAN NOT NULL,
+        FOREIGN KEY (member_id) REFERENCES member(member_id)
+    );
     
     -- product table
     CREATE TABLE product (
