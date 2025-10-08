@@ -138,7 +138,7 @@
         shipping_note          VARCHAR(255),
         payment_method_id      INT           NOT NULL,
         shipping_method_id     INT           NOT NULL,
-        status                 ENUM ('PENDING','PAID','PACKING','SHIPPED','DELIVERED','COMPLETED','CANCELLED','REFUNDED') NOT NULL DEFAULT 'PENDING',
+        order_status           ENUM ('PENDING','PAID','PACKING','SHIPPED','DELIVERED','COMPLETED','CANCELLED','REFUNDED') NOT NULL DEFAULT 'PENDING',
         shipping_date          DATETIME, -- 寄送日期
         tracking_number        VARCHAR(50),
         cancel_reason          VARCHAR(255),
