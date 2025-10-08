@@ -125,18 +125,23 @@
     -- orders table
     CREATE TABLE orders (
         order_id               INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        order_number           VARCHAR(20)   NOT NULL UNIQUE,
         member_id              INT           NOT NULL,
         subtotal               DECIMAL(10,2) NOT NULL,
+        tax_amount             DECIMAL(10,2) NOT NULL DEFAULT 0.00,
         discount_id            INT,
-        discount_amount        DECIMAL(10,2) NOT NULL DEFAULT 0.00, -- 折扣金額
+        discount_amount        DECIMAL(10,2) NOT NULL DEFAULT 0.00,
         shipping_fee           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
         total_amount           DECIMAL(10,2) NOT NULL, -- 訂單總花費
         shipping_phone         VARCHAR(20)   NOT NULL,
         shipping_address       VARCHAR(255)  NOT NULL,
+        shipping_note          VARCHAR(255),
         payment_method_id      INT           NOT NULL,
         shipping_method_id     INT           NOT NULL,
-        status                 ENUM ('PENDING','PAID','PACKING','SHIPPED','DELIVERED','COMPLETED','CANCELLED','REFUNDED') NOT NULL DEFAULT 'PENDING', -- 訂單狀態
+        status                 ENUM ('PENDING','PAID','PACKING','SHIPPED','DELIVERED','COMPLETED','CANCELLED','REFUNDED') NOT NULL DEFAULT 'PENDING',
         shipping_date          DATETIME, -- 寄送日期
+        tracking_number        VARCHAR(50),
+        cancel_reason          VARCHAR(255),
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL,
         FOREIGN KEY (member_id) REFERENCES member(member_id),
@@ -154,6 +159,7 @@
         quantity               INT           NOT NULL,
         price                  DECIMAL(10,2) NOT NULL,
         item_total             DECIMAL(10,2) NOT NULL,
+        notes                  VARCHAR(255),
         FOREIGN KEY (order_id) REFERENCES orders (order_id),
         FOREIGN KEY (product_id) REFERENCES product (product_id),
         FOREIGN KEY (product_variant_id) REFERENCES product_variant (product_variant_id)
@@ -162,13 +168,16 @@
     -- payment_method table
     CREATE TABLE payment_method (
         method_id              INT PRIMARY KEY AUTO_INCREMENT,
-        method_name            VARCHAR(50)   NOT NULL UNIQUE
+        method_name            VARCHAR(50)   NOT NULL UNIQUE,
+        description            VARCHAR(255)
     );
 
     -- shipping_method table
     CREATE TABLE shipping_method (
         method_id              INT PRIMARY KEY AUTO_INCREMENT,
-        method_name            VARCHAR(50)   NOT NULL UNIQUE
+        method_name            VARCHAR(50)   NOT NULL UNIQUE,
+        provider_code          VARCHAR(50),
+        description            VARCHAR(255)
     );
 
     -- order_discount table
@@ -176,5 +185,8 @@
         discount_id            INT PRIMARY KEY AUTO_INCREMENT,
         discount_name          VARCHAR(50)   NOT NULL,
         discount_type          ENUM('CODE','PROMOTION','MEMBER','OTHER') NOT NULL DEFAULT 'CODE',
-        discount_value         DECIMAL(10,2) NOT NULL DEFAULT 0.00
+        discount_value         DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        discount_percentage    DECIMAL(5,2)  DEFAULT 0.00,
+        start_date             DATETIME,
+        end_date               DATETIME
     );
