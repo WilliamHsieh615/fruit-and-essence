@@ -190,3 +190,18 @@
         start_date             DATETIME,
         end_date               DATETIME
     );
+
+    -- invoice table
+    CREATE TABLE invoice (
+        invoice_id             INT PRIMARY KEY AUTO_INCREMENT,
+        order_id               INT NOT NULL,
+        invoice_number         VARCHAR(20),
+        invoice_carrier        VARCHAR(50),
+        invoice_donation_code  VARCHAR(10),
+        company_tax_id         VARCHAR(10),
+        issued                 BOOLEAN DEFAULT FALSE,
+        issued_date            DATETIME,
+        created_date           DATETIME NOT NULL,
+        last_modified_date     DATETIME NOT NULL,
+        FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    );
