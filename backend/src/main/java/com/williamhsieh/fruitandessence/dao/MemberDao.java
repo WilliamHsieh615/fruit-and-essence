@@ -1,6 +1,8 @@
 package com.williamhsieh.fruitandessence.dao;
 
+import com.williamhsieh.fruitandessence.dto.LoginHistoryQueryParams;
 import com.williamhsieh.fruitandessence.dto.MemberRegisterRequest;
+import com.williamhsieh.fruitandessence.model.LoginHistory;
 import com.williamhsieh.fruitandessence.model.Member;
 import com.williamhsieh.fruitandessence.model.MemberSubscription;
 import com.williamhsieh.fruitandessence.model.Role;
@@ -15,13 +17,17 @@ public interface MemberDao {
 
     List<MemberSubscription> getSubscriptionsByMemberId(Integer memberId);
 
-    Integer createMember(MemberRegisterRequest memberRegisterRequest);
+    Integer createMember(Member member);
 
     void updateMember(Member member);
 
-    void addMemberSubscription(MemberSubscription memberSubscription);
+    void updateMemberProfile(Member member);
 
-    void updateMemberSubscription(MemberSubscription memberSubscription);
+    void updateMemberPassword(Member member);
+
+    void addMemberSubscriptions(List<MemberSubscription> memberSubscriptionList);
+
+    void updateMemberSubscriptions(List<MemberSubscription> memberSubscriptionList);
 
     List<Role> getRolesByMemberId(Integer memberId);
 
@@ -30,5 +36,9 @@ public interface MemberDao {
     void addRoleForMemberId(Integer memberId, Role role);
 
     void removeRoleForMemberId(Integer memberId, Role role);
+
+    void insertLoginHistory(LoginHistory loginHistory);
+
+    List<LoginHistory> getLoginHistoryList(LoginHistoryQueryParams loginHistoryQueryParams);
 
 }

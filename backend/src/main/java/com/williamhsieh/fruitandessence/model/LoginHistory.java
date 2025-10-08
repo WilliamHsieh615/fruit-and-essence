@@ -6,6 +6,7 @@ public class LoginHistory {
 
     private Integer loginHistoryId;
     private Integer memberId;
+    private String email;
     private LocalDateTime loginTime;
     private String userAgent;
     private String ipAddress;
@@ -25,6 +26,14 @@ public class LoginHistory {
 
     public void setMemberId(Integer memberId) {
         this.memberId = memberId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public LocalDateTime getLoginTime() {

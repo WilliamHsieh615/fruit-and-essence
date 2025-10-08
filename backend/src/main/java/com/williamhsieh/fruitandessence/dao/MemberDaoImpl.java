@@ -1,12 +1,17 @@
 package com.williamhsieh.fruitandessence.dao;
 
+import com.williamhsieh.fruitandessence.dto.LoginHistoryQueryParams;
 import com.williamhsieh.fruitandessence.dto.MemberRegisterRequest;
+import com.williamhsieh.fruitandessence.dto.ProductVariantRequest;
+import com.williamhsieh.fruitandessence.model.LoginHistory;
 import com.williamhsieh.fruitandessence.model.Member;
 import com.williamhsieh.fruitandessence.model.MemberSubscription;
 import com.williamhsieh.fruitandessence.model.Role;
 import com.williamhsieh.fruitandessence.rowmapper.MemberRowMapper;
+import com.williamhsieh.fruitandessence.rowmapper.MemberSubscriptionRowMapper;
 import com.williamhsieh.fruitandessence.rowmapper.RoleRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -14,6 +19,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +69,7 @@ public class MemberDaoImpl implements MemberDao {
     }
 
     @Override
-    public Integer createMember(MemberRegisterRequest memberRegisterRequest) {
+    public Integer createMember(Member member) {
 
         String sql = "INSERT INTO member(email, password, name, phone, birthday, " +
                 "created_date, last_modified_date) " +
@@ -71,15 +77,13 @@ public class MemberDaoImpl implements MemberDao {
                 ":created_date, :last_modified_date) ";
 
         Map<String, Object> map = new HashMap<>();
-        map.put("email", memberRegisterRequest.getEmail());
-        map.put("password", memberRegisterRequest.getPassword());
-        map.put("name", memberRegisterRequest.getName());
-        map.put("phone", memberRegisterRequest.getPhone());
-        map.put("birthday", memberRegisterRequest.getBirthday());
-
-        LocalDateTime now = LocalDateTime.now();
-        map.put("created_date", now);
-        map.put("last_modified_date", now);
+        map.put("email", member.getEmail());
+        map.put("password", member.getPassword());
+        map.put("name", member.getName());
+        map.put("phone", member.getPhone());
+        map.put("birthday", member.getBirthday());
+        map.put("created_date", member.getCreatedDate());
+        map.put("last_modified_date", member.getLastModifiedDate());
 
         // 取得與儲存資料庫自動生成的 id
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -94,22 +98,117 @@ public class MemberDaoImpl implements MemberDao {
     @Override
     public void updateMember(Member member) {
 
-        String sql = "";
+        String sql = "UPDATE member SET email = :email, password = :password, name = :name, phone = :phone, " +
+                "birthday = :birthday, last_modified_date = :last_modified_date " +
+                "WHERE member_id = :memberId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberId", member.getMemberId());
+
+        map.put("email", member.getEmail());
+        map.put("password", member.getPassword());
+        map.put("name", member.getName());
+        map.put("phone", member.getPhone());
+        map.put("birthday", member.getBirthday());
+
+        map.put("last_modified_date", member.getLastModifiedDate());
+
+        namedParameterJdbcTemplate.update(sql, map);
+
+    }
+
+    @Override
+    public void updateMemberProfile(Member member) {
+
+        String sql = "UPDATE member SET name = :name, phone = :phone, last_modified_date = :last_modified_date " +
+                "WHERE member_id = :memberId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberId", member.getMemberId());
+
+        map.put("name", member.getName());
+        map.put("phone", member.getPhone());
+
+        map.put("last_modified_date", member.getLastModifiedDate());
+
+        namedParameterJdbcTemplate.update(sql, map);
+
+    }
+
+    @Override
+    public void updateMemberPassword(Member member) {
+
+        String sql = "UPDATE member SET password = :password, last_modified_date = :last_modified_date " +
+                "WHERE member_id = :memberId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberId", member.getMemberId());
+
+        map.put("password", member.getPassword());
+
+        map.put("last_modified_date", member.getLastModifiedDate());
+
+        namedParameterJdbcTemplate.update(sql, map);
 
     }
 
     @Override
     public List<MemberSubscription> getSubscriptionsByMemberId(Integer memberId) {
-        return List.of();
+
+        String sql = "SELECT member_subscription_id, member_id, subscription_type, " +
+                "subscribed, created_date, last_modified_date " +
+                "FROM member_subscription WHERE member_id = :memberId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberId", memberId);
+
+        List<MemberSubscription> memberSubscriptionList = namedParameterJdbcTemplate.query(sql, map, new MemberSubscriptionRowMapper());
+
+        return memberSubscriptionList;
     }
 
     @Override
-    public void addMemberSubscription(MemberSubscription memberSubscription) {
+    public void addMemberSubscriptions(List<MemberSubscription> memberSubscriptionList) {
+
+        String sql = "INSERT INTO member_subscription(member_id, subscription_type, subscribed, " +
+                "created_date, last_modified_date) " +
+                "VALUES (:memberId, :subscriptionType, :subscribed, :created_date, :last_modified_date) ";
+
+        List<Map<String, Object>> mapArrayList = new ArrayList<>();
+
+        for (MemberSubscription memberSubscription : memberSubscriptionList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("memberId", memberSubscription.getMemberId());
+            map.put("subscriptionType", memberSubscription.getSubscriptionType());
+            map.put("subscribed", memberSubscription.getSubscribed());
+            map.put("created_date", memberSubscription.getCreatedDate());
+            map.put("last_modified_date", memberSubscription.getLastModifiedDate());
+
+            mapArrayList.add(map);
+        }
+
+        namedParameterJdbcTemplate.batchUpdate(sql, mapArrayList.toArray(new Map[0]));
 
     }
 
     @Override
-    public void updateMemberSubscription(MemberSubscription memberSubscription) {
+    public void updateMemberSubscriptions(List<MemberSubscription> memberSubscriptionList) {
+
+        String sql = "UPDATE member_subscription SET subscribed = :subscribed, last_modified_date = :last_modified_date " +
+                "WHERE member_id = :memberId AND subscription_type = :subscriptionType";
+
+        List<Map<String, Object>> mapArrayList = new ArrayList<>();
+        for (MemberSubscription memberSubscription : memberSubscriptionList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("memberId", memberSubscription.getMemberId());
+            map.put("subscriptionType", memberSubscription.getSubscriptionType());
+            map.put("subscribed", memberSubscription.getSubscribed());
+            map.put("last_modified_date", memberSubscription.getLastModifiedDate());
+
+            mapArrayList.add(map);
+        }
+
+        namedParameterJdbcTemplate.batchUpdate(sql, mapArrayList.toArray(new Map[0]));
 
     }
 
@@ -165,5 +264,61 @@ public class MemberDaoImpl implements MemberDao {
         map.put("roleId", role.getRoleId());
 
         namedParameterJdbcTemplate.update(sql, map);
+    }
+
+    @Override
+    public void insertLoginHistory(LoginHistory loginHistory) {
+
+        String sql = """
+                INSERT INTO login_history(member_id, email, login_time, user_agent, ip_address, success)
+                VALUES (:memberId, :email, :loginTime, :userAgent, :ipAddress, :success)
+                """;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberId", loginHistory.getMemberId());
+        map.put("email", loginHistory.getEmail());
+        map.put("loginTime", loginHistory.getLoginTime());
+        map.put("userAgent", loginHistory.getUserAgent());
+        map.put("ipAddress", loginHistory.getIpAddress());
+        map.put("success", loginHistory.getSuccess());
+
+        namedParameterJdbcTemplate.update(sql, map);
+
+    }
+
+    @Override
+    public List<LoginHistory> getLoginHistoryList(LoginHistoryQueryParams loginHistoryQueryParams) {
+
+        String sql = "SELECT * FROM login_history WHERE 1=1";
+
+        Map<String, Object> map = new HashMap<>();
+
+        sql = addFilteringSql(sql, map, loginHistoryQueryParams);
+
+        sql += " ORDER BY login_time DESC";
+
+        List<LoginHistory> loginHistoryList = namedParameterJdbcTemplate.query(sql, map, new BeanPropertyRowMapper<>(LoginHistory.class));
+
+        return loginHistoryList;
+    }
+
+    private String addFilteringSql(String sql, Map<String, Object> map, LoginHistoryQueryParams params) {
+        if (params.getMemberId() != null) {
+            sql += " AND member_id = :memberId";
+            map.put("memberId", params.getMemberId());
+        }
+        if (params.getEmail() != null) {
+            sql += " AND email = :email";
+            map.put("email", params.getEmail());
+        }
+        if (params.getStartTime() != null) {
+            sql += " AND login_time >= :startTime";
+            map.put("startTime", params.getStartTime());
+        }
+        if (params.getEndTime() != null) {
+            sql += " AND login_time <= :endTime";
+            map.put("endTime", params.getEndTime());
+        }
+        return sql;
     }
 }

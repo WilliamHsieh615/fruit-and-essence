@@ -1,9 +1,12 @@
 package com.williamhsieh.fruitandessence.service;
 
 import com.williamhsieh.fruitandessence.dto.*;
+import com.williamhsieh.fruitandessence.model.LoginHistory;
 import com.williamhsieh.fruitandessence.model.Member;
 import com.williamhsieh.fruitandessence.model.MemberSubscription;
 import com.williamhsieh.fruitandessence.model.Role;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
@@ -11,7 +14,7 @@ public interface MemberService {
 
     Integer register(MemberRegisterRequest memberRegisterRequest);
 
-    Member login(MemberLoginRequest memberLoginRequest);
+    Member login(MemberLoginRequest memberLoginRequest, HttpServletRequest httpServletRequest);
 
     MemberResponse getMemberById(Integer memberId);
 
@@ -28,5 +31,7 @@ public interface MemberService {
     List<MemberSubscriptionResponse> updateMemberSubscriptions(Integer memberId, List<MemberSubscriptionRequest> memberSubscriptionRequests);
 
     List<Role> getRolesByMemberId(Integer memberId);
+
+    List<LoginHistory> getLoginHistoryList(LoginHistoryQueryParams loginHistoryQueryParams);
 
 }

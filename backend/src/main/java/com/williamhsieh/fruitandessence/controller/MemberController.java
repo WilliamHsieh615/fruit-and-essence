@@ -1,21 +1,25 @@
 package com.williamhsieh.fruitandessence.controller;
 
 import com.williamhsieh.fruitandessence.dto.*;
+import com.williamhsieh.fruitandessence.model.LoginHistory;
 import com.williamhsieh.fruitandessence.model.Member;
 import com.williamhsieh.fruitandessence.model.MemberSubscription;
 import com.williamhsieh.fruitandessence.model.Role;
 import com.williamhsieh.fruitandessence.service.MemberService;
 import com.williamhsieh.fruitandessence.util.CookieUtil;
 import com.williamhsieh.fruitandessence.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,10 +41,11 @@ public class MemberController {
     @PostMapping("/members/login")
     public ResponseEntity<MemberLoginResponse> login(
             @RequestBody @Valid MemberLoginRequest memberLoginRequest,
-            HttpServletResponse response) {
+            HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse) {
 
         // 驗證帳號密碼
-        Member member = memberService.login(memberLoginRequest);
+        Member member = memberService.login(memberLoginRequest, httpServletRequest);
 
         // 從資料庫取得角色
         List<Role> roles = memberService.getRolesByMemberId(member.getMemberId());
@@ -55,8 +60,8 @@ public class MemberController {
         // 寫入 HTTP-only cookie
         ResponseCookie accessCookie = CookieUtil.createTokenCookie("accessToken", accessToken, 30 * 60); // 30 分鐘
         ResponseCookie refreshCookie = CookieUtil.createTokenCookie("refreshToken", refreshToken, 7 * 24 * 60 * 60); // 7 天
-        CookieUtil.addCookie(response, accessCookie);
-        CookieUtil.addCookie(response, refreshCookie);
+        CookieUtil.addCookie(httpServletResponse, accessCookie);
+        CookieUtil.addCookie(httpServletResponse, refreshCookie);
 
         // 組成回傳給前端的 DTO
         MemberLoginResponse memberLoginResponse = new MemberLoginResponse();
@@ -159,5 +164,22 @@ public class MemberController {
 
     }
 
+    @GetMapping("/members/login-history")
+    public ResponseEntity<List<LoginHistory>> getLoginHistory(
+            @RequestParam(required = false) Integer memberId,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime
+    ) {
+        LoginHistoryQueryParams params = new LoginHistoryQueryParams();
+        params.setMemberId(memberId);
+        params.setEmail(email);
+        params.setStartTime(startTime);
+        params.setEndTime(endTime);
+
+        List<LoginHistory> loginHistoryList = memberService.getLoginHistoryList(params);
+
+        return ResponseEntity.status(HttpStatus.OK).body(loginHistoryList);
+    }
 }
 

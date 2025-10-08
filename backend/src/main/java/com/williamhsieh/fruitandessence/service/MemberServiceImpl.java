@@ -2,12 +2,14 @@ package com.williamhsieh.fruitandessence.service;
 
 import com.williamhsieh.fruitandessence.dao.MemberDao;
 import com.williamhsieh.fruitandessence.dto.*;
+import com.williamhsieh.fruitandessence.model.LoginHistory;
 import com.williamhsieh.fruitandessence.model.Member;
 import com.williamhsieh.fruitandessence.model.MemberSubscription;
 import com.williamhsieh.fruitandessence.model.Role;
 import com.williamhsieh.fruitandessence.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,17 +38,21 @@ public class MemberServiceImpl implements MemberService {
     public Integer register(MemberRegisterRequest memberRegisterRequest) {
 
         // 判斷 email 是否被註冊過
-        Member member = memberDao.getMemberByEmail(memberRegisterRequest.getEmail());
-
-        if (member != null) {
+        if (memberDao.getMemberByEmail(memberRegisterRequest.getEmail()) != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already registered");
         }
 
-        // 密碼加密
-        String hashedPassword = passwordEncoder.encode(memberRegisterRequest.getPassword());
-        memberRegisterRequest.setPassword(hashedPassword);
+        // 資料轉移
+        Member member = new Member();
+        member.setEmail(memberRegisterRequest.getEmail());
+        member.setPassword(passwordEncoder.encode(memberRegisterRequest.getPassword()));
+        member.setName(memberRegisterRequest.getName());
+        member.setPhone(memberRegisterRequest.getPhone());
+        member.setBirthday(memberRegisterRequest.getBirthday());
+        member.setCreatedDate(LocalDateTime.now());
+        member.setLastModifiedDate(LocalDateTime.now());
 
-        Integer memberId = memberDao.createMember(memberRegisterRequest);
+        Integer memberId = memberDao.createMember(member);
 
         // 設定預設角色
         Role normalRole = memberDao.getRoleByName("ROLE_NORMAL_MEMBER");
@@ -54,16 +60,20 @@ public class MemberServiceImpl implements MemberService {
 
         // 訂閱
         if (memberRegisterRequest.getMemberSubscriptionRequests() != null) {
-            for (MemberSubscriptionRequest memberSubscriptionRequest : memberRegisterRequest.getMemberSubscriptionRequests()) {
-                MemberSubscription memberSubscription = new MemberSubscription();
-                memberSubscription.setMemberId(memberId);
-                memberSubscription.setSubscriptionType(memberSubscriptionRequest.getSubscriptionType());
-                memberSubscription.setSubscribed(memberSubscriptionRequest.getSubscribed());
-                memberSubscription.setCreatedDate(LocalDateTime.now());
-                memberSubscription.setLastModifiedDate(LocalDateTime.now());
+            List<MemberSubscription> memberSubscriptionList = memberRegisterRequest.getMemberSubscriptionRequests().stream()
+                    .map(req -> {
+                        MemberSubscription memberSubscription = new MemberSubscription();
+                        memberSubscription.setMemberId(memberId);
+                        memberSubscription.setSubscriptionType(req.getSubscriptionType());
+                        memberSubscription.setSubscribed(req.getSubscribed());
+                        LocalDateTime now = LocalDateTime.now();
+                        memberSubscription.setCreatedDate(now);
+                        memberSubscription.setLastModifiedDate(now);
+                        return memberSubscription;
+                    })
+                    .toList();
 
-                memberDao.addMemberSubscription(memberSubscription);
-            }
+            memberDao.addMemberSubscriptions(memberSubscriptionList);
         }
 
         // 創建帳號
@@ -71,21 +81,44 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Member login(MemberLoginRequest memberLoginRequest) {
+    public Member login(MemberLoginRequest memberLoginRequest, HttpServletRequest httpServletRequest) {
 
         Member member = memberDao.getMemberByEmail(memberLoginRequest.getEmail());
 
+        boolean success = false;
+        Integer memberId = null;
+
         // 檢查 member 是否存在
-        if (member == null) {
+        if (member != null) {
+            memberId = member.getMemberId();
+            // 密碼比對
+            if (passwordEncoder.matches(memberLoginRequest.getPassword(), member.getPassword())) {
+                success = true;
+            }
+        }
+
+        String userAgent = (String) httpServletRequest.getAttribute("loginUserAgent");
+        String ipAddress = (String) httpServletRequest.getAttribute("loginIpAddress");
+        LocalDateTime loginTime = (LocalDateTime) httpServletRequest.getAttribute("loginAttemptTime");
+
+        LoginHistory loginHistory = new LoginHistory();
+        loginHistory.setMemberId(memberId);
+        loginHistory.setEmail(memberLoginRequest.getEmail());
+        loginHistory.setLoginTime(loginTime);
+        loginHistory.setUserAgent(userAgent);
+        loginHistory.setIpAddress(ipAddress);
+        loginHistory.setSuccess(success);
+
+        memberDao.insertLoginHistory(loginHistory);
+
+        if (success) {
+            return member;
+        } else if(member != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong password!");
+        } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email does not exist!");
         }
 
-        // 驗證密碼
-        if (passwordEncoder.matches(memberLoginRequest.getPassword(), member.getPassword())) {
-            return member;
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong password!");
-        }
     }
 
     @Override
@@ -134,7 +167,7 @@ public class MemberServiceImpl implements MemberService {
 
         member.setLastModifiedDate(LocalDateTime.now());
 
-        memberDao.updateMember(member);
+        memberDao.updateMemberProfile(member);
 
         return getMemberById(memberId);
     }
@@ -169,8 +202,6 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public String resetPassword(String token, ResetPasswordRequest resetPasswordRequest) {
 
-        String newPassword = resetPasswordRequest.getNewPassword();
-
         try {
             Claims claims = JwtUtil.parseToken(token);
             if (JwtUtil.isExpired(claims)) {
@@ -184,9 +215,10 @@ public class MemberServiceImpl implements MemberService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member not found");
             }
 
-            String hashedPassword = passwordEncoder.encode(newPassword);
-            member.setPassword(hashedPassword);
-            memberDao.updateMember(member);
+            member.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
+            member.setLastModifiedDate(LocalDateTime.now());
+
+            memberDao.updateMemberPassword(member);
 
             return "Password has been reset successfully.";
 
@@ -210,7 +242,7 @@ public class MemberServiceImpl implements MemberService {
         member.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         member.setLastModifiedDate(LocalDateTime.now());
 
-        memberDao.updateMember(member);
+        memberDao.updateMemberPassword(member);
 
         return "Password updated successfully!";
     }
@@ -246,25 +278,32 @@ public class MemberServiceImpl implements MemberService {
         Map<String, MemberSubscription> memberSubscriptionMap = memberSubscriptionList.stream()
                 .collect(Collectors.toMap(MemberSubscription::getSubscriptionType, s -> s, (s1, s2) -> s1));
 
-        // 遍歷前端送過來的更新
+        List<MemberSubscription> toUpdate = new ArrayList<>();
+        List<MemberSubscription> toInsert = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+
         for (MemberSubscriptionRequest memberSubscriptionRequest : memberSubscriptionRequests) {
             MemberSubscription existing = memberSubscriptionMap.get(memberSubscriptionRequest.getSubscriptionType());
             if (existing != null) {
                 existing.setSubscribed(memberSubscriptionRequest.getSubscribed());
-                existing.setLastModifiedDate(LocalDateTime.now());
-
-                memberDao.updateMemberSubscription(existing);
+                existing.setLastModifiedDate(now);
+                toUpdate.add(existing);
             } else {
-                // 如果沒有這個 subscriptionType，可以選擇新增
-                MemberSubscription memberSubscription = new MemberSubscription();
-                memberSubscription.setMemberId(memberId);
-                memberSubscription.setSubscriptionType(memberSubscriptionRequest.getSubscriptionType());
-                memberSubscription.setSubscribed(memberSubscriptionRequest.getSubscribed());
-                memberSubscription.setCreatedDate(LocalDateTime.now());
-                memberSubscription.setLastModifiedDate(LocalDateTime.now());
-
-                memberDao.addMemberSubscription(memberSubscription);
+                MemberSubscription sub = new MemberSubscription();
+                sub.setMemberId(memberId);
+                sub.setSubscriptionType(memberSubscriptionRequest.getSubscriptionType());
+                sub.setSubscribed(memberSubscriptionRequest.getSubscribed());
+                sub.setCreatedDate(now);
+                sub.setLastModifiedDate(now);
+                toInsert.add(sub);
             }
+        }
+
+        if (!toUpdate.isEmpty()) {
+            memberDao.updateMemberSubscriptions(toUpdate); // 批次更新
+        }
+        if (!toInsert.isEmpty()) {
+            memberDao.addMemberSubscriptions(toInsert); // 批次新增
         }
 
         return getSubscriptionsByMemberId(memberId);
@@ -279,4 +318,9 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
+    @Override
+    public List<LoginHistory> getLoginHistoryList(LoginHistoryQueryParams loginHistoryQueryParams) {
+
+        return memberDao.getLoginHistoryList(loginHistoryQueryParams);
+    }
 }

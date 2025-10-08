@@ -49,6 +49,7 @@ public class ProductDaoImpl implements ProductDao {
         String sql = "SELECT p.product_id, p.product_name, p.product_category, " +
                 "p.product_description, p.created_date, p.last_modified_date, MIN(pv.price) AS min_price " +
                 "FROM product p LEFT JOIN product_variant pv ON p.product_id = pv.product_id WHERE 1=1";
+
         Map<String, Object> map = new HashMap<>();
 
         // 查詢條件
@@ -62,6 +63,7 @@ public class ProductDaoImpl implements ProductDao {
 
         // 分頁
         sql = sql + " LIMIT :limit OFFSET :offset";
+
         map.put("limit", productQueryParams.getLimit());
         map.put("offset", productQueryParams.getOffset());
 
