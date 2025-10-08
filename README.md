@@ -7,11 +7,11 @@
     -- member table
     CREATE TABLE member (
         member_id              INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        email                  varchar(256)  NOT NULL UNIQUE,
-        password               varchar(256)  NOT NULL,
-        name                   varchar(100)  NOT NULL,
-        phone                  varchar(20)   NOT NULL,
-        birthday               date          NOT NULL,
+        email                  VARCHAR(256)  NOT NULL UNIQUE,
+        password               VARCHAR(256)  NOT NULL,
+        name                   VARCHAR(100)  NOT NULL,
+        phone                  VARCHAR(20)   NOT NULL,
+        birthday               DATE          NOT NULL,
         created_date           TIMESTAMP     NOT NULL,
         last_modified_date     TIMESTAMP     NOT NULL
     );
@@ -46,7 +46,8 @@
     -- login_history table
     CREATE TABLE login_history (
         login_history_id       INT           NOT NULL PRIMARY KEY AUTO_INCREMENT ,
-        member_id              INT           NOT NULL,
+        member_id              INT,
+        email                  VARCHAR(256)  NOT NULL,
         login_time             TIMESTAMP     NOT NULL,
         user_agent             VARCHAR(255),
         ip_address             VARCHAR(45),
