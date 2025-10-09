@@ -183,12 +183,42 @@
     -- order_discount table
     CREATE TABLE order_discount (
         discount_id            INT PRIMARY KEY AUTO_INCREMENT,
+        member_id              INT NULL,
         discount_name          VARCHAR(50)   NOT NULL,
+        discount_code          VARCHAR(50) UNIQUE,
         discount_type          ENUM('CODE','PROMOTION','MEMBER','OTHER') NOT NULL DEFAULT 'CODE',
         discount_value         DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-        discount_percentage    DECIMAL(5,2)  DEFAULT 0.00,
+        discount_percentage    DECIMAL(5,2) DEFAULT 0.00,
+        min_order_amount       DECIMAL(10,2) DEFAULT 0.00,
+        total_usage_limit      INT DEFAULT NULL,
         start_date             DATETIME,
-        end_date               DATETIME
+        end_date               DATETIME,
+        created_date           TIMESTAMP     NOT NULL,
+        last_modified_date     TIMESTAMP     NOT NULL,
+        CONSTRAINT fk_member FOREIGN KEY (member_id) REFERENCES member(member_id)
+    );
+
+    CREATE TABLE order_discount_role (
+        discount_id INT NOT NULL,
+        role_id     INT NOT NULL,
+        PRIMARY KEY (discount_id, role_id),
+        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE,
+        FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE order_discount_product (
+        discount_id INT NOT NULL,
+        product_id  INT NOT NULL,
+        PRIMARY KEY (discount_id, product_id),
+        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE order_discount_category (
+        discount_id       INT NOT NULL,
+        product_category  ENUM('REFRESHING','SWEET_AND_FRUITY','SUPERFOODS','HEALTHY_VEGGIES','WELLNESS_AND_HERBAL') NOT NULL,
+        PRIMARY KEY (discount_id, product_category),
+        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE
     );
 
     -- invoice table
