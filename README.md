@@ -73,6 +73,7 @@
         price                  DECIMAL(10,2) NOT NULL,
         discount_price         DECIMAL(10,2),
         unit                   VARCHAR(50),
+        stock                  INT           NOT NULL DEFAULT 0,         
         sku                    VARCHAR(100)  UNIQUE,
         barcode                VARCHAR(100),
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
@@ -243,5 +244,6 @@
         issued_date            DATETIME,
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL,
+        UNIQUE KEY uniq_invoice_order (order_id),
         FOREIGN KEY (order_id) REFERENCES orders(order_id)
     );
