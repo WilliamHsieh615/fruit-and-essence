@@ -73,7 +73,7 @@
         price                  DECIMAL(10,2) NOT NULL,
         discount_price         DECIMAL(10,2),
         unit                   VARCHAR(50),
-        sku                    VARCHAR(100) UNIQUE,
+        sku                    VARCHAR(100)  UNIQUE,
         barcode                VARCHAR(100),
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
@@ -90,7 +90,7 @@
         sugar                  DECIMAL(10,2),
         fiber                  DECIMAL(10,2),
         sodium                 DECIMAL(10,2),
-        vitaminC               DECIMAL(10,2),
+        vitamin_c              DECIMAL(10,2),
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
 
@@ -116,7 +116,7 @@
         product_variant_id     INT           NOT NULL,
         change_amount          INT           NOT NULL,
         stock_after            INT           NOT NULL,
-        reason ENUM('ORDER', 'RETURN', 'PURCHASE', 'DAMAGE', 'PROMOTION', 'MANUAL_ADJUST') NOT NULL,
+        reason                 ENUM('ORDER', 'RETURN', 'PURCHASE', 'DAMAGE', 'PROMOTION', 'MANUAL_ADJUST') NOT NULL,
         created_date           TIMESTAMP     NOT NULL,
         last_modified_date     TIMESTAMP     NOT NULL,
         FOREIGN KEY (product_variant_id) REFERENCES product_variant(product_variant_id)
@@ -132,14 +132,14 @@
         discount_id            INT,
         discount_amount        DECIMAL(10,2) NOT NULL DEFAULT 0.00,
         shipping_fee           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-        total_amount           DECIMAL(10,2) NOT NULL, -- 訂單總花費
+        total_amount           DECIMAL(10,2) NOT NULL,
         shipping_phone         VARCHAR(20)   NOT NULL,
         shipping_address       VARCHAR(255)  NOT NULL,
         shipping_note          VARCHAR(255),
         payment_method_id      INT           NOT NULL,
         shipping_method_id     INT           NOT NULL,
         order_status           ENUM ('PENDING','PAID','PACKING','SHIPPED','DELIVERED','COMPLETED','CANCELLED','REFUNDED') NOT NULL DEFAULT 'PENDING',
-        shipping_date          DATETIME, -- 寄送日期
+        shipping_date          DATETIME,
         tracking_number        VARCHAR(50),
         cancel_reason          VARCHAR(255),
         created_date           DATETIME      NOT NULL,
@@ -167,14 +167,14 @@
 
     -- payment_method table
     CREATE TABLE payment_method (
-        method_id              INT PRIMARY KEY AUTO_INCREMENT,
+        method_id              INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
         method_name            VARCHAR(50)   NOT NULL UNIQUE,
         description            VARCHAR(255)
     );
 
     -- shipping_method table
     CREATE TABLE shipping_method (
-        method_id              INT PRIMARY KEY AUTO_INCREMENT,
+        method_id              INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
         method_name            VARCHAR(50)   NOT NULL UNIQUE,
         provider_code          VARCHAR(50),
         description            VARCHAR(255)
@@ -182,15 +182,15 @@
 
     -- order_discount table
     CREATE TABLE order_discount (
-        discount_id            INT PRIMARY KEY AUTO_INCREMENT,
-        member_id              INT NULL,
+        discount_id            INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        member_id              INT           NULL,
         discount_name          VARCHAR(50)   NOT NULL,
-        discount_code          VARCHAR(50) UNIQUE,
+        discount_code          VARCHAR(50)   UNIQUE,
         discount_type          ENUM('CODE','PROMOTION','MEMBER','OTHER') NOT NULL DEFAULT 'CODE',
         discount_value         DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-        discount_percentage    DECIMAL(5,2) DEFAULT 0.00,
+        discount_percentage    DECIMAL(5,2)  DEFAULT 0.00,
         min_order_amount       DECIMAL(10,2) DEFAULT 0.00,
-        total_usage_limit      INT DEFAULT NULL,
+        total_usage_limit      INT DEFAULT   NULL,
         start_date             DATETIME,
         end_date               DATETIME,
         created_date           TIMESTAMP     NOT NULL,
@@ -198,40 +198,50 @@
         CONSTRAINT fk_member FOREIGN KEY (member_id) REFERENCES member(member_id)
     );
 
+    CREATE TABLE order_discount_usage (
+        usage_id               INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        discount_id            INT           NOT NULL,
+        member_id              INT           NOT NULL,
+        used_at                DATETIME      NOT NULL,
+        order_id               INT           NULL,
+        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE,
+        FOREIGN KEY (member_id) REFERENCES member(member_id)
+    );
+
     CREATE TABLE order_discount_role (
-        discount_id INT NOT NULL,
-        role_id     INT NOT NULL,
+        discount_id            INT           NOT NULL,
+        role_id                INT           NOT NULL,
         PRIMARY KEY (discount_id, role_id),
         FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE,
         FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE
     );
 
     CREATE TABLE order_discount_product (
-        discount_id INT NOT NULL,
-        product_id  INT NOT NULL,
+        discount_id            INT           NOT NULL,
+        product_id             INT           NOT NULL,
         PRIMARY KEY (discount_id, product_id),
         FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE,
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
 
     CREATE TABLE order_discount_category (
-        discount_id       INT NOT NULL,
-        product_category  ENUM('REFRESHING','SWEET_AND_FRUITY','SUPERFOODS','HEALTHY_VEGGIES','WELLNESS_AND_HERBAL') NOT NULL,
+        discount_id            INT           NOT NULL,
+        product_category       ENUM('REFRESHING','SWEET_AND_FRUITY','SUPERFOODS','HEALTHY_VEGGIES','WELLNESS_AND_HERBAL') NOT NULL,
         PRIMARY KEY (discount_id, product_category),
         FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE
     );
 
     -- invoice table
     CREATE TABLE invoice (
-        invoice_id             INT PRIMARY KEY AUTO_INCREMENT,
-        order_id               INT NOT NULL,
-        invoice_number         VARCHAR(20),
+        invoice_id             INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        order_id               INT           NOT NULL,
+        invoice_number         VARCHAR(20)   NOT NULL UNIQUE,
         invoice_carrier        VARCHAR(50),
         invoice_donation_code  VARCHAR(10),
         company_tax_id         VARCHAR(10),
-        issued                 BOOLEAN DEFAULT FALSE,
+        issued                 BOOLEAN       DEFAULT FALSE,
         issued_date            DATETIME,
-        created_date           DATETIME NOT NULL,
-        last_modified_date     DATETIME NOT NULL,
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL,
         FOREIGN KEY (order_id) REFERENCES orders(order_id)
     );
