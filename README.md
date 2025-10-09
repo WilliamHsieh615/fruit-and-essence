@@ -12,8 +12,8 @@
         name                   VARCHAR(100)  NOT NULL,
         phone                  VARCHAR(20)   NOT NULL,
         birthday               DATE          NOT NULL,
-        created_date           TIMESTAMP     NOT NULL,
-        last_modified_date     TIMESTAMP     NOT NULL
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL
     );
 
     -- role table
@@ -27,8 +27,8 @@
         member_id              INT           NOT NULL,
         role_id                INT           NOT NULL,
         PRIMARY KEY (member_id, role_id),
-        FOREIGN KEY (member_id) REFERENCES member(member_id),
-        FOREIGN KEY (role_id) REFERENCES role(role_id)
+        FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
+        FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE
     );
 
     -- member_subscription table
@@ -37,10 +37,10 @@
         member_id              INT           NOT NULL,
         subscription_type      VARCHAR(50)   NOT NULL,
         subscribed             BOOLEAN       NOT NULL DEFAULT TRUE,
-        created_date           TIMESTAMP     NOT NULL,
-        last_modified_date     TIMESTAMP     NOT NULL,
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL,
         UNIQUE KEY uniq_member_subscription (member_id, subscription_type),
-        FOREIGN KEY (member_id) REFERENCES member(member_id)
+        FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
     );
 
     -- login_history table
@@ -48,11 +48,11 @@
         login_history_id       INT           NOT NULL PRIMARY KEY AUTO_INCREMENT ,
         member_id              INT,
         email                  VARCHAR(256)  NOT NULL,
-        login_time             TIMESTAMP     NOT NULL,
+        login_time             DATETIME      NOT NULL,
         user_agent             VARCHAR(255),
         ip_address             VARCHAR(45),
         success                BOOLEAN       NOT NULL,
-        FOREIGN KEY (member_id) REFERENCES member(member_id)
+        FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
     );
     
     -- product table
@@ -61,8 +61,8 @@
         product_name           VARCHAR(255)  NOT NULL,
         product_category       ENUM('REFRESHING', 'SWEET_AND_FRUITY', 'SUPERFOODS', 'HEALTHY_VEGGIES', 'WELLNESS_AND_HERBAL') NOT NULL,
         product_description    TEXT,
-        created_date           TIMESTAMP     NOT NULL,
-        last_modified_date     TIMESTAMP     NOT NULL
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL
     );
 
     -- product_variant table
@@ -118,9 +118,9 @@
         change_amount          INT           NOT NULL,
         stock_after            INT           NOT NULL,
         reason                 ENUM('ORDER', 'RETURN', 'PURCHASE', 'DAMAGE', 'PROMOTION', 'MANUAL_ADJUST') NOT NULL,
-        created_date           TIMESTAMP     NOT NULL,
-        last_modified_date     TIMESTAMP     NOT NULL,
-        FOREIGN KEY (product_variant_id) REFERENCES product_variant(product_variant_id)
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL,
+        FOREIGN KEY (product_variant_id) REFERENCES product_variant(product_variant_id) ON DELETE CASCADE
     );
 
     -- orders table
@@ -145,10 +145,10 @@
         cancel_reason          VARCHAR(255),
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL,
-        FOREIGN KEY (member_id) REFERENCES member(member_id),
-        FOREIGN KEY (payment_method_id) REFERENCES payment_method(method_id),
-        FOREIGN KEY (shipping_method_id) REFERENCES shipping_method(method_id),
-        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id)
+        FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
+        FOREIGN KEY (payment_method_id) REFERENCES payment_method(method_id) ON DELETE RESTRICT,
+        FOREIGN KEY (shipping_method_id) REFERENCES shipping_method(method_id) ON DELETE RESTRICT,
+        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE SET NULL
     );
 
     -- order_item table
@@ -161,9 +161,9 @@
         price                  DECIMAL(10,2) NOT NULL,
         item_total             DECIMAL(10,2) NOT NULL,
         notes                  VARCHAR(255),
-        FOREIGN KEY (order_id) REFERENCES orders (order_id),
-        FOREIGN KEY (product_id) REFERENCES product (product_id),
-        FOREIGN KEY (product_variant_id) REFERENCES product_variant (product_variant_id)
+        FOREIGN KEY (order_id) REFERENCES orders (order_id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES product (product_id) ON DELETE RESTRICT,
+        FOREIGN KEY (product_variant_id) REFERENCES product_variant (product_variant_id) ON DELETE RESTRICT
     );
 
     -- payment_method table
@@ -194,9 +194,9 @@
         total_usage_limit      INT DEFAULT   NULL,
         start_date             DATETIME,
         end_date               DATETIME,
-        created_date           TIMESTAMP     NOT NULL,
-        last_modified_date     TIMESTAMP     NOT NULL,
-        CONSTRAINT fk_member FOREIGN KEY (member_id) REFERENCES member(member_id)
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL,
+        FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
     );
 
     CREATE TABLE order_discount_usage (
@@ -206,7 +206,7 @@
         used_at                DATETIME      NOT NULL,
         order_id               INT           NOT NULL,
         FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE,
-        FOREIGN KEY (member_id) REFERENCES member(member_id),
+        FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
         FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
     );
 
@@ -246,5 +246,5 @@
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL,
         UNIQUE KEY uniq_invoice_order (order_id),
-        FOREIGN KEY (order_id) REFERENCES orders(order_id)
+        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
     );
