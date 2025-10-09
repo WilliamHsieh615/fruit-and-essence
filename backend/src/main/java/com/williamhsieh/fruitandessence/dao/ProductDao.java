@@ -20,6 +20,10 @@ public interface ProductDao {
 
     Product getProductById(Integer productId);
 
+    List<Product> getProductsByIds(List<Integer> productIds);
+
+    List<ProductVariant> getVariantsByIds(List<Integer> variantIds);
+
     Map<Integer, List<ProductVariant>> getVariantsByProductIds(List<Integer> productIds);
 
     Map<Integer, ProductNutritionFacts> getNutritionByProductIds(List<Integer> productIds);

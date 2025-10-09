@@ -4,6 +4,7 @@ public class PaymentMethod {
 
     private Integer methodId;
     private String methodName;
+    private String methodDescription;
 
     public Integer getMethodId() {
         return methodId;
@@ -19,5 +20,13 @@ public class PaymentMethod {
 
     public void setMethodName(String methodName) {
         this.methodName = methodName;
+    }
+
+    public String getMethodDescription() {
+        return methodDescription;
+    }
+
+    public void setMethodDescription(String methodDescription) {
+        this.methodDescription = methodDescription;
     }
 }

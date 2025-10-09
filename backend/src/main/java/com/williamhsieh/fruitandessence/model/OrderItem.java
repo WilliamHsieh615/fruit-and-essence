@@ -11,6 +11,10 @@ public class OrderItem {
     private Integer quantity;
     private BigDecimal price;
     private BigDecimal itemTotal;
+    private String notes;
+
+    private Product product;
+    private ProductVariant productVariant;
 
     public Integer getOrderItemId() {
         return orderItemId;
@@ -66,5 +70,29 @@ public class OrderItem {
 
     public void setItemTotal(BigDecimal itemTotal) {
         this.itemTotal = itemTotal;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public ProductVariant getProductVariant() {
+        return productVariant;
+    }
+
+    public void setProductVariant(ProductVariant productVariant) {
+        this.productVariant = productVariant;
     }
 }

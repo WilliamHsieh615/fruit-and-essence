@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface OrderDao {
 
-    Integer countOrder(OrderQueryParams orderQueryParams);
+    Integer countOrders(OrderQueryParams orderQueryParams);
 
     List<Order> getOrders(OrderQueryParams orderQueryParams);
 

@@ -28,7 +28,7 @@ public class OrderDaoImpl implements OrderDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public Integer countOrder(OrderQueryParams orderQueryParams) {
+    public Integer countOrders(OrderQueryParams orderQueryParams) {
 
         String sql = "SELECT count(*) FROM orders WHERE 1=1";
 

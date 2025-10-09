@@ -97,6 +97,42 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
+    public List<Product> getProductsByIds(List<Integer> productIds) {
+        String sql = "SELECT product_id, product_name, product_category, product_description, " +
+                "created_date, last_modified_date " +
+                "FROM product WHERE product_id IN (:productIds)";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("productIds", productIds);
+
+        List<Product> productList = namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
+
+        if (productList.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            return productList;
+        }
+    }
+
+    @Override
+    public List<ProductVariant> getVariantsByIds(List<Integer> variantIds) {
+
+        String sql = "SELECT variant_id, product_id, variant_name, price, stock, created_date, last_modified_date " +
+                "FROM product_variant WHERE variant_id IN (:variantIds)";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("variantIds", variantIds);
+
+        List<ProductVariant>  productVariantList = namedParameterJdbcTemplate.query(sql, map, new ProductVariantRowMapper());
+
+        if (productVariantList.isEmpty()) {
+            return Collections.emptyList();
+        } else  {
+            return productVariantList;
+        }
+    }
+
+    @Override
     public Map<Integer, List<ProductVariant>> getVariantsByProductIds(List<Integer> productIds) {
 
         String sql = "SELECT product_variant_id, product_id, size, price, discount_price, unit, sku, barcode " +

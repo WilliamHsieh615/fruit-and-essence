@@ -1,40 +1,43 @@
-package com.williamhsieh.fruitandessence.model;
+package com.williamhsieh.fruitandessence.dto;
 
 import com.williamhsieh.fruitandessence.constant.OrderStatus;
+import com.williamhsieh.fruitandessence.model.Invoice;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Order {
+public class OrderResponse {
 
     private Integer orderId;
     private String orderNumber;
     private Integer memberId;
-    private BigDecimal subtotal; // 小計
-    private BigDecimal taxAmount; // 稅額
-    private OrderDiscount orderDiscount; // 折扣明細
-    private BigDecimal discountAmount; // 折扣金額
-    private BigDecimal shippingFee; // 運費
-    private BigDecimal totalAmount; // 總金額
+
+    private BigDecimal subtotal;
+    private BigDecimal taxAmount;
+    private BigDecimal discountAmount;
+    private BigDecimal shippingFee;
+    private BigDecimal totalAmount;
 
     private String shippingPhone;
     private String shippingAddress;
     private String shippingNote;
 
-    private PaymentMethod paymentMethod;
-    private ShippingMethod shippingMethod;
+    private String paymentMethod; // PaymentMethod.getMethodName()
+    private String shippingMethod; // ShippingMethod.getMethodName()
+    private String shippingProviderCode; // ShippingMethod.getProviderCode()
 
     private OrderStatus orderStatus;
-    private LocalDateTime shippingDate ;
+    private LocalDateTime shippingDate;
     private String trackingNumber;
-    private Invoice invoice;
     private String cancelReason;
 
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
 
-    private List<OrderItem> orderItems;
+    private InvoiceResponse invoice;
+    private OrderDiscountResponse orderDiscount;
+    private List<OrderItemResponse> orderItems;
 
     public Integer getOrderId() {
         return orderId;
@@ -74,14 +77,6 @@ public class Order {
 
     public void setTaxAmount(BigDecimal taxAmount) {
         this.taxAmount = taxAmount;
-    }
-
-    public OrderDiscount getOrderDiscount() {
-        return orderDiscount;
-    }
-
-    public void setOrderDiscount(OrderDiscount orderDiscount) {
-        this.orderDiscount = orderDiscount;
     }
 
     public BigDecimal getDiscountAmount() {
@@ -132,20 +127,28 @@ public class Order {
         this.shippingNote = shippingNote;
     }
 
-    public PaymentMethod getPaymentMethod() {
+    public String getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
+    public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
-    public ShippingMethod getShippingMethod() {
+    public String getShippingMethod() {
         return shippingMethod;
     }
 
-    public void setShippingMethod(ShippingMethod shippingMethod) {
+    public void setShippingMethod(String shippingMethod) {
         this.shippingMethod = shippingMethod;
+    }
+
+    public String getShippingProviderCode() {
+        return shippingProviderCode;
+    }
+
+    public void setShippingProviderCode(String shippingProviderCode) {
+        this.shippingProviderCode = shippingProviderCode;
     }
 
     public OrderStatus getOrderStatus() {
@@ -172,14 +175,6 @@ public class Order {
         this.trackingNumber = trackingNumber;
     }
 
-    public Invoice getInvoice() {
-        return invoice;
-    }
-
-    public void setInvoice(Invoice invoice) {
-        this.invoice = invoice;
-    }
-
     public String getCancelReason() {
         return cancelReason;
     }
@@ -204,12 +199,27 @@ public class Order {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public List<OrderItem> getOrderItems() {
+    public InvoiceResponse getInvoice() {
+        return invoice;
+    }
+
+    public void setInvoice(InvoiceResponse invoice) {
+        this.invoice = invoice;
+    }
+
+    public OrderDiscountResponse getOrderDiscount() {
+        return orderDiscount;
+    }
+
+    public void setOrderDiscount(OrderDiscountResponse orderDiscount) {
+        this.orderDiscount = orderDiscount;
+    }
+
+    public List<OrderItemResponse> getOrderItems() {
         return orderItems;
     }
 
-    public void setOrderItems(List<OrderItem> orderItems) {
+    public void setOrderItems(List<OrderItemResponse> orderItems) {
         this.orderItems = orderItems;
     }
 }
-

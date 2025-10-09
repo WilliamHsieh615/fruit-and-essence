@@ -1,19 +1,28 @@
 package com.williamhsieh.fruitandessence.dto;
 
+import com.williamhsieh.fruitandessence.constant.ProductCategory;
+
+import java.math.BigDecimal;
+import java.util.List;
+
 public class OrderItemResponse {
 
     private Integer orderItemId;
-    private Integer orderId;
     private Integer productId;
-    private Integer purchasedCount;
-    private Double purchasedWeight;
-    private Integer amount;
+    private Integer productVariantId;
 
-    // 關聯 product 的欄位
+    private Integer quantity;
+    private BigDecimal price;
+    private BigDecimal itemTotal;
+    private String notes;
+
     private String productName;
-    private String imageUrl;
-    private Integer pricePerUnit;
+    private ProductCategory productCategory;
+
+    private String productSize;
     private String unit;
+
+    private String productImage; // Product.getProductImages[0] 取索引值為零
 
     public Integer getOrderItemId() {
         return orderItemId;
@@ -21,14 +30,6 @@ public class OrderItemResponse {
 
     public void setOrderItemId(Integer orderItemId) {
         this.orderItemId = orderItemId;
-    }
-
-    public Integer getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
     }
 
     public Integer getProductId() {
@@ -39,28 +40,44 @@ public class OrderItemResponse {
         this.productId = productId;
     }
 
-    public Integer getPurchasedCount() {
-        return purchasedCount;
+    public Integer getProductVariantId() {
+        return productVariantId;
     }
 
-    public void setPurchasedCount(Integer purchasedCount) {
-        this.purchasedCount = purchasedCount;
+    public void setProductVariantId(Integer productVariantId) {
+        this.productVariantId = productVariantId;
     }
 
-    public Double getPurchasedWeight() {
-        return purchasedWeight;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setPurchasedWeight(Double purchasedWeight) {
-        this.purchasedWeight = purchasedWeight;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
-    public Integer getAmount() {
-        return amount;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setAmount(Integer amount) {
-        this.amount = amount;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public BigDecimal getItemTotal() {
+        return itemTotal;
+    }
+
+    public void setItemTotal(BigDecimal itemTotal) {
+        this.itemTotal = itemTotal;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public String getProductName() {
@@ -71,20 +88,20 @@ public class OrderItemResponse {
         this.productName = productName;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public ProductCategory getProductCategory() {
+        return productCategory;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setProductCategory(ProductCategory productCategory) {
+        this.productCategory = productCategory;
     }
 
-    public Integer getPricePerUnit() {
-        return pricePerUnit;
+    public String getProductSize() {
+        return productSize;
     }
 
-    public void setPricePerUnit(Integer pricePerUnit) {
-        this.pricePerUnit = pricePerUnit;
+    public void setProductSize(String productSize) {
+        this.productSize = productSize;
     }
 
     public String getUnit() {
@@ -93,5 +110,13 @@ public class OrderItemResponse {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public String getProductImage() {
+        return productImage;
+    }
+
+    public void setProductImage(String productImage) {
+        this.productImage = productImage;
     }
 }

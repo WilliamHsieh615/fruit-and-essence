@@ -45,18 +45,39 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
 
                         // 公開 API
-                        .requestMatchers("/members/register", "/members/login", "/members/forgot-password", "/members/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/members/register",
+                                "/members/login",
+                                "/members/forgot-password",
+                                "/members/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products").permitAll()
 
                         // 管理員專屬操作
+                        .requestMatchers(HttpMethod.GET, "/admin/orders").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/products/{productId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/products/{productId}",
+                                "/members/{memberId}/orders/{orderId}",
+                                "/members/{memberId}/orders/{orderId}/status",
+                                "/members/{memberId}/orders/{orderId}/cancel").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/products/{productId}").hasRole("ADMIN")
+                        .requestMatchers("/admin/shipping-method/**", "/admin/payment-method/**", "/admin/order-discount/**").hasRole("ADMIN")
 
                         // 登入用戶專屬操作
-                        .requestMatchers(HttpMethod.GET,"/members/{memberId}/orders", "/members/{memberId}", "/members/{memberId}/subscriptions").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/members/{memberId}/orders", "/members/logout").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/members/{memberId}/change-password", "/members/{memberId}", "/members/{memberId}/subscriptions").authenticated()
+                        .requestMatchers(HttpMethod.GET,
+                                "/members/{memberId}/orders",
+                                "/members/{memberId}",
+                                "/members/{memberId}/subscriptions",
+                                "/members/{memberId}/orders",
+                                "/members/{memberId}/orders/{orderId}").authenticated()
+                        .requestMatchers(HttpMethod.POST,
+                                "/members/{memberId}/orders",
+                                "/members/logout",
+                                "/members/{memberId}/orders").authenticated()
+                        .requestMatchers(HttpMethod.PUT,
+                                "/members/{memberId}/change-password",
+                                "/members/{memberId}",
+                                "/members/{memberId}/subscriptions").authenticated()
 
                         // 其餘通用路徑
                         .requestMatchers("/members/**", "/products/**").permitAll()

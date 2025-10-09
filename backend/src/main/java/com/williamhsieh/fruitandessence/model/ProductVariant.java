@@ -13,8 +13,8 @@ public class ProductVariant {
     private BigDecimal price; // 價格
     private BigDecimal discountPrice; // 折扣後價格
     private String unit; // 單位
-    private String sku;
-    private String barcode;
+    private String sku; // 商品貨號
+    private String barcode; // 商品條碼
     private List<StockHistory> stockHistoryList;
 
     public Integer getProductVariantId() {

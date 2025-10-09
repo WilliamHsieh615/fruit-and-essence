@@ -13,7 +13,7 @@ public class Product {
     private String productName;
     private ProductCategory productCategory; // ENUM 產品類別
     private List<String> productImages;
-    private List<ProductVariant> productVariants; // 產品種類
+    private List<ProductVariant> productVariants; // 產品變體
     private List<String> productIngredients; // 成分
     private ProductNutritionFacts productNutritionFacts; // 營養資訊
     private String productDescription; // 描述
