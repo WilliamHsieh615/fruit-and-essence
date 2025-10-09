@@ -204,9 +204,10 @@
         discount_id            INT           NOT NULL,
         member_id              INT           NOT NULL,
         used_at                DATETIME      NOT NULL,
-        order_id               INT           NULL,
+        order_id               INT           NOT NULL,
         FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE,
-        FOREIGN KEY (member_id) REFERENCES member(member_id)
+        FOREIGN KEY (member_id) REFERENCES member(member_id),
+        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
     );
 
     CREATE TABLE order_discount_role (
