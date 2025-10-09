@@ -248,3 +248,36 @@
         UNIQUE KEY uniq_invoice_order (order_id),
         FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
     );
+
+    CREATE INDEX idx_member_phone ON member(phone);
+    CREATE INDEX idx_member_has_role_role_id ON member_has_role(role_id);
+    CREATE INDEX idx_member_subscription_member_id ON member_subscription(member_id);
+    CREATE INDEX idx_login_history_member_id ON login_history(member_id);
+    CREATE INDEX idx_login_history_time ON login_history(login_time);
+    CREATE INDEX idx_product_name ON product(product_name);
+    CREATE INDEX idx_product_category ON product(product_category);
+    CREATE INDEX idx_product_variant_product_id ON product_variant(product_id);
+    CREATE INDEX idx_product_variant_barcode ON product_variant(barcode);
+    CREATE INDEX idx_product_nutrition_product_id ON product_nutrition_facts(product_id);
+    CREATE INDEX idx_product_ingredient_product_id ON product_ingredient(product_id);
+    CREATE INDEX idx_product_images_product_id ON product_images(product_id);
+    CREATE INDEX idx_stock_history_variant_id ON stock_history(product_variant_id);
+    CREATE INDEX idx_stock_history_created_date ON stock_history(created_date);
+    CREATE INDEX idx_orders_member_id ON orders(member_id);
+    CREATE INDEX idx_orders_status ON orders(order_status);
+    CREATE INDEX idx_orders_created_date ON orders(created_date);
+    CREATE INDEX idx_orders_discount_id ON orders(discount_id);
+    CREATE INDEX idx_order_item_order_id ON order_item(order_id);
+    CREATE INDEX idx_order_item_product_id ON order_item(product_id);
+    CREATE INDEX idx_order_item_variant_id ON order_item(product_variant_id);
+    CREATE INDEX idx_invoice_issued ON invoice(issued);
+    CREATE INDEX idx_invoice_issued_date ON invoice(issued_date);
+    CREATE UNIQUE INDEX idx_order_discount_code ON order_discount(discount_code);
+    CREATE INDEX idx_order_discount_member_id ON order_discount(member_id);
+    CREATE INDEX idx_order_discount_start_end ON order_discount(start_date, end_date);
+    CREATE INDEX idx_order_discount_usage_discount_id ON order_discount_usage(discount_id);
+    CREATE INDEX idx_order_discount_usage_member_id ON order_discount_usage(member_id);
+    CREATE INDEX idx_order_discount_usage_order_id ON order_discount_usage(order_id);
+    CREATE INDEX idx_order_discount_role_role_id ON order_discount_role(role_id);
+    CREATE INDEX idx_order_discount_product_product_id ON order_discount_product(product_id);
+
