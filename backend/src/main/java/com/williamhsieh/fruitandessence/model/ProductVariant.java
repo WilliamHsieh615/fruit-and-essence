@@ -13,6 +13,7 @@ public class ProductVariant {
     private BigDecimal price; // 價格
     private BigDecimal discountPrice; // 折扣後價格
     private String unit; // 單位
+    private Integer stock; // 庫存
     private String sku; // 商品貨號
     private String barcode; // 商品條碼
     private List<StockHistory> stockHistoryList;
@@ -63,6 +64,14 @@ public class ProductVariant {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
     }
 
     public String getSku() {

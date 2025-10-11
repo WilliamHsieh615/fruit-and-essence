@@ -11,10 +11,10 @@ public class ProductVariantResponse {
     private BigDecimal price;
     private BigDecimal discountPrice;
     private String unit;
+    private Integer stock;
     private String sku;
     private String barcode;
 
-    private Integer stock; // 取 stockHistoryList 的最後一筆 stockAfter
     private ProductNutritionFactsResponse nutritionFacts;
 
     public Integer getProductVariantId() {

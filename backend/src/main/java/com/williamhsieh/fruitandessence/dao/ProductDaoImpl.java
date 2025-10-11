@@ -115,13 +115,14 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public List<ProductVariant> getVariantsByIds(List<Integer> variantIds) {
+    public List<ProductVariant> getVariantsByIds(List<Integer> productVariantIds) {
 
-        String sql = "SELECT variant_id, product_id, variant_name, price, stock, created_date, last_modified_date " +
-                "FROM product_variant WHERE variant_id IN (:variantIds)";
+        String sql = "SELECT product_variant_id, product_id, product_size, price, discount_price, unit, " +
+                "stock, sku, barcode " +
+                "FROM product_variant WHERE product_variant_id IN (:productVariantIds)";
 
         Map<String, Object> map = new HashMap<>();
-        map.put("variantIds", variantIds);
+        map.put("productVariantIds", productVariantIds);
 
         List<ProductVariant>  productVariantList = namedParameterJdbcTemplate.query(sql, map, new ProductVariantRowMapper());
 
@@ -135,7 +136,8 @@ public class ProductDaoImpl implements ProductDao {
     @Override
     public Map<Integer, List<ProductVariant>> getVariantsByProductIds(List<Integer> productIds) {
 
-        String sql = "SELECT product_variant_id, product_id, size, price, discount_price, unit, sku, barcode " +
+        String sql = "SELECT product_variant_id, product_id, product_size, price, discount_price, unit, " +
+                "stock, sku, barcode " +
                 "FROM product_variant WHERE product_id IN (:productIds)";
 
         Map<String, Object> map = new HashMap<>();
@@ -228,6 +230,22 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
+    public List<StockHistory> getStockHistoryByProductVariantId(Integer productVariantId) {
+
+        String sql = "stock_history_id, product_variant_id, change_amount, stock_after, reason, " +
+                "created_date, last_modified_date " +
+                "FROM stock_history WHERE product_variant_id = :productVariantId " +
+                "ORDER BY created_date ASC";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("productVariantId", productVariantId);
+
+        List<StockHistory> stockHistoryList = namedParameterJdbcTemplate.query(sql, map, new StockHistoryRowMapper());
+
+        return stockHistoryList;
+    }
+
+    @Override
     public Map<Integer, List<StockHistory>> getStockHistoryByProductVariantIds(List<Integer> productVariantIds) {
 
         String sql = "SELECT stock_history_id ,product_variant_id, change_amount, stock_after , reason, created_date, last_modified_date " +
@@ -245,7 +263,7 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public Integer createProduct(ProductRequest productRequest) {
+    public Integer createProduct(Product product) {
 
         String sql = "INSERT INTO product(product_name, product_category, product_description, " +
                 "created_date, last_modified_date) " +
@@ -253,9 +271,9 @@ public class ProductDaoImpl implements ProductDao {
                 ":createdDate, :lastModifiedDate) ";
 
         Map<String, Object> map = new HashMap<>();
-        map.put("productName", productRequest.getProductName());
-        map.put("productCategory", productRequest.getProductCategory().toString());
-        map.put("productDescription", productRequest.getProductDescription());
+        map.put("productName", product.getProductName());
+        map.put("productCategory", product.getProductCategory().toString());
+        map.put("productDescription", product.getProductDescription());
 
         LocalDateTime now = LocalDateTime.now();
         map.put("createdDate", now);
@@ -272,22 +290,23 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public List<Integer> createProductVariants(Integer productId, List<ProductVariantRequest> productVariantRequestList) {
+    public List<Integer> createProductVariants(Integer productId, List<ProductVariant> productVariantList) {
 
-        String sql = "INSERT INTO product_variant (product_id, product_size, price, discount_price, unit, sku, barcode) " +
-                "VALUES (:productId, :productSize, :price, :discountPrice, :unit, :sku, :barcode) ";
+        String sql = "INSERT INTO product_variant (product_id, product_size, price, discount_price, unit, stock, sku, barcode) " +
+                "VALUES (:productId, :productSize, :price, :discountPrice, :unit, :stock, :sku, :barcode) ";
 
         List<Integer> productVariantIdList = new ArrayList<>();
 
-        for (ProductVariantRequest productVariantRequest : productVariantRequestList) {
+        for (ProductVariant productVariant : productVariantList) {
             Map<String, Object> map = new HashMap<>();
             map.put("productId", productId);
-            map.put("productSize", productVariantRequest.getProductSize().toString());
-            map.put("price", productVariantRequest.getPrice());
-            map.put("discountPrice", productVariantRequest.getDiscountPrice());
-            map.put("unit", productVariantRequest.getUnit());
-            map.put("sku", productVariantRequest.getSku());
-            map.put("barcode", productVariantRequest.getBarcode());
+            map.put("productSize", productVariant.getProductSize().toString());
+            map.put("price", productVariant.getPrice());
+            map.put("discountPrice", productVariant.getDiscountPrice());
+            map.put("unit", productVariant.getUnit());
+            map.put("stock", productVariant.getStock());
+            map.put("sku", productVariant.getSku());
+            map.put("barcode", productVariant.getBarcode());
 
             KeyHolder keyHolder = new GeneratedKeyHolder();
             namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map), keyHolder);
@@ -298,7 +317,7 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public void createProductNutrition(Integer productId, ProductNutritionFactsRequest productNutritionFactsRequest) {
+    public void createProductNutrition(Integer productId, ProductNutritionFacts productNutritionFacts) {
 
         String sql = "INSERT INTO product_nutrition_facts (product_id, serving_size, calories, " +
                 "protein, fat, carbohydrates, sugar, fiber, sodium, vitaminC) " +
@@ -307,15 +326,15 @@ public class ProductDaoImpl implements ProductDao {
 
         Map<String, Object> map = new HashMap<>();
         map.put("productId", productId);
-        map.put("servingSize", productNutritionFactsRequest.getServingSize());
-        map.put("calories", productNutritionFactsRequest.getCalories());
-        map.put("protein", productNutritionFactsRequest.getProtein());
-        map.put("fat", productNutritionFactsRequest.getFat());
-        map.put("carbohydrates", productNutritionFactsRequest.getCarbohydrates());
-        map.put("sugar", productNutritionFactsRequest.getSugar());
-        map.put("fiber", productNutritionFactsRequest.getFiber());
-        map.put("sodium", productNutritionFactsRequest.getSodium());
-        map.put("vitaminC", productNutritionFactsRequest.getVitaminC());
+        map.put("servingSize", productNutritionFacts.getServingSize());
+        map.put("calories", productNutritionFacts.getCalories());
+        map.put("protein", productNutritionFacts.getProtein());
+        map.put("fat", productNutritionFacts.getFat());
+        map.put("carbohydrates", productNutritionFacts.getCarbohydrates());
+        map.put("sugar", productNutritionFacts.getSugar());
+        map.put("fiber", productNutritionFacts.getFiber());
+        map.put("sodium", productNutritionFacts.getSodium());
+        map.put("vitaminC", productNutritionFacts.getVitaminC());
 
         namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map));
 
@@ -356,7 +375,7 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public void updateProduct(Integer productId, ProductRequest productRequest) {
+    public void updateProduct(Integer productId, Product product) {
 
         String sql = "UPDATE product SET product_name = :productName, product_category = :productCategory, " +
                 "product_description = :productDescription, last_modified_date = :lastModifiedDate " +
@@ -365,9 +384,9 @@ public class ProductDaoImpl implements ProductDao {
         Map<String, Object> map = new HashMap<>();
         map.put("productId", productId);
 
-        map.put("productName", productRequest.getProductName());
-        map.put("productCategory", productRequest.getProductCategory().toString());
-        map.put("productDescription", productRequest.getProductDescription());
+        map.put("productName", product.getProductName());
+        map.put("productCategory", product.getProductCategory().toString());
+        map.put("productDescription", product.getProductDescription());
 
         map.put("lastModifiedDate", LocalDateTime.now());
 
@@ -376,40 +395,39 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public void updateProductVariants(Integer productId, List<ProductVariantRequest> productVariantRequestList) {
+    public void updateProductVariants(Integer productId, List<ProductVariant> productVariantList) {
 
         List<Map<String, Object>> mapArrayList = new ArrayList<>();
         String sqlInsert = "INSERT INTO product_variant (product_id, product_size, price, discount_price, unit, stock, sku, barcode) " +
-                "VALUES (:productId, :productSize, :price, :discountPrice, :unit, :sku, :barcode)";
+                "VALUES (:productId, :productSize, :price, :discountPrice, :unit, :stock, :sku, :barcode)";
 
         String sqlUpdate = "UPDATE product_variant SET product_size = :productSize, price = :price, discount_price = :discountPrice, " +
-                "unit = :unit, sku = :sku, barcode = :barcode WHERE product_variant_id = :productVariantId";
+                "unit = :unit, stock = :stock, sku = :sku, barcode = :barcode WHERE product_variant_id = :productVariantId";
 
-        for (ProductVariantRequest productVariantRequest : productVariantRequestList) {
+        for (ProductVariant productVariant : productVariantList) {
             Map<String, Object> map = new HashMap<>();
-            if (productVariantRequest.getProductVariantId() != null) {
+            if (productVariant.getProductVariantId() != null) {
                 // update
-                map.put("productVariantId", productVariantRequest.getProductVariantId());
-                map.put("productSize", productVariantRequest.getProductSize().toString());
-                map.put("price", productVariantRequest.getPrice());
-                map.put("discountPrice", productVariantRequest.getDiscountPrice());
-                map.put("unit", productVariantRequest.getUnit());
-                map.put("stock", productVariantRequest.getStock());
-                map.put("sku", productVariantRequest.getSku());
-                map.put("barcode", productVariantRequest.getBarcode());
+                map.put("productVariantId", productVariant.getProductVariantId());
+                map.put("productSize", productVariant.getProductSize().toString());
+                map.put("price", productVariant.getPrice());
+                map.put("discountPrice", productVariant.getDiscountPrice());
+                map.put("unit", productVariant.getUnit());
+                map.put("stock", productVariant.getStock());
+                map.put("sku", productVariant.getSku());
+                map.put("barcode", productVariant.getBarcode());
                 namedParameterJdbcTemplate.update(sqlUpdate, map);
             } else {
                 // insert
                 map.put("productId", productId);
-                map.put("productSize", productVariantRequest.getProductSize().toString());
-                map.put("price", productVariantRequest.getPrice());
-                map.put("discountPrice", productVariantRequest.getDiscountPrice());
-                map.put("unit", productVariantRequest.getUnit());
-                map.put("stock", productVariantRequest.getStock());
-                map.put("sku", productVariantRequest.getSku());
-                map.put("barcode", productVariantRequest.getBarcode());
+                map.put("productSize", productVariant.getProductSize().toString());
+                map.put("price", productVariant.getPrice());
+                map.put("discountPrice", productVariant.getDiscountPrice());
+                map.put("unit", productVariant.getUnit());
+                map.put("stock", productVariant.getStock());
+                map.put("sku", productVariant.getSku());
+                map.put("barcode", productVariant.getBarcode());
                 mapArrayList.add(map);
-
             }
         }
 
@@ -419,7 +437,7 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public void updateProductNutrition(Integer productId, ProductNutritionFactsRequest productNutritionFactsRequest) {
+    public void updateProductNutrition(Integer productId, ProductNutritionFacts productNutritionFacts) {
 
         String sql = "UPDATE product_nutrition_facts SET serving_size = :servingSize, calories = :calories, " +
                 "protein = :protein, fat = :fat, carbohydrates = :carbohydrates, " +
@@ -428,15 +446,15 @@ public class ProductDaoImpl implements ProductDao {
 
         Map<String, Object> map = new HashMap<>();
         map.put("productId", productId);
-        map.put("servingSize", productNutritionFactsRequest.getServingSize());
-        map.put("calories", productNutritionFactsRequest.getCalories());
-        map.put("protein", productNutritionFactsRequest.getProtein());
-        map.put("fat", productNutritionFactsRequest.getFat());
-        map.put("carbohydrates", productNutritionFactsRequest.getCarbohydrates());
-        map.put("sugar", productNutritionFactsRequest.getSugar());
-        map.put("fiber", productNutritionFactsRequest.getFiber());
-        map.put("sodium", productNutritionFactsRequest.getSodium());
-        map.put("vitaminC", productNutritionFactsRequest.getVitaminC());
+        map.put("servingSize", productNutritionFacts.getServingSize());
+        map.put("calories", productNutritionFacts.getCalories());
+        map.put("protein", productNutritionFacts.getProtein());
+        map.put("fat", productNutritionFacts.getFat());
+        map.put("carbohydrates", productNutritionFacts.getCarbohydrates());
+        map.put("sugar", productNutritionFacts.getSugar());
+        map.put("fiber", productNutritionFacts.getFiber());
+        map.put("sodium", productNutritionFacts.getSodium());
+        map.put("vitaminC", productNutritionFacts.getVitaminC());
 
         namedParameterJdbcTemplate.update(sql, map);
 

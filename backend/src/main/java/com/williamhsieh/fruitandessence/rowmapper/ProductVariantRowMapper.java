@@ -19,6 +19,7 @@ public class ProductVariantRowMapper implements RowMapper<ProductVariant> {
         productVariant.setPrice(resultSet.getBigDecimal("price"));
         productVariant.setDiscountPrice(resultSet.getBigDecimal("discount_price"));
         productVariant.setUnit(resultSet.getString("unit"));
+        productVariant.setStock(resultSet.getInt("stock"));
         productVariant.setSku(resultSet.getString("sku"));
         productVariant.setBarcode(resultSet.getString("barcode"));
 

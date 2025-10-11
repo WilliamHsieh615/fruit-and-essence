@@ -22,7 +22,7 @@ public interface ProductDao {
 
     List<Product> getProductsByIds(List<Integer> productIds);
 
-    List<ProductVariant> getVariantsByIds(List<Integer> variantIds);
+    List<ProductVariant> getVariantsByIds(List<Integer> productVariantIds);
 
     Map<Integer, List<ProductVariant>> getVariantsByProductIds(List<Integer> productIds);
 
@@ -32,23 +32,25 @@ public interface ProductDao {
 
     Map<Integer, List<String>> getIngredientByProductIds(List<Integer> productIds);
 
+    List<StockHistory> getStockHistoryByProductVariantId(Integer productVariantId);
+
     Map<Integer, List<StockHistory>> getStockHistoryByProductVariantIds(List<Integer> productVariantIds);
 
-    Integer createProduct(ProductRequest productRequest);
+    Integer createProduct(Product product);
 
-    List<Integer> createProductVariants(Integer productId, List<ProductVariantRequest> productVariantRequestList);
+    List<Integer> createProductVariants(Integer productId, List<ProductVariant> productVariantList);
 
-    void createProductNutrition(Integer productId, ProductNutritionFactsRequest productNutritionFactsRequest);
+    void createProductNutrition(Integer productId, ProductNutritionFacts productNutritionFacts);
 
     void createProductImages(Integer productId, List<String> images);
 
     void createProductIngredients(Integer productId, List<String> ingredients);
 
-    void updateProduct(Integer productId, ProductRequest productRequest);
+    void updateProduct(Integer productId, Product product);
 
-    void updateProductVariants(Integer productId, List<ProductVariantRequest> productVariantRequestList);
+    void updateProductVariants(Integer productId, List<ProductVariant> productVariantList);
 
-    void updateProductNutrition(Integer productId, ProductNutritionFactsRequest productNutritionFactsRequest);
+    void updateProductNutrition(Integer productId, ProductNutritionFacts productNutritionFacts);
 
     void updateProductImages(Integer productId, List<String> images);
 

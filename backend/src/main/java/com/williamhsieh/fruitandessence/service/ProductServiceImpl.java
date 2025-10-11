@@ -8,18 +8,23 @@ import com.williamhsieh.fruitandessence.model.Product;
 import com.williamhsieh.fruitandessence.model.ProductNutritionFacts;
 import com.williamhsieh.fruitandessence.model.ProductVariant;
 import com.williamhsieh.fruitandessence.model.StockHistory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
+
+    private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     @Autowired
     private ProductDao productDao;
@@ -119,29 +124,69 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Integer createProduct(ProductRequest productRequest) {
 
-        Integer productId = productDao.createProduct(productRequest);
+        LocalDateTime now = LocalDateTime.now();
 
+        Product product = new Product();
+        product.setProductName(productRequest.getProductName());
+        product.setProductCategory(productRequest.getProductCategory());
+        product.setProductDescription(productRequest.getProductDescription());
+        product.setCreatedDate(now);
+        product.setLastModifiedDate(now);
+
+        Integer productId = productDao.createProduct(product);
+
+        List<ProductVariant> productVariantList = new ArrayList<>();
         List<ProductVariantRequest> productVariantRequestList = productRequest.getProductVariants();
-        List<Integer> productVariantIdList = List.of();
-        if (productVariantRequestList != null && !productVariantRequestList.isEmpty()) {
-            productVariantIdList = productDao.createProductVariants(productId, productVariantRequestList);
+        for (ProductVariantRequest productVariantRequest : productVariantRequestList) {
+            ProductVariant productVariant = new ProductVariant();
+            productVariant.setProductId(productId);
+            productVariant.setProductSize(productVariantRequest.getProductSize());
+            productVariant.setPrice(productVariantRequest.getPrice());
+            productVariant.setDiscountPrice(productVariantRequest.getDiscountPrice());
+            productVariant.setUnit(productVariantRequest.getUnit());
+            productVariant.setStock(productVariantRequest.getStock());
+            productVariant.setSku(productVariantRequest.getSku());
+            productVariant.setBarcode(productVariantRequest.getBarcode());
 
-            for (int i = 0; i < productVariantRequestList.size(); i++) {
-                ProductVariantRequest productVariantRequest = productVariantRequestList.get(i);
-                Integer productVariantId = productVariantIdList.get(i);
-                if (productVariantRequest.getStock() != null && productVariantRequest.getStock() > 0) {
-                    StockHistory stockHistory = new StockHistory();
-                    stockHistory.setProductVariantId(productVariantId);
-                    stockHistory.setChangeAmount(productVariantRequest.getStock());
-                    stockHistory.setStockAfter(productVariantRequest.getStock());
-                    stockHistory.setStockChangeReason(StockChangeReason.MANUAL_ADJUST);
-                    productDao.insertStockHistory(stockHistory);
-                }
+            productVariantList.add(productVariant);
+        }
+
+        List<Integer> productVariantIdList = productDao.createProductVariants(productId, productVariantList);
+
+        for (int i = 0; i < productVariantList.size(); i++) {
+            ProductVariant productVariant = productVariantList.get(i);
+            Integer productVariantId = productVariantIdList.get(i);
+
+            if (productVariant.getStock() != null && productVariant.getStock() > 0) {
+                StockHistory stockHistory = new StockHistory();
+                stockHistory.setProductVariantId(productVariantId);
+                stockHistory.setChangeAmount(productVariant.getStock()); // 初始庫存量
+                stockHistory.setStockAfter(productVariant.getStock());
+                stockHistory.setStockChangeReason(StockChangeReason.MANUAL_ADJUST);
+                stockHistory.setCreatedDate(now);
+                stockHistory.setLastModifiedDate(now);
+
+                productDao.insertStockHistory(stockHistory);
             }
         }
 
         if (productRequest.getProductNutritionFacts() != null) {
-            productDao.createProductNutrition(productId, productRequest.getProductNutritionFacts());
+
+            ProductNutritionFactsRequest productNutritionFactsRequest = productRequest.getProductNutritionFacts();
+            ProductNutritionFacts productNutritionFacts = new ProductNutritionFacts();
+
+            productNutritionFacts.setProductId(productId);
+            productNutritionFacts.setServingSize(productNutritionFactsRequest.getServingSize());
+            productNutritionFacts.setCalories(productNutritionFactsRequest.getCalories());
+            productNutritionFacts.setProtein(productNutritionFactsRequest.getProtein());
+            productNutritionFacts.setFat(productNutritionFactsRequest.getFat());
+            productNutritionFacts.setCarbohydrates(productNutritionFactsRequest.getCarbohydrates());
+            productNutritionFacts.setSugar(productNutritionFactsRequest.getSugar());
+            productNutritionFacts.setFiber(productNutritionFactsRequest.getFiber());
+            productNutritionFacts.setSodium(productNutritionFactsRequest.getSodium());
+            productNutritionFacts.setVitaminC(productNutritionFactsRequest.getVitaminC());
+
+            productDao.createProductNutrition(productId, productNutritionFacts);
         }
 
         if (productRequest.getProductImages() != null && !productRequest.getProductImages().isEmpty()) {
@@ -157,8 +202,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public StockHistoryResponse increaseStock(StockHistoryRequest stockHistoryRequest) {
+
+        ProductVariant productVariant = productDao.getVariantsByIds(
+                List.of(stockHistoryRequest.getProductVariantId())
+        ).get(0);
+
         int currentStock = getCurrentStock(stockHistoryRequest.getProductVariantId());
         int newStock = currentStock + stockHistoryRequest.getChangeAmount();
+
+        productVariant.setStock(newStock);
+        productDao.updateProductVariants(productVariant.getProductId(), List.of(productVariant));
 
         StockHistory stockHistory = new StockHistory();
         stockHistory.setProductVariantId(stockHistoryRequest.getProductVariantId());
@@ -171,11 +224,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public StockHistoryResponse decreaseStock(StockHistoryRequest stockHistoryRequest) {
+
+        ProductVariant productVariant = productDao.getVariantsByIds(
+                List.of(stockHistoryRequest.getProductVariantId())
+        ).get(0);
+
         int currentStock = getCurrentStock(stockHistoryRequest.getProductVariantId());
         int newStock = currentStock - stockHistoryRequest.getChangeAmount();
         if (newStock < 0) {
-            throw new IllegalArgumentException("庫存不足，無法扣減");
+            throw new IllegalArgumentException("stock cannot be negative");
         }
+
+        productVariant.setStock(newStock);
+        productDao.updateProductVariants(productVariant.getProductId(), List.of(productVariant));
 
         StockHistory stockHistory = new StockHistory();
         stockHistory.setProductVariantId(stockHistoryRequest.getProductVariantId());
@@ -188,7 +249,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public StockHistoryResponse adjustStock(StockHistoryRequest stockHistoryRequest) {
+
+        ProductVariant productVariant = productDao.getVariantsByIds(
+                List.of(stockHistoryRequest.getProductVariantId())
+        ).get(0);
+
         int newStock = stockHistoryRequest.getChangeAmount();
+
+        productVariant.setStock(newStock);
+        productDao.updateProductVariants(productVariant.getProductId(), List.of(productVariant));
 
         StockHistory stockHistory = new StockHistory();
         stockHistory.setProductVariantId(stockHistoryRequest.getProductVariantId());
@@ -203,25 +272,94 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void updateProduct(Integer productId, ProductRequest productRequest) {
 
-        productDao.updateProduct(productId, productRequest);
+        LocalDateTime now = LocalDateTime.now();
 
-        if (productRequest.getProductVariants() != null && !productRequest.getProductVariants().isEmpty()) {
-            productDao.updateProductVariants(productId, productRequest.getProductVariants());
+        Product product = new Product();
+        product.setProductName(productRequest.getProductName());
+        product.setProductCategory(productRequest.getProductCategory());
+        product.setProductDescription(productRequest.getProductDescription());
+        product.setLastModifiedDate(now);
 
-            for (ProductVariantRequest productVariantRequest : productRequest.getProductVariants()) {
-                if (productVariantRequest.getStock() != null) {
-                    StockHistory stockHistory = new StockHistory();
-                    stockHistory.setProductVariantId(productVariantRequest.getProductVariantId());
-                    stockHistory.setChangeAmount(productVariantRequest.getStock());
-                    stockHistory.setStockAfter(productVariantRequest.getStock());
-                    stockHistory.setStockChangeReason(StockChangeReason.MANUAL_ADJUST);
-                    productDao.insertStockHistory(stockHistory);
-                }
+        productDao.updateProduct(productId, product);
+
+        List<Integer> variantIds = productRequest.getProductVariants()
+                .stream()
+                .map(ProductVariantRequest::getProductVariantId)
+                .toList();
+
+        List<ProductVariant> oldProductVariantList = productDao.getVariantsByIds(variantIds);
+
+        Map<Integer, ProductVariant> oldProductVariantMap = oldProductVariantList.stream()
+                .collect(Collectors.toMap(ProductVariant::getProductVariantId, v -> v));
+
+
+        List<ProductVariant> newProductVariantList = new ArrayList<>();
+        List<ProductVariantRequest> productVariantRequestList = productRequest.getProductVariants();
+        for (ProductVariantRequest productVariantRequest : productVariantRequestList) {
+
+            ProductVariant productVariant = new ProductVariant();
+            productVariant.setProductVariantId(productVariantRequest.getProductVariantId());
+            productVariant.setProductSize(productVariantRequest.getProductSize());
+            productVariant.setPrice(productVariantRequest.getPrice());
+            productVariant.setDiscountPrice(productVariantRequest.getDiscountPrice());
+            productVariant.setUnit(productVariantRequest.getUnit());
+            productVariant.setStock(productVariantRequest.getStock());
+            productVariant.setSku(productVariantRequest.getSku());
+            productVariant.setBarcode(productVariantRequest.getBarcode());
+
+            newProductVariantList.add(productVariant);
+
+            ProductVariant oldProductVariant = oldProductVariantMap.get(productVariant.getProductVariantId());
+            Integer oldStock = oldProductVariant.getStock();
+            Integer newStock = productVariant.getStock();
+
+            List<StockHistory> stockHistoryList = productDao.getStockHistoryByProductVariantId(productVariant.getProductVariantId());
+            StockHistory lastStockHistory = stockHistoryList.get(stockHistoryList.size() - 1);
+
+            if (!oldStock.equals(lastStockHistory.getStockAfter())) {
+                log.warn("Stock mismatch for variantId={}, DB stock={}, history stockAfter={}",
+                        productVariant.getProductVariantId(), oldStock, lastStockHistory.getStockAfter());
+            }
+
+            if (newStock == null) {
+                throw new IllegalArgumentException("Stock cannot be null for variantId=" + productVariantRequest.getProductVariantId());
+            }
+            if (newStock < 0) {
+                throw new IllegalArgumentException("Stock cannot be negative for variantId=" + productVariantRequest.getProductVariantId());
+            }
+
+            if (newStock - oldStock != 0) {
+                StockHistory stockHistory = new StockHistory();
+                stockHistory.setProductVariantId(productVariantRequest.getProductVariantId());
+                stockHistory.setChangeAmount(newStock - oldStock);
+                stockHistory.setStockAfter(productVariant.getStock());
+                stockHistory.setStockChangeReason(StockChangeReason.MANUAL_ADJUST);
+                stockHistory.setCreatedDate(stockHistoryList.get(0).getCreatedDate());
+                stockHistory.setLastModifiedDate(now);
+                productDao.insertStockHistory(stockHistory);
             }
         }
 
+        productDao.updateProductVariants(productId, newProductVariantList);
+
+
         if (productRequest.getProductNutritionFacts() != null) {
-            productDao.updateProductNutrition(productId, productRequest.getProductNutritionFacts());
+
+            ProductNutritionFactsRequest productNutritionFactsRequest = productRequest.getProductNutritionFacts();
+            ProductNutritionFacts productNutritionFacts = new ProductNutritionFacts();
+
+            productNutritionFacts.setProductId(productId);
+            productNutritionFacts.setServingSize(productNutritionFactsRequest.getServingSize());
+            productNutritionFacts.setCalories(productNutritionFactsRequest.getCalories());
+            productNutritionFacts.setProtein(productNutritionFactsRequest.getProtein());
+            productNutritionFacts.setFat(productNutritionFactsRequest.getFat());
+            productNutritionFacts.setCarbohydrates(productNutritionFactsRequest.getCarbohydrates());
+            productNutritionFacts.setSugar(productNutritionFactsRequest.getSugar());
+            productNutritionFacts.setFiber(productNutritionFactsRequest.getFiber());
+            productNutritionFacts.setSodium(productNutritionFactsRequest.getSodium());
+            productNutritionFacts.setVitaminC(productNutritionFactsRequest.getVitaminC());
+
+            productDao.updateProductNutrition(productId, productNutritionFacts);
         }
 
         if (productRequest.getProductImages() != null && !productRequest.getProductImages().isEmpty()) {
@@ -280,15 +418,28 @@ public class ProductServiceImpl implements ProductService {
                     productVariantResponse.setProductSize(variant.getProductSize());
                     productVariantResponse.setPrice(variant.getPrice());
                     productVariantResponse.setDiscountPrice(variant.getDiscountPrice());
+                    productVariantResponse.setStock(variant.getStock());
                     productVariantResponse.setUnit(variant.getUnit());
                     productVariantResponse.setSku(variant.getSku());
                     productVariantResponse.setBarcode(variant.getBarcode());
 
-                    // 庫存：取最後一筆 stockHistory
+                    // 比對 productVariant stock 與 最後一筆 stockHistory 有沒有一致
                     List<StockHistory> stockHistoryList = stockHistoryMap.getOrDefault(variant.getProductVariantId(), List.of());
-                    if (!stockHistoryList.isEmpty()) {
+                    if (stockHistoryList == null || stockHistoryList.isEmpty()) {
+                        productVariantResponse.setStock(variant.getStock());
+                    } else {
+                        // 取最後一筆歷史紀錄
                         StockHistory lastStock = stockHistoryList.get(stockHistoryList.size() - 1);
-                        productVariantResponse.setStock(lastStock.getStockAfter());
+
+                        // 比對是否一致
+                        if (!variant.getStock().equals(lastStock.getStockAfter())) {
+                            log.error("Stock mismatch for variantId={}, DB stock={}, history stockAfter={}",
+                                    variant.getProductVariantId(),
+                                    variant.getStock(),
+                                    lastStock.getStockAfter());
+                        }
+
+                        productVariantResponse.setStock(variant.getStock());
                     }
 
                     // 營養資訊計算

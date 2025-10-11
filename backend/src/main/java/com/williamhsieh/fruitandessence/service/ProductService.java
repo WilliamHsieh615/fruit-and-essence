@@ -17,11 +17,11 @@ public interface ProductService {
 
     Integer createProduct(ProductRequest productRequest);
 
-    StockHistoryResponse increaseStock(StockHistoryRequest request);
+    StockHistoryResponse increaseStock(StockHistoryRequest stockHistoryRequest);
 
-    StockHistoryResponse decreaseStock(StockHistoryRequest request);
+    StockHistoryResponse decreaseStock(StockHistoryRequest stockHistoryRequest);
 
-    StockHistoryResponse adjustStock(StockHistoryRequest request);
+    StockHistoryResponse adjustStock(StockHistoryRequest stockHistoryRequest);
 
     void updateProduct(Integer productId, ProductRequest productRequest);
 
