@@ -199,6 +199,7 @@
         FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
     );
 
+    -- order_discount_usage table
     CREATE TABLE order_discount_usage (
         usage_id               INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
         discount_id            INT           NOT NULL,
