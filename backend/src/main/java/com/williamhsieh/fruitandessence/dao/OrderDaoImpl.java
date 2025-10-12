@@ -1,13 +1,13 @@
 package com.williamhsieh.fruitandessence.dao;
 
+import com.williamhsieh.fruitandessence.constant.DiscountType;
 import com.williamhsieh.fruitandessence.constant.OrderStatus;
+import com.williamhsieh.fruitandessence.constant.ProductCategory;
 import com.williamhsieh.fruitandessence.dto.CreatedOrderRequest;
 import com.williamhsieh.fruitandessence.dto.OrderItemResponse;
 import com.williamhsieh.fruitandessence.dto.OrderQueryParams;
-import com.williamhsieh.fruitandessence.model.Order;
-import com.williamhsieh.fruitandessence.model.OrderItem;
-import com.williamhsieh.fruitandessence.rowmapper.OrderItemRowMapper;
-import com.williamhsieh.fruitandessence.rowmapper.OrderRowMapper;
+import com.williamhsieh.fruitandessence.model.*;
+import com.williamhsieh.fruitandessence.rowmapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -15,11 +15,15 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class OrderDaoImpl implements OrderDao {
@@ -46,8 +50,11 @@ public class OrderDaoImpl implements OrderDao {
     @Override
     public List<Order> getOrders(OrderQueryParams orderQueryParams) {
 
-        String sql = "SELECT order_id, member_id, total_amount, shipping_phone, shipping_address, " +
-                "status, order_date, created_date, last_modified_date " +
+        String sql = "SELECT order_id, order_number, member_id, subtotal, tax_amount, discountAmount, shipping_fee, total_amount, " +
+                "shipping_phone, shipping_address, shipping_note " +
+                "payment_methodId, shipping_methodId " +
+                "order_status, shipping_date, tracking_number, cancel_reason, " +
+                "created_date, last_modified_date " +
                 "FROM orders WHERE 1=1";
 
         Map<String, Object> map = new HashMap<>();
@@ -71,9 +78,12 @@ public class OrderDaoImpl implements OrderDao {
     @Override
     public Order getOrderById(Integer orderId) {
 
-        String sql = "SELECT order_id, member_id, total_amount, shipping_phone, shipping_address, " +
-                "status, order_date, created_date, last_modified_date " +
-                "FROM orders WHERE order_Id = :orderId";
+        String sql = "SELECT order_id, order_number, member_id, subtotal, tax_amount, discountAmount, shipping_fee, total_amount, " +
+                "shipping_phone, shipping_address, shipping_note " +
+                "payment_methodId, shipping_methodId " +
+                "order_status, shipping_date, tracking_number, cancel_reason, " +
+                "created_date, last_modified_date " +
+                "FROM orders WHERE order_id = :orderId";
 
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", orderId);
@@ -85,31 +95,219 @@ public class OrderDaoImpl implements OrderDao {
         } else {
             return orderList.get(0);
         }
-
     }
 
     @Override
-    public List<OrderItemResponse> getOrderItemsByOrderId(Integer orderId) {
+    public Map<Integer, List<OrderItem>> getOrderItemsByOrderIds(List<Integer> orderIds) {
 
-        String sql = "SELECT oi.order_item_id, oi.order_id, oi.product_id, " +
-                     "oi.purchased_count, oi.purchased_weight, oi.amount, " +
-                     "p.product_name, p.image_url, p.price_per_unit, p.unit " +
-                     "FROM order_item as oi " +
-                     "LEFT JOIN product as p ON oi.product_id = p.product_id " +
-                     "WHERE oi.order_id = :orderId";
+        String sql = "SELECT order_item_id, order_id, product_id, " +
+                "product_variant_id, quantity, price, item_total, notes " +
+                "FROM order_item WHERE order_id IN (:orderIds)";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderIds", orderIds);
+
+        List<OrderItem> orderItemList = namedParameterJdbcTemplate.query(sql, map, new OrderItemRowMapper());
+
+        Map<Integer, List<OrderItem>> orderItemListMap = orderItemList.stream().collect(Collectors.groupingBy(OrderItem::getOrderId));
+
+        if (orderItemList.isEmpty()) {
+            return  Map.of();
+        }  else {
+            return orderItemListMap;
+        }
+    }
+
+    @Override
+    public List<OrderItem> getOrderItemsByOrderId(Integer orderId) {
+
+        String sql = "SELECT order_item_id, order_id, product_id, " +
+                "product_variant_id, quantity, price, item_total, notes " +
+                "FROM order_item WHERE order_id = :orderId";
 
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", orderId);
 
-        List<OrderItemResponse> orderItemListResponse = namedParameterJdbcTemplate.query(sql, map, new OrderItemRowMapper());
+        List<OrderItem> orderItemList = namedParameterJdbcTemplate.query(sql, map, new OrderItemRowMapper());
 
-        return orderItemListResponse;
+        return orderItemList;
+    }
+
+    @Override
+    public Map<Integer, List<OrderDiscount>> getOrderDiscountsByOrderIds(List<Integer> orderIds) {
+
+        String sql = """
+            SELECT odu.order_id, od.discount_id, od.member_id, od.discount_name, od.discount_code,
+               od.discount_type, od.discount_value, od.discount_percentage,
+               od.min_order_amount, od.total_usage_limit,
+               od.start_date, od.end_date, od.created_date, od.last_modified_date
+            FROM order_discount_usage odu
+            JOIN order_discount od ON odu.discount_id = od.discount_id
+            WHERE odu.order_id IN (:orderIds)
+        """;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderIds", orderIds);
+
+        List<Map<String, Object>> rows = namedParameterJdbcTemplate.queryForList(sql, map);
+
+        Map<Integer, List<OrderDiscount>> orderDiscountListMap = new HashMap<>();
+
+        for (Map<String, Object> row : rows) {
+            Integer orderId = (Integer) row.get("order_id");
+
+            OrderDiscount orderDiscount = new OrderDiscount();
+            orderDiscount.setDiscountId((Integer) row.get("discount_id"));
+            orderDiscount.setMemberId((Integer) row.get("member_id"));
+            orderDiscount.setDiscountName((String) row.get("discount_name"));
+            orderDiscount.setDiscountCode((String) row.get("discount_code"));
+            orderDiscount.setDiscountType(DiscountType.valueOf((String) row.get("discount_type")));
+            orderDiscount.setDiscountValue((BigDecimal) row.get("discount_value"));
+            orderDiscount.setDiscountPercentage((BigDecimal) row.get("discount_percentage"));
+            orderDiscount.setMinOrderAmount((BigDecimal) row.get("min_order_amount"));
+            orderDiscount.setTotalUsageLimit((Integer) row.get("total_usage_limit"));
+            orderDiscount.setStartDate(((Timestamp) row.get("start_date")).toLocalDateTime());
+            orderDiscount.setEndDate(((Timestamp) row.get("end_date")).toLocalDateTime());
+            orderDiscount.setCreatedDate(((Timestamp) row.get("created_date")).toLocalDateTime());
+            orderDiscount.setLastModifiedDate(((Timestamp) row.get("last_modified_date")).toLocalDateTime());
+
+            orderDiscountListMap.computeIfAbsent(orderId, k -> new ArrayList<>()).add(orderDiscount);
+        }
+
+        return orderDiscountListMap;
+    }
+
+    @Override
+    public List<OrderDiscount> getOrderDiscountsByOrderId(Integer orderId) {
+        String sql = """
+            SELECT od.discount_id, od.member_id, od.discount_name, od.discount_code,
+               od.discount_type, od.discount_value, od.discount_percentage,
+               od.min_order_amount, od.total_usage_limit,
+               od.start_date, od.end_date, od.created_date, od.last_modified_date
+            FROM order_discount_usage odu
+            JOIN order_discount od ON odu.discount_id = od.discount_id
+            WHERE odu.order_id = :orderId
+        """;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderId", orderId);
+
+        List<OrderDiscount> orderDiscountList = namedParameterJdbcTemplate.query(sql, map, new OrderDiscountRowMapper());
+
+        return orderDiscountList;
+    }
+
+    @Override
+    public List<OrderDiscount> getOrderDiscountsByMemberId(Integer memberId) {
+
+        String sql = "SELECT discount_id, member_id, discount_name, discount_code, " +
+                "discount_type, discount_value, discount_percentage, " +
+                "min_order_amount, total_usage_limit, " +
+                "start_date, end_date, created_date, last_modified_date " +
+                "FROM order_discount WHERE member_id = :memberId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("memberId", memberId);
+
+        List<OrderDiscount> orderDiscountList = namedParameterJdbcTemplate.query(sql, map, new OrderDiscountRowMapper());
+
+        return orderDiscountList;
+    }
+
+    @Override
+    public OrderDiscount getOrderDiscountById(Integer discountId) {
+
+        String sql = "SELECT discount_id, member_id, discount_name, discount_code, " +
+                "discount_type, discount_value, discount_percentage, " +
+                "min_order_amount, total_usage_limit, " +
+                "start_date, end_date, created_date, last_modified_date " +
+                "FROM order_discount WHERE discount_id = :discountId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("discountId", discountId);
+
+        OrderDiscount orderDiscount = namedParameterJdbcTemplate.queryForObject(sql, map, new OrderDiscountRowMapper());
+
+        return orderDiscount;
+    }
+
+    @Override
+    public List<Integer> getRoleIdsByDiscountId(Integer discountId) {
+        String sql = "SELECT role_id FROM order_discount_role WHERE discount_id = :discountId";
+        Map<String, Object> map = new HashMap<>();
+        map.put("discountId", discountId);
+
+        List<Integer> roleIdList = namedParameterJdbcTemplate.queryForList(sql, map, Integer.class);
+        return roleIdList;
+    }
+
+    @Override
+    public List<Integer> getProductIdsByDiscountId(Integer discountId) {
+        String sql = "SELECT product_id FROM order_discount_product WHERE discount_id = :discountId";
+        Map<String, Object> map = new HashMap<>();
+        map.put("discountId", discountId);
+
+        List<Integer> productIdList = namedParameterJdbcTemplate.queryForList(sql, map, Integer.class);
+        return productIdList;
+    }
+
+    @Override
+    public List<ProductCategory> getProductCategoriesByDiscountId(Integer discountId) {
+        String sql = "SELECT product_category FROM order_discount_category WHERE discount_id = :discountId";
+        Map<String, Object> map = new HashMap<>();
+        map.put("discountId", discountId);
+
+        List<ProductCategory> productCategoryList = namedParameterJdbcTemplate.query(sql, map, (resultSet, i) ->
+                ProductCategory.valueOf(resultSet.getString("product_category")));
+
+        return productCategoryList;
+    }
+
+    @Override
+    public PaymentMethod getPaymentMethodById(Integer paymentMethodId) {
+        String sql = "SELECT method_id, method_name, method_description " +
+                "FROM payment_method WHERE method_id = :methodId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("methodId", methodId);
+
+        PaymentMethod paymentMethod = namedParameterJdbcTemplate.queryForObject(sql, map, new PaymentMethodRowMapper());
+
+        return paymentMethod;
+    }
+
+    @Override
+    public ShippingMethod getShippingMethodById(Integer shippingMethodId) {
+        String sql = "SELECT method_id, method_name, provider_code, method_description " +
+                "FROM shipping_method WHERE method_id = :methodId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("methodId", methodId);
+
+        ShippingMethod shippingMethod = namedParameterJdbcTemplate.queryForObject(sql, map, new ShippingMethodRowMapper());
+
+        return shippingMethod;
+    }
+
+    @Override
+    public Invoice getInvoiceByOrderId(Integer orderId) {
+        String sql = "SELECT invoice_id, order_id, invoice_number, invoice_carrier, invoice_donation_code, company_tax_id, " +
+                "issued, issued_date, created_date, last_modified_date " +
+                "FROM invoice WHERE order_id = :orderId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderId", orderId);
+
+        Invoice invoice = namedParameterJdbcTemplate.queryForObject(sql, map, new InvoiceRowMapper());
+
+        return invoice;
     }
 
     @Override
     public Integer createOrder(Integer memberId, Integer totalAmount, CreatedOrderRequest createdOrderRequest) {
 
-        String sql = "INSERT INTO orders (member_id, total_amount, shipping_phone, shipping_address, " +
+        String sql = "INSERT INTO orders (order_number, member_id, subtotal, tax_amount, discount_amount, shipping_fee, total_amount, " +
+                "shipping_phone, shipping_address, shipping_note " +
                 "status, order_date, created_date, last_modified_date)" +
                 "VALUES (:memberId, :totalAmount, :shippingPhone, :shippingAddress, " +
                 ":status, :orderDate, :createdDate, :lastModifiedDate)";

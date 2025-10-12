@@ -14,9 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -44,45 +42,14 @@ public class OrderServiceImpl implements OrderService {
 
         List<Order> orderList = orderDao.getOrders(orderQueryParams);
 
-        // 取得所有 orderId
-        List<Integer> orderIds = orderList.stream()
-                .map(Order::getOrderId)
-                .toList();
+        List<OrderResponse> orderResponseList = new ArrayList<>();
 
-        // 取得所有 OrderItem
-        Map<Integer, List<OrderItem>> orderItemsMap = orderDao.getOrderItemsByOrderIds(orderIds);
+        for (Order order : orderList) {
+            OrderResponse orderResponse = buildOrderResponse(order);
+            orderResponseList.add(orderResponse);
+        }
 
-        // 取得所有 ProductId
-        List<Integer> productIds = orderItemsMap.values().stream()
-                .flatMap(List::stream)
-                .map(OrderItem::getProductId)
-                .distinct()
-                .toList();
-
-        // 取得所有 VariantId
-        List<Integer> variantIds = orderItemsMap.values().stream()
-                .flatMap(List::stream)
-                .map(OrderItem::getProductVariantId)
-                .distinct()
-                .toList();
-
-        // 取得 Product
-        List<Product> products = productDao.getProductsByIds(productIds);
-        Map<Integer, Product> productMap = products.stream()
-                .collect(Collectors.toMap(Product::getProductId, p -> p));
-
-        // 取得 Variant
-        List<ProductVariant> variants = productDao.getVariantsByIds(variantIds);
-        Map<Integer, ProductVariant> variantMap = variants.stream()
-                .collect(Collectors.toMap(ProductVariant::getProductVariantId, v -> v));
-
-        // 取得 Images
-        Map<Integer, List<String>> productImagesMap = productDao.getImagesByProductIds(productIds);
-
-
-        return orderList.stream()
-                .map(order -> buildOrderResponse(order, orderItemsMap, productMap, variantMap, productImagesMap))
-                .toList();
+        return orderResponseList;
     }
 
     @Override
@@ -172,126 +139,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = orderDao.getOrderById(orderId);
 
-        List<Integer> orderIds = List.of(order.getOrderId());
-        Map<Integer, List<OrderItem>> orderItemsMap = orderDao.getOrderItemsByOrderIds(orderIds);
-
-        List<Integer> productIds = orderItemsMap.values().stream()
-                .flatMap(List::stream)
-                .map(OrderItem::getProductId)
-                .distinct()
-                .toList();
-
-        List<Product> products = productDao.getProductsByIds(productIds);
-        Map<Integer, Product> productMap = products.stream()
-                .collect(Collectors.toMap(Product::getProductId, p -> p));
-
-        List<Integer> variantIds = orderItemsMap.values().stream()
-                .flatMap(List::stream)
-                .map(OrderItem::getProductVariantId)
-                .distinct()
-                .toList();
-
-        List<ProductVariant> variants = productDao.getVariantsByIds(variantIds);
-        Map<Integer, ProductVariant> variantMap = variants.stream()
-                .collect(Collectors.toMap(ProductVariant::getProductVariantId, v -> v));
-
-        Map<Integer, List<String>> productImagesMap = productDao.getImagesByProductIds(productIds);
-
-        return buildOrderResponse(order, orderItemsMap, productMap, variantMap, productImagesMap);
-    }
-
-    private OrderResponse buildOrderResponse(
-            Order order,
-            Map<Integer, List<OrderItem>> orderItemsMap,
-            Map<Integer, Product> productMap,
-            Map<Integer, ProductVariant> variantMap,
-            Map<Integer, List<String>> productImagesMap) {
-
-        OrderResponse orderResponse = new OrderResponse();
-
-        orderResponse.setOrderId(order.getOrderId());
-        orderResponse.setOrderNumber(order.getOrderNumber());
-        orderResponse.setMemberId(order.getMemberId());
-
-        orderResponse.setSubtotal(order.getSubtotal());
-        orderResponse.setTaxAmount(order.getTaxAmount());
-        orderResponse.setDiscountAmount(order.getDiscountAmount());
-        orderResponse.setShippingFee(order.getShippingFee());
-        orderResponse.setTotalAmount(order.getTotalAmount());
-
-        orderResponse.setShippingPhone(order.getShippingPhone());
-        orderResponse.setShippingAddress(order.getShippingAddress());
-        orderResponse.setShippingNote(order.getShippingNote());
-
-        orderResponse.setPaymentMethod(order.getPaymentMethod().getMethodName());
-        orderResponse.setShippingMethod(order.getShippingMethod().getMethodName());
-        orderResponse.setShippingProviderCode(order.getShippingMethod().getProviderCode());
-
-        orderResponse.setOrderStatus(order.getOrderStatus());
-        orderResponse.setShippingDate(order.getShippingDate());
-        orderResponse.setTrackingNumber(order.getTrackingNumber());
-        orderResponse.setCancelReason(order.getCancelReason());
-
-        orderResponse.setCreatedDate(order.getCreatedDate());
-        orderResponse.setLastModifiedDate(order.getLastModifiedDate());
-
-        InvoiceResponse invoiceResponse = new InvoiceResponse();
-
-        invoiceResponse.setInvoiceId(order.getInvoice().getInvoiceId());
-        invoiceResponse.setInvoiceNumber(order.getInvoice().getInvoiceNumber());
-        invoiceResponse.setInvoiceCarrier(order.getInvoice().getInvoiceCarrier());
-        invoiceResponse.setInvoiceDonationCode(order.getInvoice().getInvoiceDonationCode());
-        invoiceResponse.setCompanyTaxId(order.getInvoice().getCompanyTaxId());
-        invoiceResponse.setIssued(order.getInvoice().getIssued());
-        invoiceResponse.setIssuedDate(order.getInvoice().getIssuedDate());
-        invoiceResponse.setCreatedDate(order.getInvoice().getCreatedDate());
-        invoiceResponse.setLastModifiedDate(order.getInvoice().getLastModifiedDate());
-
-        orderResponse.setInvoice(invoiceResponse);
-
-        OrderDiscountResponse orderDiscountResponse = new OrderDiscountResponse();
-
-        orderDiscountResponse.setDiscountId(order.getOrderDiscount().getDiscountId());
-        orderDiscountResponse.setDiscountName(order.getOrderDiscount().getDiscountName());
-        orderDiscountResponse.setDiscountType(order.getOrderDiscount().getDiscountType());
-        orderDiscountResponse.setDiscountValue(order.getOrderDiscount().getDiscountValue());
-        orderDiscountResponse.setDiscountPercentage(order.getOrderDiscount().getDiscountPercentage());
-        orderDiscountResponse.setStartDate(order.getOrderDiscount().getStartDate());
-        orderDiscountResponse.setEndDate(order.getOrderDiscount().getEndDate());
-
-        orderResponse.setOrderDiscount(orderDiscountResponse);
-
-        List<OrderItem> orderItemList = orderItemsMap.getOrDefault(order.getOrderId(), List.of());
-        List<OrderItemResponse> orderItemResponseList = new ArrayList<>();
-
-        for (OrderItem orderItem : orderItemList) {
-
-            OrderItemResponse orderItemResponse = new OrderItemResponse();
-
-            orderItemResponse.setOrderItemId(orderItem.getOrderItemId());
-            orderItemResponse.setProductId(orderItem.getProductId());
-            orderItemResponse.setProductVariantId(orderItem.getProductVariantId());
-
-            orderItemResponse.setQuantity(orderItem.getQuantity());
-            orderItemResponse.setPrice(orderItem.getPrice());
-            orderItemResponse.setItemTotal(orderItem.getItemTotal());
-            orderItemResponse.setNotes(orderItem.getNotes());
-
-            Product product = productMap.get(orderItem.getProductId());
-            ProductVariant variant = variantMap.get(orderItem.getProductVariantId());
-
-            orderItemResponse.setProductName(product.getProductName());
-            orderItemResponse.setProductCategory(product.getProductCategory());
-            orderItemResponse.setProductImage(productImagesMap.getOrDefault(product.getProductId(), List.of()).stream().findFirst().orElse(null));
-
-            orderItemResponse.setProductSize(variant.getProductSize().name());
-            orderItemResponse.setUnit(variant.getUnit());
-
-            orderItemResponseList.add(orderItemResponse);
-
-        }
-
-        orderResponse.setOrderItems(orderItemResponseList);
+        OrderResponse orderResponse = buildOrderResponse(order);
 
         return orderResponse;
     }
@@ -306,7 +154,12 @@ public class OrderServiceImpl implements OrderService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        OrderSummaryResponse  orderSummaryResponse = new OrderSummaryResponse();
+        OrderSummaryResponse orderSummaryResponse = new OrderSummaryResponse();
+        orderSummaryResponse.setMemberId(memberId);
+        orderSummaryResponse.setSubtotal();
+        orderSummaryResponse.setTaxAmount();
+        orderSummaryResponse.setDiscountAmount();
+
 
         return null;
     }
@@ -454,4 +307,107 @@ public class OrderServiceImpl implements OrderService {
     public String updateOrderDiscount(Integer discountId, OrderDiscount orderDiscount) {
         return "";
     }
+
+    private OrderResponse buildOrderResponse(Order order) {
+
+        OrderResponse orderResponse = new OrderResponse();
+
+        orderResponse.setOrderId(order.getOrderId());
+        orderResponse.setOrderNumber(order.getOrderNumber());
+        orderResponse.setMemberId(order.getMemberId());
+
+        orderResponse.setSubtotal(order.getSubtotal());
+        orderResponse.setTaxAmount(order.getTaxAmount());
+        orderResponse.setDiscountAmount(order.getDiscountAmount());
+        orderResponse.setShippingFee(order.getShippingFee());
+        orderResponse.setTotalAmount(order.getTotalAmount());
+
+        orderResponse.setShippingPhone(order.getShippingPhone());
+        orderResponse.setShippingAddress(order.getShippingAddress());
+        orderResponse.setShippingNote(order.getShippingNote());
+
+        PaymentMethod paymentMethod = orderDao.getPaymentMethodById(order.getPaymentMethodId());
+        orderResponse.setPaymentMethod(paymentMethod.getMethodName());
+
+        ShippingMethod shippingMethod = orderDao.getShippingMethodById(order.getShippingMethodId());
+        orderResponse.setShippingMethod(shippingMethod.getMethodName());
+        orderResponse.setShippingProviderCode(shippingMethod.getProviderCode());
+
+        orderResponse.setOrderStatus(order.getOrderStatus());
+        orderResponse.setShippingDate(order.getShippingDate());
+        orderResponse.setTrackingNumber(order.getTrackingNumber());
+        orderResponse.setCancelReason(order.getCancelReason());
+
+        orderResponse.setCreatedDate(order.getCreatedDate());
+        orderResponse.setLastModifiedDate(order.getLastModifiedDate());
+
+        Invoice invoice = orderDao.getInvoiceByOrderId(order.getOrderId());
+        InvoiceResponse invoiceResponse = new InvoiceResponse();
+
+        invoiceResponse.setInvoiceId(invoice.getInvoiceId());
+        invoiceResponse.setInvoiceNumber(invoice.getInvoiceNumber());
+        invoiceResponse.setInvoiceCarrier(invoice.getInvoiceCarrier());
+        invoiceResponse.setInvoiceDonationCode(invoice.getInvoiceDonationCode());
+        invoiceResponse.setCompanyTaxId(invoice.getCompanyTaxId());
+        invoiceResponse.setIssued(invoice.getIssued());
+        invoiceResponse.setIssuedDate(invoice.getIssuedDate());
+        invoiceResponse.setCreatedDate(invoice.getCreatedDate());
+        invoiceResponse.setLastModifiedDate(invoice.getLastModifiedDate());
+
+        orderResponse.setInvoice(invoiceResponse);
+
+        List<OrderDiscount> orderDiscountList = orderDao.getOrderDiscountsByOrderId(order.getOrderId());
+        List<OrderDiscountResponse> orderDiscountResponseList = new ArrayList<>();
+
+        for (OrderDiscount orderDiscount : orderDiscountList) {
+            OrderDiscountResponse orderDiscountResponse = new OrderDiscountResponse();
+
+            orderDiscountResponse.setDiscountName(orderDiscount.getDiscountName());
+            orderDiscountResponse.setDiscountCode(orderDiscount.getDiscountCode());
+            orderDiscountResponse.setDiscountType(orderDiscount.getDiscountType());
+            orderDiscountResponse.setDiscountValue(orderDiscount.getDiscountValue());
+            orderDiscountResponse.setDiscountPercentage(orderDiscount.getDiscountPercentage());
+            orderDiscountResponse.setMinOrderAmount(orderDiscount.getMinOrderAmount());
+            orderDiscountResponse.setStartDate(orderDiscount.getStartDate());
+            orderDiscountResponse.setEndDate(orderDiscount.getEndDate());
+
+            orderDiscountResponseList.add(orderDiscountResponse);
+        }
+
+        orderResponse.setOrderDiscounts(orderDiscountResponseList);
+
+        List<OrderItem> orderItemList = orderDao.getOrderItemsByOrderId(order.getOrderId());
+        List<OrderItemResponse> orderItemResponseList = new ArrayList<>();
+
+        for (OrderItem orderItem : orderItemList) {
+            OrderItemResponse orderItemResponse = new OrderItemResponse();
+
+            orderItemResponse.setOrderItemId(orderItem.getOrderItemId());
+            orderItemResponse.setProductId(orderItem.getProductId());
+            orderItemResponse.setProductVariantId(orderItem.getProductVariantId());
+
+            orderItemResponse.setQuantity(orderItem.getQuantity());
+            orderItemResponse.setPrice(orderItem.getPrice());
+            orderItemResponse.setItemTotal(orderItem.getItemTotal());
+            orderItemResponse.setNotes(orderItem.getNotes());
+
+            Product product = productDao.getProductById(orderItem.getProductId());
+            orderItemResponse.setProductName(product.getProductName());
+            orderItemResponse.setProductCategory(product.getProductCategory());
+
+            ProductVariant productVariant = productDao.getVariantById(orderItem.getProductVariantId());
+            orderItemResponse.setProductSize(productVariant.getProductSize().toString());
+            orderItemResponse.setUnit(productVariant.getUnit());
+
+            List<String> productImageList = productDao.getImagesByProductId(orderItem.getProductId());
+            orderItemResponse.setProductImage(productImageList.get(0));
+
+            orderItemResponseList.add(orderItemResponse);
+        }
+
+        orderResponse.setOrderItems(orderItemResponseList);
+
+        return orderResponse;
+    }
+
 }

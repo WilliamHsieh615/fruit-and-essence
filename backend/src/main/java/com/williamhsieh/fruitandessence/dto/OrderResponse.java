@@ -15,6 +15,7 @@ public class OrderResponse {
 
     private BigDecimal subtotal;
     private BigDecimal taxAmount;
+    private List<OrderDiscountResponse> orderDiscounts;
     private BigDecimal discountAmount;
     private BigDecimal shippingFee;
     private BigDecimal totalAmount;
@@ -23,20 +24,19 @@ public class OrderResponse {
     private String shippingAddress;
     private String shippingNote;
 
-    private String paymentMethod; // PaymentMethod.getMethodName()
-    private String shippingMethod; // ShippingMethod.getMethodName()
-    private String shippingProviderCode; // ShippingMethod.getProviderCode()
+    private String paymentMethod;
+    private String shippingMethod;
+    private String shippingProviderCode;
 
     private OrderStatus orderStatus;
     private LocalDateTime shippingDate;
     private String trackingNumber;
+    private InvoiceResponse invoice;
     private String cancelReason;
 
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
 
-    private InvoiceResponse invoice;
-    private OrderDiscountResponse orderDiscount;
     private List<OrderItemResponse> orderItems;
 
     public Integer getOrderId() {
@@ -77,6 +77,14 @@ public class OrderResponse {
 
     public void setTaxAmount(BigDecimal taxAmount) {
         this.taxAmount = taxAmount;
+    }
+
+    public List<OrderDiscountResponse> getOrderDiscounts() {
+        return orderDiscounts;
+    }
+
+    public void setOrderDiscounts(List<OrderDiscountResponse> orderDiscounts) {
+        this.orderDiscounts = orderDiscounts;
     }
 
     public BigDecimal getDiscountAmount() {
@@ -175,6 +183,14 @@ public class OrderResponse {
         this.trackingNumber = trackingNumber;
     }
 
+    public InvoiceResponse getInvoice() {
+        return invoice;
+    }
+
+    public void setInvoice(InvoiceResponse invoice) {
+        this.invoice = invoice;
+    }
+
     public String getCancelReason() {
         return cancelReason;
     }
@@ -197,22 +213,6 @@ public class OrderResponse {
 
     public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public InvoiceResponse getInvoice() {
-        return invoice;
-    }
-
-    public void setInvoice(InvoiceResponse invoice) {
-        this.invoice = invoice;
-    }
-
-    public OrderDiscountResponse getOrderDiscount() {
-        return orderDiscount;
-    }
-
-    public void setOrderDiscount(OrderDiscountResponse orderDiscount) {
-        this.orderDiscount = orderDiscount;
     }
 
     public List<OrderItemResponse> getOrderItems() {

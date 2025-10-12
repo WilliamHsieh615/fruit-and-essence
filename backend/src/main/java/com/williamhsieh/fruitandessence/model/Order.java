@@ -13,7 +13,7 @@ public class Order {
     private Integer memberId;
     private BigDecimal subtotal; // 小計
     private BigDecimal taxAmount; // 稅額
-    private OrderDiscount orderDiscount; // 折扣明細
+    private List<OrderDiscount> orderDiscounts; // 折扣列表
     private BigDecimal discountAmount; // 折扣金額
     private BigDecimal shippingFee; // 運費
     private BigDecimal totalAmount; // 總金額
@@ -22,8 +22,8 @@ public class Order {
     private String shippingAddress;
     private String shippingNote;
 
-    private PaymentMethod paymentMethod;
-    private ShippingMethod shippingMethod;
+    private Integer paymentMethodId;
+    private Integer shippingMethodId;
 
     private OrderStatus orderStatus;
     private LocalDateTime shippingDate ;
@@ -76,12 +76,12 @@ public class Order {
         this.taxAmount = taxAmount;
     }
 
-    public OrderDiscount getOrderDiscount() {
-        return orderDiscount;
+    public List<OrderDiscount> getOrderDiscounts() {
+        return orderDiscounts;
     }
 
-    public void setOrderDiscount(OrderDiscount orderDiscount) {
-        this.orderDiscount = orderDiscount;
+    public void setOrderDiscounts(List<OrderDiscount> orderDiscounts) {
+        this.orderDiscounts = orderDiscounts;
     }
 
     public BigDecimal getDiscountAmount() {
@@ -132,20 +132,20 @@ public class Order {
         this.shippingNote = shippingNote;
     }
 
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
+    public Integer getPaymentMethodId() {
+        return paymentMethodId;
     }
 
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public void setPaymentMethodId(Integer paymentMethodId) {
+        this.paymentMethodId = paymentMethodId;
     }
 
-    public ShippingMethod getShippingMethod() {
-        return shippingMethod;
+    public Integer getShippingMethodId() {
+        return shippingMethodId;
     }
 
-    public void setShippingMethod(ShippingMethod shippingMethod) {
-        this.shippingMethod = shippingMethod;
+    public void setShippingMethodId(Integer shippingMethodId) {
+        this.shippingMethodId = shippingMethodId;
     }
 
     public OrderStatus getOrderStatus() {

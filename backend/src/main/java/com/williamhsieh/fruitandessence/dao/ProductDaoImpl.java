@@ -134,6 +134,35 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
+    public ProductVariant getVariantById(Integer variantId) {
+
+        String sql = "SELECT product_variant_id, product_id, product_size, price, discount_price, unit, " +
+                "stock, sku, barcode " +
+                "FROM product_variant WHERE product_variant_id = :productVariantId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("productVariantId", variantId);
+
+        ProductVariant productVariant = namedParameterJdbcTemplate.queryForObject(sql, map, new ProductVariantRowMapper());
+
+        return productVariant;
+    }
+
+    @Override
+    public List<ProductVariant> getVariantsByProductId(Integer productId) {
+        String sql = "SELECT product_variant_id, product_id, product_size, price, discount_price, unit, " +
+                "stock, sku, barcode " +
+                "FROM product_variant WHERE product_id = :productId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("productId", productId);
+
+        List<ProductVariant> productVariantList = namedParameterJdbcTemplate.query(sql, map, new ProductVariantRowMapper());
+
+        return productVariantList;
+    }
+
+    @Override
     public Map<Integer, List<ProductVariant>> getVariantsByProductIds(List<Integer> productIds) {
 
         String sql = "SELECT product_variant_id, product_id, product_size, price, discount_price, unit, " +
@@ -173,6 +202,19 @@ public class ProductDaoImpl implements ProductDao {
         } else {
             return productNutritionFactsListMap;
         }
+    }
+
+    @Override
+    public List<String> getImagesByProductId(Integer productId) {
+
+        String sql = "SELECT image_url FROM product_images WHERE product_id = :productId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("productId", productId);
+
+        List<String> productImageList = namedParameterJdbcTemplate.query(sql, map, (resultSet, i) -> resultSet.getString("image_url"));
+
+        return productImageList;
     }
 
     @Override

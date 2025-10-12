@@ -7,21 +7,14 @@ import java.time.LocalDateTime;
 
 public class OrderDiscountResponse {
 
-    private Integer discountId;
     private String discountName;
+    private String discountCode;
     private DiscountType discountType;
     private BigDecimal discountValue;
     private BigDecimal discountPercentage;
+    private BigDecimal minOrderAmount;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-
-    public Integer getDiscountId() {
-        return discountId;
-    }
-
-    public void setDiscountId(Integer discountId) {
-        this.discountId = discountId;
-    }
 
     public String getDiscountName() {
         return discountName;
@@ -29,6 +22,14 @@ public class OrderDiscountResponse {
 
     public void setDiscountName(String discountName) {
         this.discountName = discountName;
+    }
+
+    public String getDiscountCode() {
+        return discountCode;
+    }
+
+    public void setDiscountCode(String discountCode) {
+        this.discountCode = discountCode;
     }
 
     public DiscountType getDiscountType() {
@@ -53,6 +54,14 @@ public class OrderDiscountResponse {
 
     public void setDiscountPercentage(BigDecimal discountPercentage) {
         this.discountPercentage = discountPercentage;
+    }
+
+    public BigDecimal getMinOrderAmount() {
+        return minOrderAmount;
+    }
+
+    public void setMinOrderAmount(BigDecimal minOrderAmount) {
+        this.minOrderAmount = minOrderAmount;
     }
 
     public LocalDateTime getStartDate() {
