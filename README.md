@@ -130,7 +130,6 @@
         member_id              INT           NOT NULL,
         subtotal               DECIMAL(10,2) NOT NULL,
         tax_amount             DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-        discount_id            INT,
         discount_amount        DECIMAL(10,2) NOT NULL DEFAULT 0.00,
         shipping_fee           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
         total_amount           DECIMAL(10,2) NOT NULL,
@@ -147,8 +146,7 @@
         last_modified_date     DATETIME      NOT NULL,
         FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
         FOREIGN KEY (payment_method_id) REFERENCES payment_method(method_id) ON DELETE RESTRICT,
-        FOREIGN KEY (shipping_method_id) REFERENCES shipping_method(method_id) ON DELETE RESTRICT,
-        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE SET NULL
+        FOREIGN KEY (shipping_method_id) REFERENCES shipping_method(method_id) ON DELETE RESTRICT
     );
 
     -- order_item table
