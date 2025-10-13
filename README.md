@@ -7,8 +7,8 @@
     -- member table
     CREATE TABLE member (
         member_id              INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        email                  VARCHAR(256)  NOT NULL UNIQUE,
-        password               VARCHAR(256)  NOT NULL,
+        email                  VARCHAR(255)  NOT NULL UNIQUE,
+        password               VARCHAR(255)  NOT NULL,
         name                   VARCHAR(100)  NOT NULL,
         phone                  VARCHAR(20)   NOT NULL,
         birthday               DATE          NOT NULL,
@@ -47,7 +47,7 @@
     CREATE TABLE login_history (
         login_history_id       INT           NOT NULL PRIMARY KEY AUTO_INCREMENT ,
         member_id              INT,
-        email                  VARCHAR(256)  NOT NULL,
+        email                  VARCHAR(255)  NOT NULL,
         login_time             DATETIME      NOT NULL,
         user_agent             VARCHAR(255),
         ip_address             VARCHAR(45),
@@ -59,7 +59,7 @@
     CREATE TABLE product (
         product_id             INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
         product_name           VARCHAR(255)  NOT NULL,
-        product_category       ENUM('REFRESHING', 'SWEET_AND_FRUITY', 'SUPERFOODS', 'HEALTHY_VEGGIES', 'WELLNESS_AND_HERBAL') NOT NULL,
+        product_category       VARCHAR(100)  NOT NULL,
         product_description    TEXT,
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL
@@ -69,7 +69,7 @@
     CREATE TABLE product_variant (
         product_variant_id     INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
         product_id             INT           NOT NULL,
-        product_size           ENUM('SMALL_300ML', 'MEDIUM_700ML', 'LARGE_1900ML') NOT NULL,
+        product_size           VARCHAR(100)  NOT NULL,
         price                  DECIMAL(10,2) NOT NULL,
         discount_price         DECIMAL(10,2),
         unit                   VARCHAR(50),
@@ -117,9 +117,8 @@
         product_variant_id     INT           NOT NULL,
         change_amount          INT           NOT NULL,
         stock_after            INT           NOT NULL,
-        reason                 ENUM('ORDER', 'RETURN', 'PURCHASE', 'DAMAGE', 'PROMOTION', 'MANUAL_ADJUST') NOT NULL,
+        reason                 VARCHAR(100)  NOT NULL,
         created_date           DATETIME      NOT NULL,
-        last_modified_date     DATETIME      NOT NULL,
         FOREIGN KEY (product_variant_id) REFERENCES product_variant(product_variant_id) ON DELETE CASCADE
     );
 
@@ -138,7 +137,7 @@
         shipping_note          VARCHAR(255),
         payment_method_id      INT           NOT NULL,
         shipping_method_id     INT           NOT NULL,
-        order_status           ENUM ('PENDING','PAID','PACKING','SHIPPED','DELIVERED','COMPLETED','CANCELLED','REFUNDED') NOT NULL DEFAULT 'PENDING',
+        order_status           VARCHAR(100)  NOT NULL DEFAULT 'PENDING',
         shipping_date          DATETIME,
         tracking_number        VARCHAR(50),
         cancel_reason          VARCHAR(255),
@@ -166,15 +165,15 @@
 
     -- payment_method table
     CREATE TABLE payment_method (
-        method_id              INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        method_name            VARCHAR(50)   NOT NULL UNIQUE,
+        payment_method_id      INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        payment_method_name    VARCHAR(50)   NOT NULL UNIQUE,
         description            VARCHAR(255)
     );
 
     -- shipping_method table
     CREATE TABLE shipping_method (
-        method_id              INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        method_name            VARCHAR(50)   NOT NULL UNIQUE,
+        shipping_method_id     INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        shipping_method_name   VARCHAR(50)   NOT NULL UNIQUE,
         provider_code          VARCHAR(50),
         description            VARCHAR(255)
     );
@@ -185,7 +184,7 @@
         member_id              INT           NULL,
         discount_name          VARCHAR(50)   NOT NULL,
         discount_code          VARCHAR(50)   UNIQUE,
-        discount_type          ENUM('CODE','PROMOTION','MEMBER','OTHER') NOT NULL DEFAULT 'CODE',
+        discount_type          VARCHAR(100)  NOT NULL DEFAULT 'CODE',
         discount_value         DECIMAL(10,2) NOT NULL DEFAULT 0.00,
         discount_percentage    DECIMAL(5,2)  DEFAULT 0.00,
         min_order_amount       DECIMAL(10,2) DEFAULT 0.00,
@@ -227,9 +226,10 @@
 
     CREATE TABLE order_discount_category (
         discount_id            INT           NOT NULL,
-        product_category       ENUM('REFRESHING','SWEET_AND_FRUITY','SUPERFOODS','HEALTHY_VEGGIES','WELLNESS_AND_HERBAL') NOT NULL,
+        product_category       VARCHAR(100)  NOT NULL,
         PRIMARY KEY (discount_id, product_category),
-        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE
+        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE,
+        FOREIGN KEY (product_category) REFERENCES product(product_category) ON DELETE RESTRICT
     );
 
     -- invoice table
@@ -254,7 +254,7 @@
     CREATE INDEX idx_login_history_member_id ON login_history(member_id);
     CREATE INDEX idx_login_history_time ON login_history(login_time);
     CREATE INDEX idx_product_name ON product(product_name);
-    CREATE INDEX idx_product_category ON product(product_category);
+    CREATE UNIQUE INDEX idx_product_category ON product(product_category);
     CREATE INDEX idx_product_variant_product_id ON product_variant(product_id);
     CREATE INDEX idx_product_variant_barcode ON product_variant(barcode);
     CREATE INDEX idx_product_nutrition_product_id ON product_nutrition_facts(product_id);
