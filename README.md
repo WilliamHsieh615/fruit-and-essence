@@ -74,7 +74,7 @@
         discount_price         DECIMAL(10,2),
         unit                   VARCHAR(50),
         stock                  INT           NOT NULL DEFAULT 0,         
-        sku                    VARCHAR(100)  UNIQUE,
+        sku                    VARCHAR(100)  NOT NULL UNIQUE,
         barcode                VARCHAR(100),
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
@@ -125,7 +125,7 @@
     -- orders table
     CREATE TABLE orders (
         order_id               INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        order_number           VARCHAR(20)   NOT NULL UNIQUE,
+        order_number           VARCHAR(50)   NOT NULL UNIQUE,
         member_id              INT           NOT NULL,
         subtotal               DECIMAL(10,2) NOT NULL,
         tax_amount             DECIMAL(10,2) NOT NULL DEFAULT 0.00,
@@ -228,15 +228,14 @@
         discount_id            INT           NOT NULL,
         product_category       VARCHAR(100)  NOT NULL,
         PRIMARY KEY (discount_id, product_category),
-        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE,
-        FOREIGN KEY (product_category) REFERENCES product(product_category) ON DELETE RESTRICT
+        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE
     );
 
     -- invoice table
     CREATE TABLE invoice (
         invoice_id             INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
         order_id               INT           NOT NULL,
-        invoice_number         VARCHAR(20)   NOT NULL UNIQUE,
+        invoice_number         VARCHAR(50)   NOT NULL UNIQUE,
         invoice_carrier        VARCHAR(50),
         invoice_donation_code  VARCHAR(10),
         company_tax_id         VARCHAR(10),
@@ -254,7 +253,7 @@
     CREATE INDEX idx_login_history_member_id ON login_history(member_id);
     CREATE INDEX idx_login_history_time ON login_history(login_time);
     CREATE INDEX idx_product_name ON product(product_name);
-    CREATE UNIQUE INDEX idx_product_category ON product(product_category);
+    CREATE INDEX idx_product_category ON product(product_category);
     CREATE INDEX idx_product_variant_product_id ON product_variant(product_id);
     CREATE INDEX idx_product_variant_barcode ON product_variant(barcode);
     CREATE INDEX idx_product_nutrition_product_id ON product_nutrition_facts(product_id);
@@ -265,7 +264,6 @@
     CREATE INDEX idx_orders_member_id ON orders(member_id);
     CREATE INDEX idx_orders_status ON orders(order_status);
     CREATE INDEX idx_orders_created_date ON orders(created_date);
-    CREATE INDEX idx_orders_discount_id ON orders(discount_id);
     CREATE INDEX idx_order_item_order_id ON order_item(order_id);
     CREATE INDEX idx_order_item_product_id ON order_item(product_id);
     CREATE INDEX idx_order_item_variant_id ON order_item(product_variant_id);
