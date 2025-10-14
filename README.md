@@ -77,7 +77,7 @@
         sku                    VARCHAR(100)  NOT NULL UNIQUE,
         barcode                VARCHAR(100),
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE,
-        UNIQUE KEY uniq_product_variant_barcode (barcode),
+        UNIQUE KEY uniq_product_variant_barcode (barcode)
     );
 
     -- product_nutrition_facts table
