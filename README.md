@@ -75,7 +75,7 @@
         unit                   VARCHAR(50),
         stock                  INT           NOT NULL DEFAULT 0,         
         sku                    VARCHAR(100)  NOT NULL UNIQUE,
-        barcode                VARCHAR(100), NULL UNIQUE
+        barcode                VARCHAR(100),
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
 
