@@ -192,7 +192,7 @@
         start_date             DATETIME,
         end_date               DATETIME,
         created_date           DATETIME      NOT NULL,
-        last_modified_date     DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL
     );
 
     -- member_has_order_discount table
