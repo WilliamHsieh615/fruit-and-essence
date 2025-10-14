@@ -14,7 +14,6 @@ public class OrderDiscountRowMapper implements RowMapper<OrderDiscount> {
 
         OrderDiscount orderDiscount = new OrderDiscount();
         orderDiscount.setDiscountId(resultSet.getInt("discount_id"));
-        orderDiscount.setMemberId(resultSet.getInt("member_id"));
         orderDiscount.setDiscountName(resultSet.getString("discount_name"));
         orderDiscount.setDiscountCode(resultSet.getString("discount_code"));
 

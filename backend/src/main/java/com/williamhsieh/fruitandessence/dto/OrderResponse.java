@@ -1,7 +1,6 @@
 package com.williamhsieh.fruitandessence.dto;
 
 import com.williamhsieh.fruitandessence.constant.OrderStatus;
-import com.williamhsieh.fruitandessence.model.Invoice;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

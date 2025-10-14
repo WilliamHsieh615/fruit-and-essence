@@ -11,7 +11,7 @@ public class OrderItem {
     private Integer quantity;
     private BigDecimal price;
     private BigDecimal itemTotal;
-    private String notes;
+    private String notes; // 後台註記使用
 
     private Product product;
     private ProductVariant productVariant;

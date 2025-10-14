@@ -12,8 +12,8 @@ public class ShippingMethodRowMapper implements RowMapper<ShippingMethod> {
     public ShippingMethod mapRow(ResultSet resultSet, int i) throws SQLException {
 
         ShippingMethod shippingMethod = new ShippingMethod();
-        shippingMethod.setMethodId(resultSet.getInt("method_id"));
-        shippingMethod.setMethodName(resultSet.getString("method_name"));
+        shippingMethod.setShippingMethodId(resultSet.getInt("shipping_method_id"));
+        shippingMethod.setShippingMethodName(resultSet.getString("shipping_method_name"));
         shippingMethod.setProviderCode(resultSet.getString("provider_code"));
         shippingMethod.setDescription(resultSet.getString("description"));
 

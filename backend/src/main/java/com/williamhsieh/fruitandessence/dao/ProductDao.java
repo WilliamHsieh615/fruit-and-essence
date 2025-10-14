@@ -20,9 +20,9 @@ public interface ProductDao {
 
     Product getProductById(Integer productId);
 
-    List<Product> getProductsByIds(List<Integer> productIds);
+    Map<Integer, Product> getProductsByIds(List<Integer> productIds);
 
-    List<ProductVariant> getVariantsByIds(List<Integer> productVariantIds);
+    Map<Integer, ProductVariant> getVariantsByIds(List<Integer> productVariantIds);
 
     ProductVariant getVariantById(Integer variantId);
 
@@ -55,6 +55,8 @@ public interface ProductDao {
     void updateProduct(Integer productId, Product product);
 
     void updateProductVariants(Integer productId, List<ProductVariant> productVariantList);
+
+    void updateProductVariantStock(Integer productVariantId, Integer newStock);
 
     void updateProductNutrition(Integer productId, ProductNutritionFacts productNutritionFacts);
 

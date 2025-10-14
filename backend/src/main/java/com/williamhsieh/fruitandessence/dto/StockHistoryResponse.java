@@ -12,7 +12,6 @@ public class StockHistoryResponse {
     private Integer stockAfter; // 異動後剩餘
     private StockChangeReason stockChangeReason; // 變動原因
     private LocalDateTime createdDate;
-    private LocalDateTime lastModifiedDate;
 
     public Integer getStockHistoryId() {
         return stockHistoryId;
@@ -60,13 +59,5 @@ public class StockHistoryResponse {
 
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
-    }
-
-    public LocalDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
     }
 }

@@ -1,15 +1,37 @@
 package com.williamhsieh.fruitandessence.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class CreatedOrderRequest {
 
-    @NotBlank
+    @NotNull
     private Integer memberId;
+
+    @NotNull
+    private List<CreatedOrderItemRequest> createdOrderItems;
+
+    @NotNull
+    @Positive
+    private BigDecimal subtotal;
+
+    @NotNull
+    private BigDecimal taxAmount;
+
+    private List<String> discountCodes;
+
+    private BigDecimal discountAmount;
+
+    @NotNull
+    private BigDecimal shippingFee;
+
+    @NotNull
+    @Positive
+    private BigDecimal totalAmount;
 
     @NotBlank
     private String shippingPhone;
@@ -25,12 +47,72 @@ public class CreatedOrderRequest {
     @NotNull
     private Integer shippingMethodId;
 
-    private Integer discountId;
+    @NotNull
+    private InvoiceRequest invoiceRequest;
 
-    @NotEmpty
-    private List<OrderItemRequest> orderItems;
+    public Integer getMemberId() {
+        return memberId;
+    }
 
-    private InvoiceRequest invoice;
+    public void setMemberId(Integer memberId) {
+        this.memberId = memberId;
+    }
+
+    public List<CreatedOrderItemRequest> getCreatedOrderItems() {
+        return createdOrderItems;
+    }
+
+    public void setCreatedOrderItems(List<CreatedOrderItemRequest> createdOrderItems) {
+        this.createdOrderItems = createdOrderItems;
+    }
+
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public BigDecimal getTaxAmount() {
+        return taxAmount;
+    }
+
+    public void setTaxAmount(BigDecimal taxAmount) {
+        this.taxAmount = taxAmount;
+    }
+
+    public List<String> getDiscountCodes() {
+        return discountCodes;
+    }
+
+    public void setDiscountCodes(List<String> discountCodes) {
+        this.discountCodes = discountCodes;
+    }
+
+    public BigDecimal getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(BigDecimal discountAmount) {
+        this.discountAmount = discountAmount;
+    }
+
+    public BigDecimal getShippingFee() {
+        return shippingFee;
+    }
+
+    public void setShippingFee(BigDecimal shippingFee) {
+        this.shippingFee = shippingFee;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
 
     public String getShippingPhone() {
         return shippingPhone;
@@ -72,27 +154,11 @@ public class CreatedOrderRequest {
         this.shippingMethodId = shippingMethodId;
     }
 
-    public Integer getDiscountId() {
-        return discountId;
+    public InvoiceRequest getInvoiceRequest() {
+        return invoiceRequest;
     }
 
-    public void setDiscountId(Integer discountId) {
-        this.discountId = discountId;
-    }
-
-    public List<OrderItemRequest> getOrderItems() {
-        return orderItems;
-    }
-
-    public void setOrderItems(List<OrderItemRequest> orderItems) {
-        this.orderItems = orderItems;
-    }
-
-    public InvoiceRequest getInvoice() {
-        return invoice;
-    }
-
-    public void setInvoice(InvoiceRequest invoice) {
-        this.invoice = invoice;
+    public void setInvoiceRequest(InvoiceRequest invoiceRequest) {
+        this.invoiceRequest = invoiceRequest;
     }
 }

@@ -1,8 +1,6 @@
 package com.williamhsieh.fruitandessence.dao;
 
 import com.williamhsieh.fruitandessence.dto.LoginHistoryQueryParams;
-import com.williamhsieh.fruitandessence.dto.MemberRegisterRequest;
-import com.williamhsieh.fruitandessence.dto.ProductVariantRequest;
 import com.williamhsieh.fruitandessence.model.LoginHistory;
 import com.williamhsieh.fruitandessence.model.Member;
 import com.williamhsieh.fruitandessence.model.MemberSubscription;
@@ -18,7 +16,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

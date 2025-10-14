@@ -2,31 +2,31 @@ package com.williamhsieh.fruitandessence.model;
 
 public class PaymentMethod {
 
-    private Integer methodId;
-    private String methodName;
-    private String methodDescription;
+    private Integer paymentMethodId;
+    private String paymentMethodName;
+    private String description;
 
-    public Integer getMethodId() {
-        return methodId;
+    public Integer getPaymentMethodId() {
+        return paymentMethodId;
     }
 
-    public void setMethodId(Integer methodId) {
-        this.methodId = methodId;
+    public void setPaymentMethodId(Integer paymentMethodId) {
+        this.paymentMethodId = paymentMethodId;
     }
 
-    public String getMethodName() {
-        return methodName;
+    public String getPaymentMethodName() {
+        return paymentMethodName;
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
+    public void setPaymentMethodName(String paymentMethodName) {
+        this.paymentMethodName = paymentMethodName;
     }
 
-    public String getMethodDescription() {
-        return methodDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setMethodDescription(String methodDescription) {
-        this.methodDescription = methodDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

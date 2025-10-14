@@ -1,5 +1,7 @@
 package com.williamhsieh.fruitandessence.service;
 
+import com.williamhsieh.fruitandessence.constant.OrderStatus;
+import com.williamhsieh.fruitandessence.constant.StockChangeReason;
 import com.williamhsieh.fruitandessence.dao.MemberDao;
 import com.williamhsieh.fruitandessence.dao.OrderDao;
 import com.williamhsieh.fruitandessence.dao.ProductDao;
@@ -9,11 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +44,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Integer countAllOrders(AdminOrderQueryParams adminOrderQueryParams) {
+
+        return orderDao.countAllOrders(adminOrderQueryParams);
+    }
+
+    @Override
     public List<OrderResponse> getOrders(OrderQueryParams orderQueryParams) {
 
         List<Order> orderList = orderDao.getOrders(orderQueryParams);
@@ -50,12 +62,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return orderResponseList;
-    }
-
-    @Override
-    public Integer countAllOrders(AdminOrderQueryParams adminOrderQueryParams) {
-
-        return orderDao.countAllOrders(adminOrderQueryParams);
     }
 
     @Override
@@ -90,19 +96,13 @@ public class OrderServiceImpl implements OrderService {
         Map<Integer, Product> productMap = productDao.getProductsByIds(productIds);
 
         // 取得所有 ProductVariant
-        Map<Integer, ProductVariant> variantMap = productDao.getVariantsByIds(variantIds);
+        Map<Integer, ProductVariant> productVariantMap = productDao.getVariantsByIds(variantIds);
 
         // 取得所有 Invoice
         Map<Integer, Invoice> invoiceMap = orderDao.getInvoicesByOrderIds(orderIds);
 
         // 取得所有 OrderDiscount
-        Map<Integer, OrderDiscount> discountMap = orderDao.getDiscountsByOrderIds(orderIds);
-
-        // 取得所有 PaymentMethod
-        Map<Integer, PaymentMethod> paymentMap = orderDao.getPaymentMethodsByOrderIds(orderIds);
-
-        // 取得所有 ShippingMethod
-        Map<Integer, ShippingMethod> shippingMap = orderDao.getShippingMethodsByOrderIds(orderIds);
+        Map<Integer, List<OrderDiscount>> discountMap = orderDao.getOrderDiscountsByOrderIds(orderIds);
 
         for (Order order : orderList) {
 
@@ -110,9 +110,9 @@ public class OrderServiceImpl implements OrderService {
 
             for (OrderItem orderItem : orderItems) {
                 Product product = productMap.get(orderItem.getProductId());
-                ProductVariant variant = variantMap.get(orderItem.getProductVariantId());
+                ProductVariant productVariant = productVariantMap.get(orderItem.getProductVariantId());
                 orderItem.setProduct(product);
-                orderItem.setProductVariant(variant);
+                orderItem.setProductVariant(productVariant);
             }
 
             // 明細
@@ -122,13 +122,8 @@ public class OrderServiceImpl implements OrderService {
             order.setInvoice(invoiceMap.get(order.getOrderId()));
 
             // 折扣
-            order.setOrderDiscount(discountMap.get(order.getOrderId()));
+            order.setOrderDiscounts(discountMap.get(order.getOrderId()));
 
-            // 付款方式
-            order.setPaymentMethod(paymentMap.get(order.getOrderId()));
-
-            // 出貨方式
-            order.setShippingMethod(shippingMap.get(order.getOrderId()));
         }
 
         return orderList;
@@ -150,18 +145,79 @@ public class OrderServiceImpl implements OrderService {
         // 檢查 member 是否存在
         Member member = memberDao.getMemberById(memberId);
 
-        if(member == null){
+        if (member == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         OrderSummaryResponse orderSummaryResponse = new OrderSummaryResponse();
         orderSummaryResponse.setMemberId(memberId);
-        orderSummaryResponse.setSubtotal();
-        orderSummaryResponse.setTaxAmount();
-        orderSummaryResponse.setDiscountAmount();
 
+        // OrderDiscountResponseList
+        List<OrderDiscount> orderDiscountList = orderDao.getOrderDiscountsByMemberId(memberId);
+        List<OrderDiscountResponse> orderDiscountResponseList = new ArrayList<>();
+        for (OrderDiscount orderDiscount : orderDiscountList) {
+            OrderDiscountResponse orderDiscountResponse = new OrderDiscountResponse();
+            orderDiscountResponse.setDiscountName(orderDiscount.getDiscountName());
+            orderDiscountResponse.setDiscountCode(orderDiscount.getDiscountCode());
+            orderDiscountResponse.setDiscountType(orderDiscount.getDiscountType());
+            orderDiscountResponse.setDiscountPercentage(orderDiscount.getDiscountPercentage());
+            orderDiscountResponse.setMinOrderAmount(orderDiscount.getMinOrderAmount());
+            orderDiscountResponse.setStartDate(orderDiscount.getStartDate());
+            orderDiscountResponse.setEndDate(orderDiscount.getEndDate());
 
-        return null;
+            orderDiscountResponseList.add(orderDiscountResponse);
+        }
+
+        orderSummaryResponse.setOrderDiscountResponseList(orderDiscountResponseList);
+
+        // Subtotal
+        BigDecimal fontSubtotal = prepareOrderRequest.getSubtotal();
+        BigDecimal backSubtotal = BigDecimal.ZERO;
+
+        // ShoppingListResponse
+        List<CartItemRequest> cartItemRequestList = prepareOrderRequest.getCartItems();
+        List<ShoppingListResponse> shoppingListResponseList = new ArrayList<>();
+        for (CartItemRequest cartItemRequest : cartItemRequestList) {
+
+            // OrderSummaryResponse 的 Subtotal
+            BigDecimal realPrice = (cartItemRequest.getDiscountPrice() != null) ? cartItemRequest.getDiscountPrice() : cartItemRequest.getPrice();
+            BigDecimal itemTotal = realPrice.multiply(BigDecimal.valueOf(cartItemRequest.getQuantity()));
+            backSubtotal = backSubtotal.add(itemTotal);
+
+            ShoppingListResponse shoppingListResponse = new ShoppingListResponse();
+            shoppingListResponse.setProductId(cartItemRequest.getProductId());
+            shoppingListResponse.setProductVariantId(cartItemRequest.getProductVariantId());
+
+            shoppingListResponse.setProductImage(cartItemRequest.getProductImage());
+            shoppingListResponse.setProductCategory(cartItemRequest.getProductCategory());
+            shoppingListResponse.setProductName(cartItemRequest.getProductName());
+            shoppingListResponse.setProductSize(cartItemRequest.getProductSize());
+            shoppingListResponse.setQuantity(cartItemRequest.getQuantity());
+            shoppingListResponse.setUnit(cartItemRequest.getUnit());
+            shoppingListResponse.setPrice(cartItemRequest.getPrice());
+            shoppingListResponse.setDiscountPrice(cartItemRequest.getDiscountPrice());
+            shoppingListResponse.setRealPrice(realPrice);
+            shoppingListResponse.setItemTotal(itemTotal);
+
+            shoppingListResponseList.add(shoppingListResponse);
+        }
+
+        if (fontSubtotal.equals(backSubtotal)) {
+            orderSummaryResponse.setSubtotal(fontSubtotal);
+        } else {
+            log.warn("Provided subtotal {} does not match calculated subtotal {}", fontSubtotal, backSubtotal);
+            orderSummaryResponse.setSubtotal(backSubtotal);
+        }
+
+        // TaxAmount
+        BigDecimal taxRate = new BigDecimal("0.05"); // 消費税 5%
+        BigDecimal subtotal = orderSummaryResponse.getSubtotal();
+        BigDecimal taxAmount = subtotal.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
+        orderSummaryResponse.setTaxAmount(taxAmount);
+
+        orderSummaryResponse.setShoppingListResponse(shoppingListResponseList);
+
+        return orderSummaryResponse;
     }
 
     @Transactional
@@ -171,77 +227,109 @@ public class OrderServiceImpl implements OrderService {
         // 檢查 member 是否存在
         Member member = memberDao.getMemberById(memberId);
 
-        if(member == null){
+        if (member == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        int totalAmount = 0;
+        Order order = new Order();
+        order.setOrderNumber(generateOrderNumber());
+        order.setMemberId(memberId);
+        order.setSubtotal(createdOrderRequest.getSubtotal());
+        order.setTaxAmount(createdOrderRequest.getTaxAmount());
+        order.setDiscountAmount(createdOrderRequest.getDiscountAmount());
+        order.setShippingFee(createdOrderRequest.getShippingFee());
 
+        BigDecimal fontTotalAmount = createdOrderRequest.getTotalAmount();
+        BigDecimal backTotalAmount = createdOrderRequest.getSubtotal()
+                .add(createdOrderRequest.getTaxAmount())
+                .add(createdOrderRequest.getShippingFee())
+                .subtract(createdOrderRequest.getDiscountAmount() == null ? BigDecimal.ZERO : createdOrderRequest.getDiscountAmount());
+
+
+        if (fontTotalAmount.equals(backTotalAmount)) {
+            order.setTotalAmount(fontTotalAmount);
+        } else {
+            log.warn("Provided total {} does not match calculated total {}", fontTotalAmount, backTotalAmount);
+            order.setTotalAmount(backTotalAmount);
+        }
+
+        order.setShippingPhone(createdOrderRequest.getShippingPhone());
+        order.setShippingAddress(createdOrderRequest.getShippingAddress());
+        order.setShippingNote(createdOrderRequest.getShippingNote());
+
+        order.setPaymentMethodId(createdOrderRequest.getPaymentMethodId());
+        order.setShippingMethodId(createdOrderRequest.getShippingMethodId());
+
+        order.setOrderStatus(OrderStatus.PENDING); // 由後台變更
+        LocalDateTime shippingDateTime = LocalDateTime.of(LocalDateTime.now().plusDays(2).toLocalDate(), LocalTime.of(10, 0));
+        order.setShippingDate(shippingDateTime);
+        order.setTrackingNumber(""); // 由後台變更
+        order.setCancelReason(""); // 由後台變更
+
+        LocalDateTime now = LocalDateTime.now();
+        order.setCreatedDate(now);
+        order.setLastModifiedDate(now);
+
+        Integer orderId = orderDao.createOrder(order);
+
+        List<String> discountCodeList = createdOrderRequest.getDiscountCodes();
+        List<OrderDiscountUsage> orderDiscountUsageList = new ArrayList<>();
+        for (String discountCode : discountCodeList) {
+            OrderDiscount orderDiscount = orderDao.getOrderDiscountByDiscountCode(discountCode);
+            OrderDiscountUsage  orderDiscountUsage = new OrderDiscountUsage();
+            orderDiscountUsage.setDiscountId(orderDiscount.getDiscountId());
+            orderDiscountUsage.setMemberId(memberId);
+            orderDiscountUsage.setUsedAt(now);
+            orderDiscountUsage.setOrderId(orderId);
+
+            orderDiscountUsageList.add(orderDiscountUsage);
+        }
+
+        List<Integer> orderDiscountUsageIdList = orderDao.createOrderDiscountUsages(orderDiscountUsageList);
+
+        InvoiceRequest invoiceRequest = createdOrderRequest.getInvoiceRequest();
+        Invoice invoice = new Invoice();
+        invoice.setOrderId(orderId);
+        invoice.setInvoiceNumber("要呼叫財政部電子發票 API 取得 InvoiceNumber");
+        invoice.setInvoiceCarrier(invoiceRequest.getInvoiceCarrier());
+        invoice.setInvoiceDonationCode(invoiceRequest.getInvoiceDonationCode());
+        invoice.setCompanyTaxId(invoiceRequest.getCompanyTaxId());
+        invoice.setIssued(false); // 由後台變更
+        invoice.setIssuedDate(null); // 由後台變更
+        invoice.setCreatedDate(now);
+        invoice.setLastModifiedDate(now);
+
+        orderDao.createInvoice(invoice);
+
+        List<CreatedOrderItemRequest> createdOrderItemRequestList = createdOrderRequest.getCreatedOrderItems();
         List<OrderItem> orderItemList = new ArrayList<>();
-
-        for (PurchaseItem purchaseItem : createdOrderRequest.getPurchaseItemList()){
-
-            Product product = productDao.getProductById(purchaseItem.getProductId());
-
-            // 檢查 product 是否存在、庫存是否足夠
-            if(product == null){
-                log.warn("商品 {} 不存在", purchaseItem.getProductId());
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-            }
-
-            Double newStock = null;
-
-            if (purchaseItem.getPurchasedCount() != null) {
-                // 數量型商品
-                if (product.getStock() < purchaseItem.getPurchasedCount()) {
-                    log.warn("商品 {} 庫存不足，欲購買數量 {}，剩餘庫存 {}",
-                            product.getProductName(), purchaseItem.getPurchasedCount(), product.getStock());
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "庫存不足");
-                }
-                newStock = product.getStock() - purchaseItem.getPurchasedCount();
-
-            } else if (purchaseItem.getPurchasedWeight() != null) {
-                // 重量型商品
-                if (product.getStock() < purchaseItem.getPurchasedWeight()) {
-                    log.warn("商品 {} 庫存不足，欲購買重量 {}，剩餘庫存 {}",
-                            product.getProductName(), purchaseItem.getPurchasedWeight(), product.getStock());
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "庫存不足");
-                }
-                newStock = product.getStock() - purchaseItem.getPurchasedWeight();
-
-            }
-
-            // 扣除商品庫存
-            if (newStock != null) {
-                productDao.updateStock(product.getProductId(), newStock);
-            }
-
-            // 計算總價錢
-            double itemAmount = 0;
-
-            if (purchaseItem.getPurchasedCount() != null) {
-                // COUNT 型商品，乘以每顆價格
-                itemAmount = purchaseItem.getPurchasedCount() * product.getPricePerUnit();
-            } else if (purchaseItem.getPurchasedWeight() != null) {
-                // WEIGHT 型商品，乘以每公斤價格
-                itemAmount = purchaseItem.getPurchasedWeight() * product.getPricePerUnit();
-            }
-
-            totalAmount += ((int)Math.round(itemAmount));
-
-            // 把 PurchaseItem 轉換成 OrderItem
+        for (CreatedOrderItemRequest createdOrderItemRequest : createdOrderItemRequestList) {
             OrderItem orderItem = new OrderItem();
-            orderItem.setProductId(purchaseItem.getProductId());
-            orderItem.setPurchasedCount(purchaseItem.getPurchasedCount());
-            orderItem.setPurchasedWeight(purchaseItem.getPurchasedWeight());
-            orderItem.setAmount((int)Math.round(itemAmount));
+            orderItem.setOrderId(orderId);
+            orderItem.setProductId(createdOrderItemRequest.getProductId());
+            orderItem.setProductVariantId(createdOrderItemRequest.getProductVariantId());
+            orderItem.setQuantity(createdOrderItemRequest.getQuantity());
+            orderItem.setPrice(createdOrderItemRequest.getRealPrice());
+            orderItem.setItemTotal(createdOrderItemRequest.getItemTotal());
+            orderItem.setNotes(""); // 由後台變更
 
             orderItemList.add(orderItem);
 
-        }
+            List<StockHistory> stockHistoryList = productDao.getStockHistoryByProductVariantId(createdOrderItemRequest.getProductVariantId());
+            StockHistory lastStockHistory = stockHistoryList.get(stockHistoryList.size() - 1);
+            Integer newStock = lastStockHistory.getStockAfter()-createdOrderItemRequest.getQuantity();
 
-        // 創建訂單
-        Integer orderId = orderDao.createOrder(memberId, totalAmount, createdOrderRequest);
+            StockHistory stockHistory = new StockHistory();
+            stockHistory.setProductVariantId(createdOrderItemRequest.getProductVariantId());
+            stockHistory.setChangeAmount(-(createdOrderItemRequest.getQuantity()));
+            stockHistory.setStockAfter(newStock);
+            stockHistory.setStockChangeReason(StockChangeReason.ORDER);
+            stockHistory.setCreatedDate(now);
+
+            productDao.insertStockHistory(stockHistory);
+
+            productDao.updateProductVariantStock(createdOrderItemRequest.getProductVariantId(), newStock);
+        }
 
         orderDao.createOrderItems(orderId, orderItemList);
 
@@ -249,63 +337,176 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order updateOrder(Integer memberId, Integer orderId, UpdateOrderRequest updateOrderRequest) {
-        return null;
-    }
-
-    @Override
     public Order updateOrderStatus(Integer memberId, Integer orderId, UpdateOrderStatusRequest updateOrderStatusRequest) {
-        return null;
+
+        Member member = memberDao.getMemberById(memberId);
+
+        if(member == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        Order order = orderDao.getOrderById(orderId);
+
+        if (order == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
+        }
+
+        if (!order.getMemberId().equals(memberId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order does not belong to this member");
+        }
+
+        order.setOrderStatus(updateOrderStatusRequest.getOrderStatus());
+        order.setLastModifiedDate(LocalDateTime.now());
+
+        orderDao.updateOrderStatus(order);
+
+        return orderDao.getOrderById(orderId);
     }
 
+    @Transactional
     @Override
-    public Order cancelOrder(Integer memberId, Integer orderId) {
-        return null;
+    public Order cancelOrder(Integer memberId, Integer orderId, String cancelReason) {
+
+        Member member = memberDao.getMemberById(memberId);
+        if(member == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member not found");
+        }
+        Order order = orderDao.getOrderById(orderId);
+        if(order == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
+        }
+
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        order.setCancelReason(cancelReason);
+        order.setShippingDate(null);
+        order.setLastModifiedDate(LocalDateTime.now());
+
+        orderDao.updateOrder(order);
+
+        Invoice invoice = orderDao.getInvoiceByOrderId(orderId);
+        invoice.setInvoiceNumber(null);
+        invoice.setIssued(false);
+        invoice.setIssuedDate(null);
+        invoice.setLastModifiedDate(LocalDateTime.now());
+
+        orderDao.updateInvoice(invoice);
+
+        List<OrderItem> orderItemList = orderDao.getOrderItemsByOrderId(orderId);
+        for(OrderItem orderItem : orderItemList) {
+            StockHistory stockHistory = new StockHistory();
+            stockHistory.setProductVariantId(orderItem.getProductVariantId());
+            stockHistory.setChangeAmount(orderItem.getQuantity());
+
+            List<StockHistory> stockHistoryList = productDao.getStockHistoryByProductVariantId(orderItem.getProductVariantId());
+            StockHistory lastStockHistory = stockHistoryList.get(stockHistoryList.size() - 1);
+            Integer newStock = lastStockHistory.getStockAfter() + orderItem.getQuantity();
+
+            stockHistory.setStockAfter(newStock);
+            stockHistory.setStockChangeReason(StockChangeReason.RETURN);
+            stockHistory.setCreatedDate(LocalDateTime.now());
+
+            productDao.insertStockHistory(stockHistory);
+
+            productDao.updateProductVariantStock(orderItem.getProductVariantId(), newStock);
+        }
+
+        return orderDao.getOrderById(orderId);
     }
 
     @Override
     public List<ShippingMethod> getShippingMethods() {
-        return List.of();
+
+        return orderDao.getShippingMethods();
     }
 
     @Override
     public List<PaymentMethod> getPaymentMethods() {
-        return List.of();
+
+        return orderDao.getPaymentMethods();
     }
 
     @Override
     public List<OrderDiscount> getOrderDiscounts() {
-        return List.of();
+        return orderDao.getOrderDiscounts();
     }
 
     @Override
-    public String createShippingMethod(ShippingMethod shippingMethod) {
-        return "";
+    public Integer createShippingMethod(ShippingMethod shippingMethod) {
+
+        return orderDao.createShippingMethod(shippingMethod);
     }
 
     @Override
-    public String createPaymentMethod(PaymentMethod paymentMethod) {
-        return "";
+    public Integer createPaymentMethod(PaymentMethod paymentMethod) {
+
+        return orderDao.createPaymentMethod(paymentMethod);
     }
 
     @Override
-    public String createOrderDiscount(OrderDiscount orderDiscount) {
-        return "";
+    public Integer createOrderDiscount(OrderDiscount orderDiscount) {
+
+        return orderDao.createOrderDiscount(orderDiscount);
     }
 
     @Override
-    public String updateShippingMethod(Integer methodId, ShippingMethod shippingMethod) {
-        return "";
+    public ShippingMethod updateShippingMethod(Integer shippingMethodId, ShippingMethod shippingMethod) {
+
+        ShippingMethod oldShippingMethod = orderDao.getShippingMethodById(shippingMethodId);
+
+        if (oldShippingMethod == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ShippingMethod not found");
+        }
+
+        oldShippingMethod.setShippingMethodName(shippingMethod.getShippingMethodName());
+        oldShippingMethod.setProviderCode(shippingMethod.getProviderCode());
+        oldShippingMethod.setDescription(shippingMethod.getDescription());
+
+        ShippingMethod newShippingMethod = orderDao.updateShippingMethod(oldShippingMethod);
+
+        return newShippingMethod;
     }
 
     @Override
-    public String updatePaymentMethod(Integer methodId, PaymentMethod paymentMethod) {
-        return "";
+    public PaymentMethod updatePaymentMethod(Integer paymentMethodId, PaymentMethod paymentMethod) {
+
+        PaymentMethod oldPaymentMethod = orderDao.getPaymentMethodById(paymentMethodId);
+
+        if (oldPaymentMethod == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "PaymentMethod not found");
+        }
+
+        oldPaymentMethod.setPaymentMethodName(paymentMethod.getPaymentMethodName());
+        oldPaymentMethod.setDescription(paymentMethod.getDescription());
+
+        PaymentMethod newPaymentMethod = orderDao.updatePaymentMethod(oldPaymentMethod);
+
+        return newPaymentMethod;
     }
 
     @Override
-    public String updateOrderDiscount(Integer discountId, OrderDiscount orderDiscount) {
-        return "";
+    public OrderDiscount updateOrderDiscount(Integer discountId, OrderDiscount orderDiscount) {
+
+        OrderDiscount oldOrderDiscount = orderDao.getOrderDiscountById(discountId);
+
+        if (oldOrderDiscount == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "OrderDiscount not found");
+        }
+
+        oldOrderDiscount.setDiscountName(orderDiscount.getDiscountName());
+        oldOrderDiscount.setDiscountCode(orderDiscount.getDiscountCode());
+        oldOrderDiscount.setDiscountType(orderDiscount.getDiscountType());
+        oldOrderDiscount.setDiscountValue(orderDiscount.getDiscountValue());
+        oldOrderDiscount.setDiscountPercentage(orderDiscount.getDiscountPercentage());
+        oldOrderDiscount.setMinOrderAmount(orderDiscount.getMinOrderAmount());
+        oldOrderDiscount.setTotalUsageLimit(orderDiscount.getTotalUsageLimit());
+        oldOrderDiscount.setStartDate(orderDiscount.getStartDate());
+        oldOrderDiscount.setEndDate(orderDiscount.getEndDate());
+        oldOrderDiscount.setCreatedDate(orderDiscount.getCreatedDate());
+        oldOrderDiscount.setLastModifiedDate(LocalDateTime.now());
+
+        OrderDiscount newOrderDiscount = orderDao.updateOrderDiscount(oldOrderDiscount);
+
+        return newOrderDiscount;
     }
 
     private OrderResponse buildOrderResponse(Order order) {
@@ -327,10 +528,10 @@ public class OrderServiceImpl implements OrderService {
         orderResponse.setShippingNote(order.getShippingNote());
 
         PaymentMethod paymentMethod = orderDao.getPaymentMethodById(order.getPaymentMethodId());
-        orderResponse.setPaymentMethod(paymentMethod.getMethodName());
+        orderResponse.setPaymentMethod(paymentMethod.getPaymentMethodName());
 
         ShippingMethod shippingMethod = orderDao.getShippingMethodById(order.getShippingMethodId());
-        orderResponse.setShippingMethod(shippingMethod.getMethodName());
+        orderResponse.setShippingMethod(shippingMethod.getShippingMethodName());
         orderResponse.setShippingProviderCode(shippingMethod.getProviderCode());
 
         orderResponse.setOrderStatus(order.getOrderStatus());
@@ -408,6 +609,27 @@ public class OrderServiceImpl implements OrderService {
         orderResponse.setOrderItems(orderItemResponseList);
 
         return orderResponse;
+    }
+
+    private static int sequence = 0;
+    private static LocalDateTime lastSecond = LocalDateTime.now().withNano(0);
+    private String generateOrderNumber() {
+
+        LocalDateTime now = LocalDateTime.now().withNano(0);
+
+        if (!now.equals(lastSecond)) {
+            sequence = 0;
+            lastSecond = now;
+        }
+
+        sequence++;
+
+        String prefix = "FE";
+        String dateTimePart = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String sequencePart = String.format("%03d", sequence);
+        String randomPart = String.format("%02X", new Random().nextInt(256));
+
+        return prefix + dateTimePart + sequencePart + randomPart;
     }
 
 }

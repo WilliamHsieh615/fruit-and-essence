@@ -1,7 +1,6 @@
 package com.williamhsieh.fruitandessence.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.williamhsieh.fruitandessence.dto.PurchaseItem;
 import com.williamhsieh.fruitandessence.dto.CreateOrderRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

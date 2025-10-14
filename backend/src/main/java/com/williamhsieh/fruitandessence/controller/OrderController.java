@@ -125,16 +125,6 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderResponse);
     }
 
-    @PutMapping("/members/{memberId}/orders/{orderId}")
-    public ResponseEntity<Order> updateOrder(@PathVariable Integer memberId,
-                                             @PathVariable Integer orderId,
-                                             @RequestBody @Valid UpdateOrderRequest updateOrderRequest) {
-
-        Order order = orderService.updateOrder(memberId, orderId, updateOrderRequest);
-
-        return ResponseEntity.status(HttpStatus.OK).body(order);
-    }
-
     @PutMapping("/members/{memberId}/orders/{orderId}/status")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable Integer memberId,
                                              @PathVariable Integer orderId,
@@ -147,14 +137,15 @@ public class OrderController {
 
     @PutMapping("/members/{memberId}/orders/{orderId}/cancel")
     public ResponseEntity<Order> cancelOrder(@PathVariable Integer memberId,
-                                             @PathVariable Integer orderId) {
+                                             @PathVariable Integer orderId,
+                                             @RequestBody String cancelReason) {
 
-        Order order = orderService.cancelOrder(memberId, orderId);
+        Order order = orderService.cancelOrder(memberId, orderId, cancelReason);
 
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
-    @GetMapping("/admin/shipping-method")
+    @GetMapping("/shipping-method")
     public ResponseEntity<List<ShippingMethod>> getShippingMethods() {
 
         List<ShippingMethod> shippingMethodList = orderService.getShippingMethods();
@@ -162,7 +153,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(shippingMethodList);
     }
 
-    @GetMapping("/admin/payment-method")
+    @GetMapping("/payment-method")
     public ResponseEntity<List<PaymentMethod>> getPaymentMethods() {
 
         List<PaymentMethod> paymentMethodList = orderService.getPaymentMethods();
@@ -179,52 +170,52 @@ public class OrderController {
     }
 
     @PostMapping("/admin/shipping-method")
-    public ResponseEntity<String> createShippingMethod(@RequestBody ShippingMethod shippingMethod) {
+    public ResponseEntity<Integer> createShippingMethod(@RequestBody ShippingMethod shippingMethod) {
 
-        String result = orderService.createShippingMethod(shippingMethod);
+        Integer shippingMethodId = orderService.createShippingMethod(shippingMethod);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        return ResponseEntity.status(HttpStatus.CREATED).body(shippingMethodId);
     }
 
     @PostMapping("/admin/payment-method")
-    public ResponseEntity<String> createPaymentMethod(@RequestBody PaymentMethod paymentMethod) {
+    public ResponseEntity<Integer> createPaymentMethod(@RequestBody PaymentMethod paymentMethod) {
 
-        String result = orderService.createPaymentMethod(paymentMethod);
+        Integer paymentMethodId = orderService.createPaymentMethod(paymentMethod);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentMethodId);
     }
 
     @PostMapping("/admin/order-discount")
-    public ResponseEntity<String> createOrderDiscount(@RequestBody OrderDiscount orderDiscount) {
+    public ResponseEntity<Integer> createOrderDiscount(@RequestBody OrderDiscount orderDiscount) {
 
-        String result = orderService.createOrderDiscount(orderDiscount);
+        Integer orderDiscountId = orderService.createOrderDiscount(orderDiscount);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderDiscountId);
     }
 
     @PutMapping("/admin/shipping-method/{methodId}")
-    public ResponseEntity<String> updateShippingMethod(@PathVariable Integer methodId,
+    public ResponseEntity<ShippingMethod> updateShippingMethod(@PathVariable Integer methodId,
                                      @RequestBody ShippingMethod shippingMethod) {
 
-        String result = orderService.updateShippingMethod(methodId, shippingMethod);
+        ShippingMethod result = orderService.updateShippingMethod(methodId, shippingMethod);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PutMapping("/admin/payment-method/{methodId}")
-    public ResponseEntity<String> updatePaymentMethod(@PathVariable Integer methodId,
+    public ResponseEntity<PaymentMethod> updatePaymentMethod(@PathVariable Integer methodId,
                                     @RequestBody PaymentMethod paymentMethod) {
 
-        String result = orderService.updatePaymentMethod(methodId, paymentMethod);
+        PaymentMethod result = orderService.updatePaymentMethod(methodId, paymentMethod);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PutMapping("/admin/order-discount/{discountId}")
-    public ResponseEntity<String> updateOrderDiscount(@PathVariable Integer discountId,
+    public ResponseEntity<OrderDiscount> updateOrderDiscount(@PathVariable Integer discountId,
                                     @RequestBody OrderDiscount orderDiscount) {
 
-        String result = orderService.updateOrderDiscount(discountId, orderDiscount);
+        OrderDiscount result = orderService.updateOrderDiscount(discountId, orderDiscount);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

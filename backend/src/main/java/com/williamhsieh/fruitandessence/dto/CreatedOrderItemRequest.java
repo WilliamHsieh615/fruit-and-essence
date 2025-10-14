@@ -1,25 +1,28 @@
 package com.williamhsieh.fruitandessence.dto;
 
+import com.williamhsieh.fruitandessence.constant.ProductCategory;
+import com.williamhsieh.fruitandessence.constant.ProductSize;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-public class OrderItemRequest {
+public class CreatedOrderItemRequest {
 
     @NotNull
     private Integer productId;
-
     @NotNull
     private Integer productVariantId;
 
+    @NotNull
     @Min(1)
     private Integer quantity;
 
     @NotNull
-    private BigDecimal price; // 單價
+    private BigDecimal realPrice;
 
-    private String notes;
+    @NotNull
+    private BigDecimal itemTotal;
 
     public Integer getProductId() {
         return productId;
@@ -45,19 +48,19 @@ public class OrderItemRequest {
         this.quantity = quantity;
     }
 
-    public BigDecimal getPrice() {
-        return price;
+    public BigDecimal getRealPrice() {
+        return realPrice;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setRealPrice(BigDecimal realPrice) {
+        this.realPrice = realPrice;
     }
 
-    public String getNotes() {
-        return notes;
+    public BigDecimal getItemTotal() {
+        return itemTotal;
     }
 
-    public void setNotes(String notes) {
-        this.notes = notes;
+    public void setItemTotal(BigDecimal itemTotal) {
+        this.itemTotal = itemTotal;
     }
 }

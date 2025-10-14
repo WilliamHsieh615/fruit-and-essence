@@ -19,7 +19,6 @@ public class StockHistoryRowMapper implements RowMapper<StockHistory> {
         stockHistory.setStockAfter(resultSet.getInt("stock_after"));
         stockHistory.setStockChangeReason(StockChangeReason.valueOf(resultSet.getString("reason")));
         stockHistory.setCreatedDate(resultSet.getTimestamp("created_date").toLocalDateTime());
-        stockHistory.setLastModifiedDate(resultSet.getTimestamp("last_modified_date").toLocalDateTime());
 
         return stockHistory;
 

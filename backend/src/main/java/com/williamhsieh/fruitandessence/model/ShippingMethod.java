@@ -2,25 +2,25 @@ package com.williamhsieh.fruitandessence.model;
 
 public class ShippingMethod {
 
-    private Integer methodId;
-    private String methodName;
+    private Integer shippingMethodId;
+    private String shippingMethodName;
     private String providerCode;
     private String description;
 
-    public Integer getMethodId() {
-        return methodId;
+    public Integer getShippingMethodId() {
+        return shippingMethodId;
     }
 
-    public void setMethodId(Integer methodId) {
-        this.methodId = methodId;
+    public void setShippingMethodId(Integer shippingMethodId) {
+        this.shippingMethodId = shippingMethodId;
     }
 
-    public String getMethodName() {
-        return methodName;
+    public String getShippingMethodName() {
+        return shippingMethodName;
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
+    public void setShippingMethodName(String shippingMethodName) {
+        this.shippingMethodName = shippingMethodName;
     }
 
     public String getProviderCode() {

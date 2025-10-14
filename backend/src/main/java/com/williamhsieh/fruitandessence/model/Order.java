@@ -26,7 +26,7 @@ public class Order {
     private Integer shippingMethodId;
 
     private OrderStatus orderStatus;
-    private LocalDateTime shippingDate ;
+    private LocalDateTime shippingDate; // 預計出貨日
     private String trackingNumber;
     private Invoice invoice;
     private String cancelReason;

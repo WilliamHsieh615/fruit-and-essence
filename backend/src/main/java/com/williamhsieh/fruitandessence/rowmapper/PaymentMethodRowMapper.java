@@ -12,9 +12,9 @@ public class PaymentMethodRowMapper implements RowMapper<PaymentMethod> {
     public PaymentMethod mapRow(ResultSet resultSet, int i) throws SQLException {
 
         PaymentMethod paymentMethod = new PaymentMethod();
-        paymentMethod.setMethodId(resultSet.getInt("method_id"));
-        paymentMethod.setMethodName(resultSet.getString("method_name"));
-        paymentMethod.setMethodDescription(resultSet.getString("description"));
+        paymentMethod.setPaymentMethodId(resultSet.getInt("payment_method_id"));
+        paymentMethod.setPaymentMethodName(resultSet.getString("payment_method_name"));
+        paymentMethod.setDescription(resultSet.getString("description"));
 
         return paymentMethod;
     }

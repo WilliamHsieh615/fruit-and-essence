@@ -10,7 +10,6 @@ import java.util.List;
 public class OrderDiscount {
 
     private Integer discountId;
-    private Integer memberId;
     private String discountName;
     private String discountCode;
 
@@ -36,14 +35,6 @@ public class OrderDiscount {
 
     public void setDiscountId(Integer discountId) {
         this.discountId = discountId;
-    }
-
-    public Integer getMemberId() {
-        return memberId;
-    }
-
-    public void setMemberId(Integer memberId) {
-        this.memberId = memberId;
     }
 
     public String getDiscountName() {

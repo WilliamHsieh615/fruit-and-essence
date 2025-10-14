@@ -37,7 +37,7 @@ public class CartItemRequest {
     private BigDecimal discountPrice;
 
     @NotNull
-    private BigDecimal itemTotal; // 前端計算的小計，要與後端比對 quantity * price 或 quantity ＊ discountPrice
+    private BigDecimal itemTotal;
 
     public Integer getProductId() {
         return productId;

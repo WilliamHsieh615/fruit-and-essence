@@ -54,14 +54,22 @@ public class SecurityConfig {
 
                         // 管理員專屬操作
                         .requestMatchers(HttpMethod.GET, "/admin/orders").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,
+                                "/products",
+                                "/shipping-method/**",
+                                "/payment-method/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,
                                 "/products/{productId}",
                                 "/members/{memberId}/orders/{orderId}",
                                 "/members/{memberId}/orders/{orderId}/status",
-                                "/members/{memberId}/orders/{orderId}/cancel").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/products/{productId}").hasRole("ADMIN")
-                        .requestMatchers("/admin/shipping-method/**", "/admin/payment-method/**", "/admin/order-discount/**").hasRole("ADMIN")
+                                "/members/{memberId}/orders/{orderId}/cancel",
+                                "/shipping-method/**",
+                                "/payment-method/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/products/{productId}",
+                                "/shipping-method/**",
+                                "/payment-method/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/order-discount/**").hasRole("ADMIN")
 
                         // 登入用戶專屬操作
                         .requestMatchers(HttpMethod.GET,
@@ -69,7 +77,9 @@ public class SecurityConfig {
                                 "/members/{memberId}",
                                 "/members/{memberId}/subscriptions",
                                 "/members/{memberId}/orders",
-                                "/members/{memberId}/orders/{orderId}").authenticated()
+                                "/members/{memberId}/orders/{orderId}",
+                                "/shipping-method",
+                                "/payment-method").authenticated()
                         .requestMatchers(HttpMethod.POST,
                                 "/members/{memberId}/orders",
                                 "/members/logout",

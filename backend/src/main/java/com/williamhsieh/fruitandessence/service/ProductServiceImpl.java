@@ -162,9 +162,8 @@ public class ProductServiceImpl implements ProductService {
                 stockHistory.setProductVariantId(productVariantId);
                 stockHistory.setChangeAmount(productVariant.getStock()); // 初始庫存量
                 stockHistory.setStockAfter(productVariant.getStock());
-                stockHistory.setStockChangeReason(StockChangeReason.MANUAL_ADJUST);
+                stockHistory.setStockChangeReason(StockChangeReason.INITIALIZATION);
                 stockHistory.setCreatedDate(now);
-                stockHistory.setLastModifiedDate(now);
 
                 productDao.insertStockHistory(stockHistory);
             }
@@ -203,9 +202,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public StockHistoryResponse increaseStock(StockHistoryRequest stockHistoryRequest) {
 
-        ProductVariant productVariant = productDao.getVariantsByIds(
-                List.of(stockHistoryRequest.getProductVariantId())
-        ).get(0);
+        List<Integer> ProductVariantIdList = List.of(stockHistoryRequest.getProductVariantId());
+        Map<Integer, ProductVariant> productVariantMap = productDao.getVariantsByIds(ProductVariantIdList);
+        ProductVariant productVariant = productVariantMap.get(stockHistoryRequest.getProductVariantId());
 
         int currentStock = getCurrentStock(stockHistoryRequest.getProductVariantId());
         int newStock = currentStock + stockHistoryRequest.getChangeAmount();
@@ -225,9 +224,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public StockHistoryResponse decreaseStock(StockHistoryRequest stockHistoryRequest) {
 
-        ProductVariant productVariant = productDao.getVariantsByIds(
-                List.of(stockHistoryRequest.getProductVariantId())
-        ).get(0);
+        List<Integer> ProductVariantIdList = List.of(stockHistoryRequest.getProductVariantId());
+        Map<Integer, ProductVariant> productVariantMap = productDao.getVariantsByIds(ProductVariantIdList);
+        ProductVariant productVariant = productVariantMap.get(stockHistoryRequest.getProductVariantId());
 
         int currentStock = getCurrentStock(stockHistoryRequest.getProductVariantId());
         int newStock = currentStock - stockHistoryRequest.getChangeAmount();
@@ -250,9 +249,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public StockHistoryResponse adjustStock(StockHistoryRequest stockHistoryRequest) {
 
-        ProductVariant productVariant = productDao.getVariantsByIds(
-                List.of(stockHistoryRequest.getProductVariantId())
-        ).get(0);
+        List<Integer> ProductVariantIdList = List.of(stockHistoryRequest.getProductVariantId());
+        Map<Integer, ProductVariant> productVariantMap = productDao.getVariantsByIds(ProductVariantIdList);
+        ProductVariant productVariant = productVariantMap.get(stockHistoryRequest.getProductVariantId());
 
         int newStock = stockHistoryRequest.getChangeAmount();
 
@@ -287,11 +286,7 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductVariantRequest::getProductVariantId)
                 .toList();
 
-        List<ProductVariant> oldProductVariantList = productDao.getVariantsByIds(variantIds);
-
-        Map<Integer, ProductVariant> oldProductVariantMap = oldProductVariantList.stream()
-                .collect(Collectors.toMap(ProductVariant::getProductVariantId, v -> v));
-
+        Map<Integer, ProductVariant> oldProductVariantMap = productDao.getVariantsByIds(variantIds);
 
         List<ProductVariant> newProductVariantList = new ArrayList<>();
         List<ProductVariantRequest> productVariantRequestList = productRequest.getProductVariants();
@@ -334,8 +329,7 @@ public class ProductServiceImpl implements ProductService {
                 stockHistory.setChangeAmount(newStock - oldStock);
                 stockHistory.setStockAfter(productVariant.getStock());
                 stockHistory.setStockChangeReason(StockChangeReason.MANUAL_ADJUST);
-                stockHistory.setCreatedDate(stockHistoryList.get(0).getCreatedDate());
-                stockHistory.setLastModifiedDate(now);
+                stockHistory.setCreatedDate(now);
                 productDao.insertStockHistory(stockHistory);
             }
         }
@@ -491,25 +485,23 @@ public class ProductServiceImpl implements ProductService {
         stockHistoryResponse.setStockAfter(stockHistory.getStockAfter());
         stockHistoryResponse.setStockChangeReason(stockHistory.getStockChangeReason());
         stockHistoryResponse.setCreatedDate(stockHistory.getCreatedDate());
-        stockHistoryResponse.setLastModifiedDate(stockHistory.getLastModifiedDate());
         return stockHistoryResponse;
     }
 
     private StockHistoryResponse recordStockChange(StockHistory stockHistory) {
+
         stockHistory.setCreatedDate(LocalDateTime.now());
-        stockHistory.setLastModifiedDate(LocalDateTime.now());
 
         productDao.insertStockHistory(stockHistory);
 
-        StockHistoryResponse response = new StockHistoryResponse();
-        response.setProductVariantId(stockHistory.getProductVariantId());
-        response.setChangeAmount(stockHistory.getChangeAmount());
-        response.setStockAfter(stockHistory.getStockAfter());
-        response.setStockChangeReason(stockHistory.getStockChangeReason());
-        response.setCreatedDate(stockHistory.getCreatedDate());
-        response.setLastModifiedDate(stockHistory.getLastModifiedDate());
+        StockHistoryResponse stockHistoryResponse = new StockHistoryResponse();
+        stockHistoryResponse.setProductVariantId(stockHistory.getProductVariantId());
+        stockHistoryResponse.setChangeAmount(stockHistory.getChangeAmount());
+        stockHistoryResponse.setStockAfter(stockHistory.getStockAfter());
+        stockHistoryResponse.setStockChangeReason(stockHistory.getStockChangeReason());
+        stockHistoryResponse.setCreatedDate(stockHistory.getCreatedDate());
 
-        return response;
+        return stockHistoryResponse;
     }
 
     // 將前端傳的庫存變動原因字串，轉換成 enum
@@ -517,10 +509,14 @@ public class ProductServiceImpl implements ProductService {
         if (reasonType == null) return StockChangeReason.MANUAL_ADJUST;
 
         return switch (reasonType.toUpperCase()) {
+            case "ORDER" -> StockChangeReason.ORDER;
             case "RETURN" -> StockChangeReason.RETURN;
             case "PURCHASE" -> StockChangeReason.PURCHASE;
             case "DAMAGE" -> StockChangeReason.DAMAGE;
             case "PROMOTION" -> StockChangeReason.PROMOTION;
+            case "INITIALIZATION" -> StockChangeReason.INITIALIZATION;
+            case "INVENTORY_AUDIT" -> StockChangeReason.INVENTORY_AUDIT;
+            case "LOSS" -> StockChangeReason.LOSS;
             default -> StockChangeReason.MANUAL_ADJUST;
         };
     }

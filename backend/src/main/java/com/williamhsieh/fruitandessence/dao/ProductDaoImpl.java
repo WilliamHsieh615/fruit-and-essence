@@ -97,7 +97,8 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public List<Product> getProductsByIds(List<Integer> productIds) {
+    public Map<Integer, Product> getProductsByIds(List<Integer> productIds) {
+
         String sql = "SELECT product_id, product_name, product_category, product_description, " +
                 "created_date, last_modified_date " +
                 "FROM product WHERE product_id IN (:productIds)";
@@ -107,15 +108,17 @@ public class ProductDaoImpl implements ProductDao {
 
         List<Product> productList = namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
 
+        Map<Integer, Product> productMap = productList.stream().collect(Collectors.toMap(Product::getProductId, product -> product));
+
         if (productList.isEmpty()) {
-            return Collections.emptyList();
+            return Map.of();
         } else {
-            return productList;
+            return productMap;
         }
     }
 
     @Override
-    public List<ProductVariant> getVariantsByIds(List<Integer> productVariantIds) {
+    public Map<Integer, ProductVariant> getVariantsByIds(List<Integer> productVariantIds) {
 
         String sql = "SELECT product_variant_id, product_id, product_size, price, discount_price, unit, " +
                 "stock, sku, barcode " +
@@ -126,10 +129,12 @@ public class ProductDaoImpl implements ProductDao {
 
         List<ProductVariant>  productVariantList = namedParameterJdbcTemplate.query(sql, map, new ProductVariantRowMapper());
 
+        Map<Integer, ProductVariant> productVariantMap = productVariantList.stream().collect(Collectors.toMap(ProductVariant::getProductVariantId, variant -> variant));
+
         if (productVariantList.isEmpty()) {
-            return Collections.emptyList();
+            return Map.of();
         } else  {
-            return productVariantList;
+            return productVariantMap;
         }
     }
 
@@ -195,12 +200,12 @@ public class ProductDaoImpl implements ProductDao {
 
         List<ProductNutritionFacts> productNutritionFactsList = namedParameterJdbcTemplate.query(sql, map, new ProductNutritionFactsRowMapper());
 
-        Map<Integer, ProductNutritionFacts> productNutritionFactsListMap = productNutritionFactsList.stream().collect(Collectors.toMap(ProductNutritionFacts::getProductId, nf -> nf));
+        Map<Integer, ProductNutritionFacts> productNutritionFactsMap = productNutritionFactsList.stream().collect(Collectors.toMap(ProductNutritionFacts::getProductId, nf -> nf));
 
         if (productNutritionFactsList.isEmpty()) {
             return Map.of();
         } else {
-            return productNutritionFactsListMap;
+            return productNutritionFactsMap;
         }
     }
 
@@ -479,6 +484,18 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
+    public void updateProductVariantStock(Integer productVariantId, Integer newStock) {
+
+        String sql = "UPDATE product_variant SET stock = :stock WHERE product_variant_id = :productVariantId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("stock", newStock);
+        map.put("productVariantId", productVariantId);
+
+        namedParameterJdbcTemplate.update(sql, map);
+    }
+
+    @Override
     public void updateProductNutrition(Integer productId, ProductNutritionFacts productNutritionFacts) {
 
         String sql = "UPDATE product_nutrition_facts SET serving_size = :servingSize, calories = :calories, " +
@@ -542,17 +559,15 @@ public class ProductDaoImpl implements ProductDao {
     @Override
     public void insertStockHistory(StockHistory stockHistory) {
 
-        String sql = "INSERT INTO stock_history (product_variant_id, change_amount, stock_after, reason, created_date, last_modified_date) " +
-                "VALUES (:productVariantId, :changeAmount, :stockAfter, :reason, :createdDate, :lastModifiedDate)";
+        String sql = "INSERT INTO stock_history (product_variant_id, change_amount, stock_after, reason, created_date) " +
+                "VALUES (:productVariantId, :changeAmount, :stockAfter, :reason, :createdDate)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("productVariantId", stockHistory.getProductVariantId());
         map.put("changeAmount", stockHistory.getChangeAmount());
         map.put("stockAfter", stockHistory.getStockAfter());
         map.put("reason", stockHistory.getStockChangeReason().toString());
-
         map.put("createdDate", stockHistory.getCreatedDate());
-        map.put("lastModifiedDate", LocalDateTime.now());
 
         namedParameterJdbcTemplate.update(sql, map);
 

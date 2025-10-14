@@ -12,9 +12,9 @@ public interface OrderService {
 
     Integer countOrders(OrderQueryParams orderQueryParams);
 
-    List<OrderResponse> getOrders(OrderQueryParams orderQueryParams);
-
     Integer countAllOrders(AdminOrderQueryParams adminOrderQueryParams);
+
+    List<OrderResponse> getOrders(OrderQueryParams orderQueryParams);
 
     List<Order> getAllOrders(AdminOrderQueryParams adminOrderQueryParams);
 
@@ -24,11 +24,9 @@ public interface OrderService {
 
     Integer createOrder(Integer memberId, CreatedOrderRequest createdOrderRequest);
 
-    Order updateOrder(Integer memberId, Integer orderId, UpdateOrderRequest updateOrderRequest);
-
     Order updateOrderStatus(Integer memberId, Integer orderId, UpdateOrderStatusRequest updateOrderStatusRequest);
 
-    Order cancelOrder(Integer memberId, Integer orderId);
+    Order cancelOrder(Integer memberId, Integer orderId, String cancelReason);
 
     List<ShippingMethod> getShippingMethods();
 
@@ -36,16 +34,16 @@ public interface OrderService {
 
     List<OrderDiscount> getOrderDiscounts();
 
-    String createShippingMethod(ShippingMethod shippingMethod);
+    Integer createShippingMethod(ShippingMethod shippingMethod);
 
-    String createPaymentMethod(PaymentMethod paymentMethod);
+    Integer createPaymentMethod(PaymentMethod paymentMethod);
 
-    String createOrderDiscount(OrderDiscount orderDiscount);
+    Integer createOrderDiscount(OrderDiscount orderDiscount);
 
-    String updateShippingMethod(Integer methodId, ShippingMethod shippingMethod);
+    ShippingMethod updateShippingMethod(Integer shippingMethodId, ShippingMethod shippingMethod);
 
-    String updatePaymentMethod(Integer methodId, PaymentMethod paymentMethod);
+    PaymentMethod updatePaymentMethod(Integer paymentMethodId, PaymentMethod paymentMethod);
 
-    String updateOrderDiscount(Integer discountId, OrderDiscount orderDiscount);
+    OrderDiscount updateOrderDiscount(Integer discountId, OrderDiscount orderDiscount);
 
 }

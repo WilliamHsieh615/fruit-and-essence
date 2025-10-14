@@ -1,7 +1,5 @@
 package com.williamhsieh.fruitandessence.dto;
 
-import com.williamhsieh.fruitandessence.model.OrderDiscount;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -10,13 +8,8 @@ public class OrderSummaryResponse {
     private Integer memberId;
     private BigDecimal subtotal;
     private BigDecimal taxAmount;
-    private List<OrderDiscount> orderDiscounts;
-    private BigDecimal discountAmount;
-    private BigDecimal shippingFee;
-    private BigDecimal totalAmount;
 
-    private List<OrderDiscountResponse> discounts;
-
+    private List<OrderDiscountResponse> orderDiscountResponseList;
     private List<ShoppingListResponse> shoppingListResponse;
 
     public Integer getMemberId() {
@@ -43,44 +36,12 @@ public class OrderSummaryResponse {
         this.taxAmount = taxAmount;
     }
 
-    public List<OrderDiscount> getOrderDiscounts() {
-        return orderDiscounts;
+    public List<OrderDiscountResponse> getOrderDiscountResponseList() {
+        return orderDiscountResponseList;
     }
 
-    public void setOrderDiscounts(List<OrderDiscount> orderDiscounts) {
-        this.orderDiscounts = orderDiscounts;
-    }
-
-    public BigDecimal getDiscountAmount() {
-        return discountAmount;
-    }
-
-    public void setDiscountAmount(BigDecimal discountAmount) {
-        this.discountAmount = discountAmount;
-    }
-
-    public BigDecimal getShippingFee() {
-        return shippingFee;
-    }
-
-    public void setShippingFee(BigDecimal shippingFee) {
-        this.shippingFee = shippingFee;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public List<OrderDiscountResponse> getDiscounts() {
-        return discounts;
-    }
-
-    public void setDiscounts(List<OrderDiscountResponse> discounts) {
-        this.discounts = discounts;
+    public void setOrderDiscountResponseList(List<OrderDiscountResponse> orderDiscountResponseList) {
+        this.orderDiscountResponseList = orderDiscountResponseList;
     }
 
     public List<ShoppingListResponse> getShoppingListResponse() {
