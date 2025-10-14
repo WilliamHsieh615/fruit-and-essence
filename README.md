@@ -182,7 +182,6 @@
     -- order_discount table
     CREATE TABLE order_discount (
         discount_id            INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        member_id              INT           NULL,
         discount_name          VARCHAR(50)   NOT NULL,
         discount_code          VARCHAR(50)   UNIQUE,
         discount_type          VARCHAR(100)  NOT NULL DEFAULT 'CODE',
@@ -194,7 +193,15 @@
         end_date               DATETIME,
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL,
-        FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
+    );
+
+    -- member_has_order_discount table
+    CREATE TABLE member_has_order_discount ( 
+        member_id INT NOT NULL, 
+        discount_id INT NOT NULL, 
+        PRIMARY KEY (member_id, discount_id), 
+        FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE, 
+        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE 
     );
 
     -- order_discount_usage table
