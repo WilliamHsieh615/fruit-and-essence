@@ -278,7 +278,6 @@
     CREATE INDEX idx_invoice_issued ON invoice(issued);
     CREATE INDEX idx_invoice_issued_date ON invoice(issued_date);
     CREATE UNIQUE INDEX idx_order_discount_code ON order_discount(discount_code);
-    CREATE INDEX idx_order_discount_member_id ON order_discount(member_id);
     CREATE INDEX idx_order_discount_start_end ON order_discount(start_date, end_date);
     CREATE INDEX idx_order_discount_usage_discount_id ON order_discount_usage(discount_id);
     CREATE INDEX idx_order_discount_usage_member_id ON order_discount_usage(member_id);
