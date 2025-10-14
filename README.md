@@ -76,7 +76,8 @@
         stock                  INT           NOT NULL DEFAULT 0,         
         sku                    VARCHAR(100)  NOT NULL UNIQUE,
         barcode                VARCHAR(100),
-        FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
+        FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE,
+        UNIQUE KEY uniq_product_variant_barcode (barcode),
     );
 
     -- product_nutrition_facts table
@@ -144,8 +145,8 @@
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL,
         FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
-        FOREIGN KEY (payment_method_id) REFERENCES payment_method(method_id) ON DELETE RESTRICT,
-        FOREIGN KEY (shipping_method_id) REFERENCES shipping_method(method_id) ON DELETE RESTRICT
+        FOREIGN KEY (payment_method_id) REFERENCES payment_method(payment_method_id) ON DELETE RESTRICT,
+        FOREIGN KEY (shipping_method_id) REFERENCES shipping_method(shipping_method_id) ON DELETE RESTRICT
     );
 
     -- order_item table
