@@ -59,7 +59,7 @@
     CREATE TABLE product (
         product_id             INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
         product_name           VARCHAR(255)  NOT NULL,
-        product_category       VARCHAR(100)  NOT NULL,
+        product_category       ENUM('REFRESHING', 'SWEET_AND_FRUITY', 'SUPERFOODS', 'HEALTHY_VEGGIES', 'WELLNESS_AND_HERBAL')  NOT NULL,
         product_description    TEXT,
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL
@@ -75,7 +75,7 @@
         unit                   VARCHAR(50),
         stock                  INT           NOT NULL DEFAULT 0,         
         sku                    VARCHAR(100)  NOT NULL UNIQUE,
-        barcode                VARCHAR(100),
+        barcode                VARCHAR(100), NULL UNIQUE
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
 
@@ -226,7 +226,7 @@
 
     CREATE TABLE order_discount_category (
         discount_id            INT           NOT NULL,
-        product_category       VARCHAR(100)  NOT NULL,
+        product_category       ENUM('REFRESHING', 'SWEET_AND_FRUITY', 'SUPERFOODS', 'HEALTHY_VEGGIES', 'WELLNESS_AND_HERBAL')  NOT NULL,
         PRIMARY KEY (discount_id, product_category),
         FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE
     );
@@ -235,7 +235,7 @@
     CREATE TABLE invoice (
         invoice_id             INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
         order_id               INT           NOT NULL,
-        invoice_number         VARCHAR(50)   NOT NULL UNIQUE,
+        invoice_number         VARCHAR(50)   NULL UNIQUE,
         invoice_carrier        VARCHAR(50),
         invoice_donation_code  VARCHAR(10),
         company_tax_id         VARCHAR(10),
