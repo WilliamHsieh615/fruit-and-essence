@@ -1,0 +1,1307 @@
+[
+    {
+        "productName": "Watermelon Juice",
+        "productCategory": "REFRESHING",
+        "productImages": [
+            "/images/products/juice/refreshing/watermelon.png",
+            "/images/products/fruit/refreshing/watermelon.jpg",
+            "/images/products/view/refreshing/watermelon.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.99,
+                "discountPrice": 4.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 7.99,
+                "discountPrice": 7.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 15.99,
+                "discountPrice": 14.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed watermelon juice",
+            "Freshly squeezed lemon",
+            "Hint of mint"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 0,
+            "protein": 1.50,
+            "fat": 0.20,
+            "carbohydrates": 22.00,
+            "sugar": 18.00,
+            "fiber": 0.40,
+            "sodium": 5.00,
+            "vitaminC": 12.00
+        },
+        "productDescription": "Cool, crisp, and naturally hydrating — our Cold-Pressed Watermelon Juice captures the pure sweetness of summer. Blended with a hint of lemon and mint, it’s a refreshing way to recharge your body and lift your spirits."
+    },
+    {
+        "productName": "Lemon Juice",
+        "productCategory": "REFRESHING",
+        "productImages": [
+            "/images/products/juice/refreshing/lemon.png",
+            "/images/products/fruit/refreshing/lemon.jpg",
+            "/images/products/view/refreshing/lemon.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.49,
+                "discountPrice": 3.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 7.49,
+                "discountPrice": 6.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 14.49,
+                "discountPrice": 13.49,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed lemon juice",
+            "Purified water",
+            "Touch of organic honey"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 45,
+            "protein": 0.70,
+            "fat": 0.10,
+            "carbohydrates": 12.00,
+            "sugar": 8.50,
+            "fiber": 0.30,
+            "sodium": 2.00,
+            "vitaminC": 50.00
+        },
+        "productDescription": "Bright, zesty, and full of life — our Cold-Pressed Lemon Juice delivers a burst of natural citrus energy. Balanced with organic honey, it refreshes your senses and supports daily detox and vitality."
+    },
+    {
+        "productName": "Starfruit Juice",
+        "productCategory": "REFRESHING",
+        "productImages": [
+            "/images/products/juice/refreshing/starfruit.png",
+            "/images/products/fruit/refreshing/starfruit.jpg",
+            "/images/products/view/refreshing/starfruit.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.99,
+                "discountPrice": 4.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 8.49,
+                "discountPrice": 7.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 15.99,
+                "discountPrice": 14.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed starfruit juice",
+            "Purified water",
+            "Freshly squeezed lime"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 60,
+            "protein": 1.00,
+            "fat": 0.30,
+            "carbohydrates": 15.00,
+            "sugar": 10.50,
+            "fiber": 2.50,
+            "sodium": 3.00,
+            "vitaminC": 35.00
+        },
+        "productDescription": "Light, tangy, and beautifully tropical — our Cold-Pressed Starfruit Juice offers a crisp taste with a hint of lime. Packed with antioxidants and vitamin C, it’s a refreshing choice for body and mind."
+    },
+    {
+        "productName": "Coconut Juice",
+        "productCategory": "REFRESHING",
+        "productImages": [
+            "/images/products/juice/refreshing/coconut.png",
+            "/images/products/fruit/refreshing/coconut.jpg",
+            "/images/products/view/refreshing/coconut.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 5.49,
+                "discountPrice": 4.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 9.99,
+                "discountPrice": 9.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 18.99,
+                "discountPrice": 17.49,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed coconut water",
+            "Coconut pulp extract",
+            "Natural coconut essence"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 55,
+            "protein": 0.70,
+            "fat": 0.20,
+            "carbohydrates": 13.00,
+            "sugar": 10.50,
+            "fiber": 0.50,
+            "sodium": 45.00,
+            "vitaminC": 3.00
+        },
+        "productDescription": "Pure hydration from nature — our Cold-Pressed Coconut Juice is made from young coconuts for a clean, lightly sweet taste. Rich in electrolytes, it restores balance and refreshes you from the inside out."
+    },
+    {
+        "productName": "Orange Juice",
+        "productCategory": "REFRESHING",
+        "productImages": [
+            "/images/products/juice/refreshing/orange.png",
+            "/images/products/fruit/refreshing/orange.jpg",
+            "/images/products/view/refreshing/orange.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.79,
+                "discountPrice": 4.29,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 8.79,
+                "discountPrice": 8.29,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 16.49,
+                "discountPrice": 15.49,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed orange juice",
+            "Orange pulp",
+            "Natural orange zest essence"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 120,
+            "protein": 2.00,
+            "fat": 0.30,
+            "carbohydrates": 26.00,
+            "sugar": 21.00,
+            "fiber": 0.50,
+            "sodium": 3.00,
+            "vitaminC": 124.00
+        },
+        "productDescription": "Vibrant and full-bodied, our Cold-Pressed Orange Juice brings you the essence of sun-ripened oranges. Naturally rich in vitamin C and antioxidants, it’s your perfect boost of morning energy and immunity."
+    },
+    {
+        "productName": "Apple Juice",
+        "productCategory": "SWEET_FRUITY",
+        "productImages": [
+            "/images/products/juice/sweet_fruity/apple.png",
+            "/images/products/fruit/sweet_fruity/apple.jpg",
+            "/images/products/view/sweet_fruity/apple.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.59,
+                "discountPrice": 4.19,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 8.49,
+                "discountPrice": 7.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 15.99,
+                "discountPrice": 14.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed apple juice",
+            "Purified water",
+            "Lemon juice for freshness"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 135,
+            "protein": 0.40,
+            "fat": 0.20,
+            "carbohydrates": 32.00,
+            "sugar": 28.00,
+            "fiber": 0.50,
+            "sodium": 10.00,
+            "vitaminC": 8.00
+        },
+        "productDescription": "Crisp and naturally sweet, our Cold-Pressed Apple Juice preserves the freshness of handpicked apples. With no added sugar or preservatives, it’s a clean, energizing drink for any time of day."
+    },
+    {
+        "productName": "Mango Juice",
+        "productCategory": "SWEET_FRUITY",
+        "productImages": [
+            "/images/products/juice/sweet_fruity/mango.png",
+            "/images/products/fruit/sweet_fruity/mango.jpg",
+            "/images/products/view/sweet_fruity/mango.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.49,
+                "discountPrice": 3.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 7.99,
+                "discountPrice": 7.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 14.99,
+                "discountPrice": 13.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Fresh mango puree",
+            "Purified water",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 150,
+            "protein": 1.20,
+            "fat": 0.30,
+            "carbohydrates": 36.00,
+            "sugar": 32.00,
+            "fiber": 1.00,
+            "sodium": 5.00,
+            "vitaminC": 25.00
+        },
+        "productDescription": "Smooth, golden, and irresistibly tropical — our Mango Juice is made from ripe mangoes for a naturally sweet flavor. Each sip is a burst of sunshine, rich in vitamin C and pure happiness."
+    },
+    {
+        "productName": "Pineapple Juice",
+        "productCategory": "SWEET_FRUITY",
+        "productImages": [
+            "/images/products/juice/sweet_fruity/pineapple.png",
+            "/images/products/fruit/sweet_fruity/pineapple.jpg",
+            "/images/products/view/sweet_fruity/pineapple.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.29,
+                "discountPrice": 3.79,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 7.79,
+                "discountPrice": 7.29,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 14.49,
+                "discountPrice": 13.49,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed pineapple juice",
+            "Purified water",
+            "Freshly squeezed lime"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 140,
+            "protein": 0.90,
+            "fat": 0.20,
+            "carbohydrates": 34.00,
+            "sugar": 30.00,
+            "fiber": 0.50,
+            "sodium": 2.00,
+            "vitaminC": 20.00
+        },
+        "productDescription": "Sweet, tangy, and refreshingly tropical — our Cold-Pressed Pineapple Juice delivers the perfect balance of brightness and flavor. Naturally high in vitamin C, it’s your instant escape to paradise."
+    },
+    {
+        "productName": "Strawberry Juice",
+        "productCategory": "SWEET_FRUITY",
+        "productImages": [
+            "/images/products/juice/sweet_fruity/strawberry.png",
+            "/images/products/fruit/sweet_fruity/strawberry.jpg",
+            "/images/products/view/sweet_fruity/strawberry.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.59,
+                "discountPrice": 4.09,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 8.29,
+                "discountPrice": 7.79,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 15.19,
+                "discountPrice": 14.19,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed strawberry juice",
+            "Purified water",
+            "Freshly squeezed lime"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 125,
+            "protein": 1.20,
+            "fat": 0.40,
+            "carbohydrates": 29.00,
+            "sugar": 25.00,
+            "fiber": 1.80,
+            "sodium": 3.00,
+            "vitaminC": 45.00
+        },
+        "productDescription": "Juicy, fragrant, and naturally vibrant — our Cold-Pressed Strawberry Juice captures the essence of fresh berries. Rich in antioxidants and vitamin C, it’s a refreshing indulgence that nourishes inside and out."
+    },
+    {
+        "productName": "Grape Juice",
+        "productCategory": "SWEET_FRUITY",
+        "productImages": [
+            "/images/products/juice/sweet_fruity/grape.png",
+            "/images/products/fruit/sweet_fruity/grape.jpg",
+            "/images/products/view/sweet_fruity/grape.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.39,
+                "discountPrice": 3.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 7.89,
+                "discountPrice": 7.39,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 13.99,
+                "discountPrice": 12.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Fresh purple grapes",
+            "Purified water",
+            "Freshly squeezed lime"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 150,
+            "protein": 1.00,
+            "fat": 0.30,
+            "carbohydrates": 37.00,
+            "sugar": 34.00,
+            "fiber": 0.60,
+            "sodium": 6.00,
+            "vitaminC": 20.00
+        },
+        "productDescription": "Rich, smooth, and naturally sweet — our Cold-Pressed Grape Juice is made from handpicked grapes for a full, fruity taste. A classic favorite packed with antioxidants for everyday wellness."
+    },
+    {
+        "productName": "Guava Juice",
+        "productCategory": "SWEET_FRUITY",
+        "productImages": [
+            "/images/products/juice/sweet_fruity/guava.png",
+            "/images/products/fruit/sweet_fruity/guava.jpg",
+            "/images/products/view/sweet_fruity/guava.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.79,
+                "discountPrice": 4.29,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 8.99,
+                "discountPrice": 8.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 16.29,
+                "discountPrice": 15.29,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed guava juice",
+            "Purified water",
+            "Freshly squeezed lime"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 130,
+            "protein": 1.10,
+            "fat": 0.30,
+            "carbohydrates": 31.00,
+            "sugar": 28.00,
+            "fiber": 3.00,
+            "sodium": 4.00,
+            "vitaminC": 125.00
+        },
+        "productDescription": "Sweet, tropical, and refreshingly smooth — our Cold-Pressed Guava Juice captures the essence of ripe guava balanced with a touch of lime. Naturally rich in vitamin C and fiber, it’s a perfect pick-me-up for daily wellness."
+    },
+    {
+        "productName": "Blueberry Juice",
+        "productCategory": "SUPERFOODS",
+        "productImages": [
+            "/images/products/juice/superfoods/blueberry.png",
+            "/images/products/fruit/superfoods/blueberry.jpg",
+            "/images/products/view/superfoods/blueberry.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 5.29,
+                "discountPrice": 4.79,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 9.79,
+                "discountPrice": 9.29,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 17.99,
+                "discountPrice": 16.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Fresh blueberries",
+            "Purified water",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 160,
+            "protein": 1.00,
+            "fat": 0.40,
+            "carbohydrates": 38.00,
+            "sugar": 34.00,
+            "fiber": 2.40,
+            "sodium": 5.00,
+            "vitaminC": 24.00
+        },
+        "productDescription": "Deeply flavorful and antioxidant-packed, our Cold-Pressed Blueberry Juice offers a naturally sweet, tangy taste. Each sip delivers a burst of vitality, supporting brain health and daily rejuvenation."
+    },
+    {
+        "productName": "Cranberry Juice",
+        "productCategory": "SUPERFOODS",
+        "productImages": [
+            "/images/products/juice/superfoods/cranberry.png",
+            "/images/products/fruit/superfoods/cranberry.jpg",
+            "/images/products/view/superfoods/cranberry.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 5.49,
+                "discountPrice": 4.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 10.29,
+                "discountPrice": 9.79,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 18.49,
+                "discountPrice": 17.49,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Fresh cranberries",
+            "Purified water",
+            "Freshly squeezed apple"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 150,
+            "protein": 0.90,
+            "fat": 0.20,
+            "carbohydrates": 37.00,
+            "sugar": 33.00,
+            "fiber": 3.20,
+            "sodium": 6.00,
+            "vitaminC": 35.00
+        },
+        "productDescription": "Bright, tart, and naturally invigorating — our Cold-Pressed Cranberry Juice is crafted for balance and wellness. Rich in antioxidants and vitamin C, it helps support urinary tract health and hydration."
+    },
+    {
+        "productName": "Mulberry Juice",
+        "productCategory": "SUPERFOODS",
+        "productImages": [
+            "/images/products/juice/superfoods/mulberry.png",
+            "/images/products/fruit/superfoods/mulberry.jpg",
+            "/images/products/view/superfoods/mulberry.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 5.79,
+                "discountPrice": 5.29,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 10.99,
+                "discountPrice": 10.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 19.49,
+                "discountPrice": 18.49,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Fresh mulberries",
+            "Purified water",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 160,
+            "protein": 1.20,
+            "fat": 0.30,
+            "carbohydrates": 38.00,
+            "sugar": 34.00,
+            "fiber": 3.50,
+            "sodium": 5.00,
+            "vitaminC": 28.00
+        },
+        "productDescription": "Rich, smooth, and subtly sweet, our Cold-Pressed Mulberry Juice is bursting with antioxidants and nutrients. It supports immunity and provides a naturally delicious boost for body and mind."
+    },
+    {
+        "productName": "Kiwi Juice",
+        "productCategory": "SUPERFOODS",
+        "productImages": [
+            "/images/products/juice/superfoods/kiwi.png",
+            "/images/products/fruit/superfoods/kiwi.jpg",
+            "/images/products/view/superfoods/kiwi.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 6.29,
+                "discountPrice": 5.79,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 11.99,
+                "discountPrice": 11.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 21.49,
+                "discountPrice": 20.49,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Fresh kiwi",
+            "Purified water",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 170,
+            "protein": 1.50,
+            "fat": 0.40,
+            "carbohydrates": 41.00,
+            "sugar": 36.00,
+            "fiber": 4.00,
+            "sodium": 5.50,
+            "vitaminC": 92.00
+        },
+        "productDescription": "Vibrant and refreshing, our Cold-Pressed Kiwi Juice is full of tangy-sweet flavor and vitamin C. It’s your daily dose of energy and immunity, captured in every green, invigorating sip."
+    },
+    {
+        "productName": "Passion Fruit Juice",
+        "productCategory": "SUPERFOODS",
+        "productImages": [
+            "/images/products/juice/superfoods/passion_fruit.png",
+            "/images/products/fruit/superfoods/passion_fruit.jpg",
+            "/images/products/view/superfoods/passion_fruit.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 6.49,
+                "discountPrice": 5.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 12.49,
+                "discountPrice": 11.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 22.99,
+                "discountPrice": 21.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Fresh passion fruit pulp",
+            "Purified water",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 180,
+            "protein": 1.20,
+            "fat": 0.50,
+            "carbohydrates": 43.00,
+            "sugar": 38.00,
+            "fiber": 3.50,
+            "sodium": 6.00,
+            "vitaminC": 95.00
+        },
+        "productDescription": "Exotic, aromatic, and full of flavor — our Cold-Pressed Passion Fruit Juice blends natural tanginess with a hint of sweetness. Packed with antioxidants, it’s the perfect tropical escape in a bottle."
+    },
+    {
+        "productName": "Pitaya Juice",
+        "productCategory": "SUPERFOODS",
+        "productImages": [
+            "/images/products/juice/superfoods/pitaya.png",
+            "/images/products/fruit/superfoods/pitaya.jpg",
+            "/images/products/view/superfoods/pitaya.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 6.99,
+                "discountPrice": 6.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 13.49,
+                "discountPrice": 12.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 24.99,
+                "discountPrice": 23.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Fresh pitaya (dragon fruit) pulp",
+            "Purified water",
+            "Agave syrup"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 160,
+            "protein": 1.50,
+            "fat": 0.40,
+            "carbohydrates": 38.00,
+            "sugar": 32.00,
+            "fiber": 3.80,
+            "sodium": 5.00,
+            "vitaminC": 35.00
+        },
+        "productDescription": "Vividly pink and beautifully refreshing — our Cold-Pressed Pitaya Juice is rich in antioxidants and natural sweetness. A perfect way to energize your day and nourish your glow from within."
+    },
+    {
+        "productName": "Carrot Juice",
+        "productCategory": "HEALTHY_VEGGIES",
+        "productImages": [
+            "/images/products/juice/healthy_veggies/carrot.png",
+            "/images/products/fruit/healthy_veggies/carrot.jpg",
+            "/images/products/view/healthy_veggies/carrot.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.99,
+                "discountPrice": 4.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 9.49,
+                "discountPrice": 8.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 17.99,
+                "discountPrice": 16.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed carrot juice",
+            "Purified water",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 120,
+            "protein": 2.00,
+            "fat": 0.30,
+            "carbohydrates": 28.00,
+            "sugar": 15.00,
+            "fiber": 3.50,
+            "sodium": 40.00,
+            "vitaminC": 18.00
+        },
+        "productDescription": "Bright, earthy, and naturally sweet — our Cold-Pressed Carrot Juice is loaded with beta-carotene and vitamins. A nourishing classic that supports vision, skin, and overall vitality."
+    },
+    {
+        "productName": "Celery Juice",
+        "productCategory": "HEALTHY_VEGGIES",
+        "productImages": [
+            "/images/products/juice/healthy_veggies/celery.png",
+            "/images/products/fruit/healthy_veggies/celery.jpg",
+            "/images/products/view/healthy_veggies/celery.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 5.49,
+                "discountPrice": 4.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 10.49,
+                "discountPrice": 9.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 19.99,
+                "discountPrice": 18.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed celery juice",
+            "Purified water",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 80,
+            "protein": 2.50,
+            "fat": 0.20,
+            "carbohydrates": 16.00,
+            "sugar": 5.00,
+            "fiber": 2.50,
+            "sodium": 90.00,
+            "vitaminC": 10.00
+        },
+        "productDescription": "Crisp, clean, and deeply refreshing — our Cold-Pressed Celery Juice is the perfect daily detox companion. Packed with minerals and hydration power, it supports digestion and balance."
+    },
+    {
+        "productName": "Asparagus Juice",
+        "productCategory": "HEALTHY_VEGGIES",
+        "productImages": [
+            "/images/products/juice/healthy_veggies/asparagus.png",
+            "/images/products/fruit/healthy_veggies/asparagus.jpg",
+            "/images/products/view/healthy_veggies/asparagus.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 6.49,
+                "discountPrice": 5.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 12.49,
+                "discountPrice": 11.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 23.99,
+                "discountPrice": 22.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed asparagus juice",
+            "Purified water",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 85,
+            "protein": 3.00,
+            "fat": 0.30,
+            "carbohydrates": 17.50,
+            "sugar": 5.50,
+            "fiber": 3.00,
+            "sodium": 95.00,
+            "vitaminC": 12.00
+        },
+        "productDescription": "Uniquely fresh and nourishing, our Cold-Pressed Asparagus Juice offers a light, earthy flavor enhanced with lemon. Rich in nutrients, it promotes detoxification and natural vitality."
+    },
+    {
+        "productName": "Pumpkin Juice",
+        "productCategory": "HEALTHY_VEGGIES",
+        "productImages": [
+            "/images/products/juice/healthy_veggies/pumpkin.png",
+            "/images/products/fruit/healthy_veggies/pumpkin.jpg",
+            "/images/products/view/healthy_veggies/pumpkin.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 5.99,
+                "discountPrice": 5.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 11.49,
+                "discountPrice": 10.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 21.99,
+                "discountPrice": 20.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed pumpkin juice",
+            "Purified water",
+            "Cinnamon",
+            "Ginger"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 90,
+            "protein": 2.50,
+            "fat": 0.20,
+            "carbohydrates": 21.00,
+            "sugar": 7.00,
+            "fiber": 3.50,
+            "sodium": 85.00,
+            "vitaminC": 15.00
+        },
+        "productDescription": "Smooth and comforting, our Cold-Pressed Pumpkin Juice blends pumpkin with cinnamon and ginger for a naturally sweet, nutrient-rich drink. Perfect for boosting immunity and supporting digestive wellness."
+    },
+    {
+        "productName": "Tomato Juice",
+        "productCategory": "HEALTHY_VEGGIES",
+        "productImages": [
+            "/images/products/juice/healthy_veggies/tomato.png",
+            "/images/products/fruit/healthy_veggies/tomato.jpg",
+            "/images/products/view/healthy_veggies/tomato.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.99,
+                "discountPrice": 4.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 9.49,
+                "discountPrice": 8.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 17.99,
+                "discountPrice": 16.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Cold-pressed tomato juice",
+            "Purified water",
+            "Sea salt",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 55,
+            "protein": 2.00,
+            "fat": 0.10,
+            "carbohydrates": 12.00,
+            "sugar": 7.00,
+            "fiber": 2.50,
+            "sodium": 150.00,
+            "vitaminC": 30.00
+        },
+        "productDescription": "Fresh and invigorating, our Cold-Pressed Tomato Juice is lightly seasoned with sea salt and lemon. Low in calories and rich in nutrients, it supports heart health and daily hydration."
+    },
+    {
+        "productName": "Black Fungus Juice",
+        "productCategory": "WELLNESS_HERBAL",
+        "productImages": [
+            "/images/products/juice/wellness_herbal/black_fungus.png",
+            "/images/products/fruit/wellness_herbal/black_fungus.jpg",
+            "/images/products/view/wellness_herbal/black_fungus.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 5.49,
+                "discountPrice": 4.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 10.99,
+                "discountPrice": 9.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 20.99,
+                "discountPrice": 18.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Black fungus extract",
+            "Purified water",
+            "Honey",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 60,
+            "protein": 1.50,
+            "fat": 0.10,
+            "carbohydrates": 14.00,
+            "sugar": 9.00,
+            "fiber": 3.00,
+            "sodium": 50.00,
+            "vitaminC": 10.00
+        },
+        "productDescription": "Earthy and nourishing, our Black Fungus Juice is packed with fiber and antioxidants. This herbal wellness drink promotes immunity and overall vitality with a subtle, natural sweetness."
+    },
+    {
+        "productName": "White Fungus Juice",
+        "productCategory": "WELLNESS_HERBAL",
+        "productImages": [
+            "/images/products/juice/wellness_herbal/white_fungus.png",
+            "/images/products/fruit/wellness_herbal/white_fungus.jpg",
+            "/images/products/view/wellness_herbal/white_fungus.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 5.99,
+                "discountPrice": 5.49,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 11.99,
+                "discountPrice": 10.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 22.99,
+                "discountPrice": 20.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "White fungus extract",
+            "Purified water",
+            "Rock sugar",
+            "Goji berries"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 65,
+            "protein": 1.80,
+            "fat": 0.10,
+            "carbohydrates": 15.00,
+            "sugar": 10.00,
+            "fiber": 2.50,
+            "sodium": 45.00,
+            "vitaminC": 12.00
+        },
+        "productDescription": "Delicate and refreshing, our White Fungus Juice is known for immune-boosting and skin-nourishing benefits. Lightly sweetened with natural ingredients, it provides a gentle daily wellness lift."
+    },
+    {
+        "productName": "Papaya Juice",
+        "productCategory": "WELLNESS_HERBAL",
+        "productImages": [
+            "/images/products/juice/wellness_herbal/papaya.png",
+            "/images/products/fruit/wellness_herbal/papaya.jpg",
+            "/images/products/view/wellness_herbal/papaya.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 6.49,
+                "discountPrice": 5.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 12.99,
+                "discountPrice": 11.99,
+                "unit": "bottle",
+                "stock": 30
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 25.99,
+                "discountPrice": 23.99,
+                "unit": "bottle",
+                "stock": 30
+            }
+        ],
+        "productIngredients": [
+            "Papaya pulp",
+            "Purified water",
+            "Rock sugar",
+            "Freshly squeezed lemon"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "300ml",
+            "calories": 80,
+            "protein": 1.20,
+            "fat": 0.20,
+            "carbohydrates": 20.00,
+            "sugar": 14.00,
+            "fiber": 2.80,
+            "sodium": 40.00,
+            "vitaminC": 35.00
+        },
+        "productDescription": "Tropical and smooth, our Papaya Juice is rich in vitamin C and natural enzymes. Lightly sweet and refreshing, it supports digestion and overall vitality every day."
+    },
+    {
+        "productName": "Cloud Juice",
+        "productCategory": "WELLNESS_HERBAL",
+        "productImages": [
+            "/images/products/juice/wellness_herbal/air.png",
+            "/images/products/fruit/wellness_herbal/air.jpg",
+            "/images/products/view/wellness_herbal/air.jpg",
+            "/images/products/important_notes.png"
+        ],
+        "productVariants": [
+            {
+                "productSize": "SMALL_300ML",
+                "price": 4.99,
+                "discountPrice": 3.99,
+                "unit": "bottle",
+                "stock": 50
+            },
+            {
+                "productSize": "MEDIUM_700ML",
+                "price": 8.99,
+                "discountPrice": 7.99,
+                "unit": "bottle",
+                "stock": 50
+            },
+            {
+                "productSize": "LARGE_1900ML",
+                "price": 14.99,
+                "discountPrice": 12.99,
+                "unit": "bottle",
+                "stock": 50
+            }
+        ],
+        "productIngredients": [
+            "Nothing but pure imagination",
+            "Air of mindfulness",
+            "A pinch of humor"
+        ],
+        "productNutritionFacts": {
+            "servingSize": "0ml",
+            "calories": 0,
+            "protein": 0.00,
+            "fat": 0.00,
+            "carbohydrates": 0.00,
+            "sugar": 0.00,
+            "fiber": 0.00,
+            "sodium": 0.00,
+            "vitaminC": 0.00
+        },
+        "productDescription": "A whimsical wellness experience, our Cloud Juice reminds you to breathe and savor the moment. Empty yet meaningful, it celebrates mindfulness and the joy of simplicity."
+    }
+]
