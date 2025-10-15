@@ -23,10 +23,6 @@ public class ProductVariantRequest {
     @Min(0)
     private Integer stock;
 
-    private String sku;
-
-    private String barcode;
-
     public Integer getProductVariantId() {
         return productVariantId;
     }
@@ -73,21 +69,5 @@ public class ProductVariantRequest {
 
     public void setStock(Integer stock) {
         this.stock = stock;
-    }
-
-    public String getSku() {
-        return sku;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
-
-    public String getBarcode() {
-        return barcode;
-    }
-
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
     }
 }

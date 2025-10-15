@@ -139,14 +139,18 @@ public class ProductServiceImpl implements ProductService {
         List<ProductVariantRequest> productVariantRequestList = productRequest.getProductVariants();
         for (ProductVariantRequest productVariantRequest : productVariantRequestList) {
             ProductVariant productVariant = new ProductVariant();
-            productVariant.setProductId(productId);
             productVariant.setProductSize(productVariantRequest.getProductSize());
             productVariant.setPrice(productVariantRequest.getPrice());
             productVariant.setDiscountPrice(productVariantRequest.getDiscountPrice());
             productVariant.setUnit(productVariantRequest.getUnit());
             productVariant.setStock(productVariantRequest.getStock());
-            productVariant.setSku(productVariantRequest.getSku());
-            productVariant.setBarcode(productVariantRequest.getBarcode());
+            productVariant.setSku(generateSku(product, productVariant));
+
+            // 實際上線後可至 GS1 Taiwan（財團法人中華編碼中心）申請 條碼
+            String barcodeText = generateBarcodeText(product, productVariant);
+            String barcodeImageUrl = generateBarcodeImageUrl(barcodeText);
+
+            productVariant.setBarcode(barcodeImageUrl); // 假條碼
 
             productVariantList.add(productVariant);
         }
@@ -273,7 +277,7 @@ public class ProductServiceImpl implements ProductService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        Product product = new Product();
+        Product product = productDao.getProductById(productId);
         product.setProductName(productRequest.getProductName());
         product.setProductCategory(productRequest.getProductCategory());
         product.setProductDescription(productRequest.getProductDescription());
@@ -288,19 +292,16 @@ public class ProductServiceImpl implements ProductService {
 
         Map<Integer, ProductVariant> oldProductVariantMap = productDao.getVariantsByIds(variantIds);
 
-        List<ProductVariant> newProductVariantList = new ArrayList<>();
         List<ProductVariantRequest> productVariantRequestList = productRequest.getProductVariants();
+        List<ProductVariant> newProductVariantList = new ArrayList<>();
         for (ProductVariantRequest productVariantRequest : productVariantRequestList) {
 
-            ProductVariant productVariant = new ProductVariant();
-            productVariant.setProductVariantId(productVariantRequest.getProductVariantId());
+            ProductVariant productVariant = oldProductVariantMap.get(productVariantRequest.getProductVariantId());
             productVariant.setProductSize(productVariantRequest.getProductSize());
             productVariant.setPrice(productVariantRequest.getPrice());
             productVariant.setDiscountPrice(productVariantRequest.getDiscountPrice());
             productVariant.setUnit(productVariantRequest.getUnit());
             productVariant.setStock(productVariantRequest.getStock());
-            productVariant.setSku(productVariantRequest.getSku());
-            productVariant.setBarcode(productVariantRequest.getBarcode());
 
             newProductVariantList.add(productVariant);
 
@@ -340,9 +341,8 @@ public class ProductServiceImpl implements ProductService {
         if (productRequest.getProductNutritionFacts() != null) {
 
             ProductNutritionFactsRequest productNutritionFactsRequest = productRequest.getProductNutritionFacts();
-            ProductNutritionFacts productNutritionFacts = new ProductNutritionFacts();
+            ProductNutritionFacts productNutritionFacts = productDao.getNutritionByProductId(product.getProductId());
 
-            productNutritionFacts.setProductId(productId);
             productNutritionFacts.setServingSize(productNutritionFactsRequest.getServingSize());
             productNutritionFacts.setCalories(productNutritionFactsRequest.getCalories());
             productNutritionFacts.setProtein(productNutritionFactsRequest.getProtein());
@@ -410,6 +410,8 @@ public class ProductServiceImpl implements ProductService {
                     ProductVariantResponse productVariantResponse = new ProductVariantResponse();
                     productVariantResponse.setProductVariantId(variant.getProductVariantId());
                     productVariantResponse.setProductSize(variant.getProductSize());
+                    productVariantResponse.setProductSizeLabel(variant.getProductSize().getLabel());
+                    productVariantResponse.setProductSizeFluidOunce(variant.getProductSize().getFluidOunce());
                     productVariantResponse.setPrice(variant.getPrice());
                     productVariantResponse.setDiscountPrice(variant.getDiscountPrice());
                     productVariantResponse.setStock(variant.getStock());
@@ -521,4 +523,106 @@ public class ProductServiceImpl implements ProductService {
         };
     }
 
+    private String generateSku(Product product, ProductVariant productVariant) {
+
+        String skuProductCategory = "";
+        String skuProductCategoryNumber = "";
+        switch (product.getProductCategory().toString()) {
+            case "REFRESHING":
+                skuProductCategory = "REF";
+                skuProductCategoryNumber = "01";
+                break;
+            case "SWEET_AND_FRUITY":
+                skuProductCategory = "SF";
+                skuProductCategoryNumber = "02";
+                break;
+            case "SUPERFOODS":
+                skuProductCategory = "SFDS";
+                skuProductCategoryNumber = "03";
+                break;
+            case "HEALTHY_VEGGIES":
+                skuProductCategory = "HVG";
+                skuProductCategoryNumber = "04";
+                break;
+            case "WELLNESS_AND_HERBAL":
+                skuProductCategory = "WHB";
+                skuProductCategoryNumber = "05";
+                break;
+        }
+
+        String skuProductName = product.getProductName().replaceAll("\\s+", "").toUpperCase();
+        String skuProductNameNumber = String.format("%06d", Math.abs(product.getProductName().hashCode()) % 1000000);
+
+        String skuProductSize = "";
+        String skuProductSizeNumber = "";
+
+        switch (productVariant.getProductSize().toString()) {
+            case "SMALL_300ML":
+                skuProductSize = "S";
+                skuProductSizeNumber = "01";
+                break;
+            case "MEDIUM_700ML":
+                skuProductSize = "M";
+                skuProductSizeNumber = "02";
+                break;
+            case "LARGE_1900ML":
+                skuProductSize = "L";
+                skuProductSizeNumber = "03";
+                break;
+        }
+
+        // 商品版本
+        String skuProductVersion = "V01";
+
+        String sku = skuProductCategory + "-" +
+                skuProductName + "-" +
+                skuProductSize + "-" +
+                skuProductCategoryNumber + "-" +
+                skuProductNameNumber + "-" +
+                skuProductSizeNumber + "-" +
+                skuProductVersion;
+
+        return sku;
+    }
+
+    private String generateBarcodeText(Product product, ProductVariant variant) {
+        // 去除空白並轉大寫作為基底
+        String base = product.getProductName().replaceAll("\\s+", "").toUpperCase();
+
+        // 產生前 9 碼的 hash（ 限制 9 碼 ）
+        String hash = String.format("%09d", Math.abs(base.hashCode()) % 1000000000);
+
+        // 前 3 碼固定為台灣國碼（ 471 ）
+        String partialCode = "471" + hash; // 共 12 碼，最後 1 碼要算檢查碼
+
+        // 計算檢查碼
+        int checkDigit = calculateEan13CheckDigit(partialCode);
+
+        // 完整條碼（ 13 碼 ）
+        return partialCode + checkDigit;
+    }
+
+    private int calculateEan13CheckDigit(String code12) {
+        if (code12 == null || code12.length() != 12 || !code12.matches("\\d+")) {
+            throw new IllegalArgumentException("Invalid 12-digit EAN base code: " + code12);
+        }
+
+        int sum = 0;
+        for (int i = 0; i < code12.length(); i++) {
+            int digit = Character.getNumericValue(code12.charAt(i));
+            if ((i % 2) == 0) {
+                sum += digit;
+            } else {
+                sum += digit * 3;
+            }
+        }
+
+        int remainder = sum % 10;
+        return (remainder == 0) ? 0 : 10 - remainder;
+    }
+
+    private String generateBarcodeImageUrl(String barcodeText) {
+        return "https://barcode.tec-it.com/barcode.ashx?data="
+                + barcodeText + "&code=EAN13&translate-esc=true";
+    }
 }

@@ -30,6 +30,8 @@ public interface ProductDao {
 
     Map<Integer, List<ProductVariant>> getVariantsByProductIds(List<Integer> productIds);
 
+    ProductNutritionFacts getNutritionByProductId(Integer productId);
+
     Map<Integer, ProductNutritionFacts> getNutritionByProductIds(List<Integer> productIds);
 
     List<String> getImagesByProductId(Integer productId);

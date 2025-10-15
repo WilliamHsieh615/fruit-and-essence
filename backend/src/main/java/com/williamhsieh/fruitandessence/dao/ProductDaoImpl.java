@@ -190,6 +190,20 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
+    public ProductNutritionFacts getNutritionByProductId(Integer productId) {
+
+        String sql = "SELECT product_id, calories, protein, fat, carbohydrates, sugar, fiber, sodium, vitamin_c " +
+                "FROM product_nutrition_facts WHERE product_id = :productId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("productId", productId);
+
+        ProductNutritionFacts productNutritionFacts = namedParameterJdbcTemplate.queryForObject(sql, map, new ProductNutritionFactsRowMapper());
+
+        return productNutritionFacts;
+    }
+
+    @Override
     public Map<Integer, ProductNutritionFacts> getNutritionByProductIds(List<Integer> productIds) {
 
         String sql = "SELECT product_id, calories, protein, fat, carbohydrates, sugar, fiber, sodium, vitamin_c " +

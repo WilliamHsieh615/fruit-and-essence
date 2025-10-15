@@ -8,6 +8,8 @@ public class ProductVariantResponse {
 
     private Integer productVariantId;
     private ProductSize productSize;
+    private String productSizeLabel;
+    private Integer productSizeFluidOunce;
     private BigDecimal price;
     private BigDecimal discountPrice;
     private String unit;
@@ -31,6 +33,22 @@ public class ProductVariantResponse {
 
     public void setProductSize(ProductSize productSize) {
         this.productSize = productSize;
+    }
+
+    public String getProductSizeLabel() {
+        return productSizeLabel;
+    }
+
+    public void setProductSizeLabel(String productSizeLabel) {
+        this.productSizeLabel = productSizeLabel;
+    }
+
+    public Integer getProductSizeFluidOunce() {
+        return productSizeFluidOunce;
+    }
+
+    public void setProductSizeFluidOunce(Integer productSizeFluidOunce) {
+        this.productSizeFluidOunce = productSizeFluidOunce;
     }
 
     public BigDecimal getPrice() {
