@@ -58,36 +58,69 @@
         success                BOOLEAN       NOT NULL DEFAULT FALSE,
         FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
     );
+
+    -- 產品種類表
+    CREATE TABLE product_types (
+        id                     BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        name                   VARCHAR(50)   NOT NULL,
+        note                   VARCHAR(255),
+        avtive                 BOOLEAN       NOT NULL DEFAULT FALSE,
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL
+    );
     
-    -- product table
-    CREATE TABLE product (
-        product_id             INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        product_name           VARCHAR(255)  NOT NULL,
-        product_category       ENUM('REFRESHING', 'SWEET_AND_FRUITY', 'SUPERFOODS', 'HEALTHY_VEGGIES', 'WELLNESS_AND_HERBAL')  NOT NULL,
-        product_description    TEXT,
+    -- 產品表
+    CREATE TABLE products (
+        id                     BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        product_type_id        BIGINT        NOT NULL,
+        name                   VARCHAR(255)  NOT NULL,
+        description            TEXT,
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL,
+        FOREIGN KEY (product_type_id) REFERENCES product_types(id),
+    );
+
+    -- 產品價格表
+    CREATE TABLE product_price (
+        id                     BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        price                  DECIMAL(10,2) NOT NULL,
+        discount_price         DECIMAL(10,2),
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL
     );
 
-    -- product_variant table
+    -- 產品庫存表
+    CREATE TABLE product_stock_history (
+        id                     BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        product_variant_id     INT           NOT NULL,
+        change_amount          INT           NOT NULL,
+        stock_after            INT           NOT NULL,
+        reason                 VARCHAR(100)  NOT NULL,
+        created_date           DATETIME      NOT NULL,
+        FOREIGN KEY (product_variant_id) REFERENCES product_variant(product_variant_id) ON DELETE CASCADE
+    );
+
+    -- 產品變體表
     CREATE TABLE product_variant (
-        product_variant_id     INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        product_id             INT           NOT NULL,
+        id                     BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        product_id             BIGINT        NOT NULL,
         product_size           VARCHAR(100)  NOT NULL,
-        price                  DECIMAL(10,2) NOT NULL,
-        discount_price         DECIMAL(10,2),
+        product_price_id       BIGINT        NOT NULL,
         unit                   VARCHAR(50),
         stock                  INT           NOT NULL DEFAULT 0,         
         sku                    VARCHAR(100)  NOT NULL UNIQUE,
         barcode                VARCHAR(100),
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE,
+        FOREIGN KEY (product_price_id) REFERENCES product_price(id),
         UNIQUE KEY uniq_product_variant_barcode (barcode)
     );
 
-    -- product_nutrition_facts table
+    -- 產品營養成份表
     CREATE TABLE product_nutrition_facts (
-        product_nutrition_id   INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        product_id             INT           NOT NULL,
+        id                     BIGINT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        product_id             BIGINT           NOT NULL,
         serving_size           VARCHAR(50),
         calories               INT,
         protein                DECIMAL(10,2),
@@ -100,38 +133,27 @@
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
 
-    -- product_ingredient table
+    -- 產品成份表
     CREATE TABLE product_ingredient (
-        product_ingredient_id  INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        product_id             INT           NOT NULL,
-        ingredient_name        VARCHAR(100)  NOT NULL,
+        id                     BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        product_id             BIGINT        NOT NULL,
+        name                   VARCHAR(100)  NOT NULL,
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
 
-    -- product_images table
+    -- 產品圖片表
     CREATE TABLE product_images (
-        product_image_id       INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        product_id             INT           NOT NULL,
+        id                     BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        product_id             BIGINT        NOT NULL,
         image_url              VARCHAR(255)  NOT NULL,
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE
     );
-
-    -- stock_history table
-    CREATE TABLE stock_history (
-        stock_history_id       INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        product_variant_id     INT           NOT NULL,
-        change_amount          INT           NOT NULL,
-        stock_after            INT           NOT NULL,
-        reason                 VARCHAR(100)  NOT NULL,
-        created_date           DATETIME      NOT NULL,
-        FOREIGN KEY (product_variant_id) REFERENCES product_variant(product_variant_id) ON DELETE CASCADE
-    );
-
-    -- orders table
+    
+    -- 訂單表
     CREATE TABLE orders (
-        order_id               INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        order_number           VARCHAR(50)   NOT NULL UNIQUE,
-        member_id              INT           NOT NULL,
+        id                     BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        order_number           VARCHAR(50)   NOT NULL UNIQUE, -- 訂單編號
+        member_id              BIGINT        NOT NULL,
         subtotal               DECIMAL(10,2) NOT NULL,
         tax_amount             DECIMAL(10,2) NOT NULL DEFAULT 0.00,
         discount_amount        DECIMAL(10,2) NOT NULL DEFAULT 0.00,
@@ -140,8 +162,8 @@
         shipping_phone         VARCHAR(20)   NOT NULL,
         shipping_address       VARCHAR(255)  NOT NULL,
         shipping_note          VARCHAR(255),
-        payment_method_id      INT           NOT NULL,
-        shipping_method_id     INT           NOT NULL,
+        payment_method_id      BIGINT        NOT NULL,
+        shipping_method_id     BIGINT        NOT NULL,
         order_status           VARCHAR(100)  NOT NULL DEFAULT 'PENDING',
         shipping_date          DATETIME,
         tracking_number        VARCHAR(50),
@@ -149,8 +171,8 @@
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL,
         FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
-        FOREIGN KEY (payment_method_id) REFERENCES payment_method(payment_method_id) ON DELETE RESTRICT,
-        FOREIGN KEY (shipping_method_id) REFERENCES shipping_method(shipping_method_id) ON DELETE RESTRICT
+        FOREIGN KEY (payment_method_id) REFERENCES payment_method(id) ON DELETE RESTRICT,
+        FOREIGN KEY (shipping_method_id) REFERENCES shipping_method(id) ON DELETE RESTRICT
     );
 
     -- order_item table
