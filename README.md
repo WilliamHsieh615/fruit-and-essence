@@ -18,7 +18,7 @@
     );
 
     -- 角色權限表
-    CREATE TABLE role (
+    CREATE TABLE roles (
         id                     BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
         name                   VARCHAR(256)  NOT NULL UNIQUE,
         active                 BOOLEAN       NOT NULL DEFAULT FALSE,
@@ -26,10 +26,10 @@
         last_modified_date     DATETIME      NOT NULL
     );
 
-    -- member_has_role table
+    -- 會員角色關聯表
     CREATE TABLE member_has_role (
-        member_id              INT           NOT NULL,
-        role_id                INT           NOT NULL,
+        member_id              BIGINT        NOT NULL,
+        role_id                BIGINT        NOT NULL,
         PRIMARY KEY (member_id, role_id),
         FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
         FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE
