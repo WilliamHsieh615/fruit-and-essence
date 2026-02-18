@@ -4,22 +4,26 @@
 
 ![資料表關聯圖](https://github.com/WilliamHsieh615/fruit-and-essence/blob/main/demo/%E8%B3%87%E6%96%99%E8%A1%A8%E9%97%9C%E8%81%AF%E5%9C%96.png?raw=true)
 
-    -- member table
+    -- 會員資料表
     CREATE TABLE member (
-        member_id              INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        id                     BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
         email                  VARCHAR(255)  NOT NULL UNIQUE,
         password               VARCHAR(255)  NOT NULL,
         name                   VARCHAR(100)  NOT NULL,
         phone                  VARCHAR(20)   NOT NULL,
         birthday               DATE          NOT NULL,
+        address                VARCHAR(100)  NOT NULL,
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL
     );
 
-    -- role table
+    -- 角色權限表
     CREATE TABLE role (
-        role_id                INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        role_name              VARCHAR(256)  NOT NULL UNIQUE
+        id                     BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        name                   VARCHAR(256)  NOT NULL UNIQUE,
+        active                 BOOLEAN       NOT NULL DEFAULT FALSE,
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL
     );
 
     -- member_has_role table
