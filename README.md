@@ -35,10 +35,10 @@
         FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE
     );
 
-    -- member_subscription table
+    -- 會員訂閱表
     CREATE TABLE member_subscription (
-        member_subscription_id INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        member_id              INT           NOT NULL,
+        id                     BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        member_id              BIGINT        NOT NULL,
         subscription_type      VARCHAR(50)   NOT NULL,
         subscribed             BOOLEAN       NOT NULL DEFAULT TRUE,
         created_date           DATETIME      NOT NULL,
@@ -47,15 +47,15 @@
         FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
     );
 
-    -- login_history table
+    -- 登入紀錄表
     CREATE TABLE login_history (
-        login_history_id       INT           NOT NULL PRIMARY KEY AUTO_INCREMENT ,
-        member_id              INT,
+        id                     BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        member_id              BIGINT,
         email                  VARCHAR(255)  NOT NULL,
         login_time             DATETIME      NOT NULL,
         user_agent             VARCHAR(255),
         ip_address             VARCHAR(45),
-        success                BOOLEAN       NOT NULL,
+        success                BOOLEAN       NOT NULL DEFAULT FALSE,
         FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
     );
     
