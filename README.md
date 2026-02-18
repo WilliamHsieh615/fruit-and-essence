@@ -4,6 +4,76 @@
 
 ![資料表關聯圖](https://github.com/WilliamHsieh615/fruit-and-essence/blob/main/demo/%E8%B3%87%E6%96%99%E8%A1%A8%E9%97%9C%E8%81%AF%E5%9C%96.png?raw=true)
 
+    -- 國別表
+    CREATE TABLE countries (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        code CHAR(2) NOT NULL UNIQUE,                      -- ISO 3166-1國別碼 (TW、US、JP...)
+        name VARCHAR(50) NOT NULL,                         -- 國籍名稱 (台灣、美國、日本...)
+        image_url VARCHAR(255)                             -- 國旗
+    );
+
+    -- 地區表
+    CREATE TABLE regions (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        country_id BIGINT NOT NULL,
+        code VARCHAR(20),
+        name VARCHAR(100) NOT NULL,
+        FOREIGN KEY (country_id) REFERENCES countries(id)
+    );
+
+    -- 地址表
+    CREATE TABLE addresses (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        member_id BIGINT,
+
+        country_id BIGINT NOT NULL,
+        region_id BIGINT,
+
+        city VARCHAR(100),
+        district VARCHAR(100), -- 台灣會用到
+        postal_code VARCHAR(20),
+
+        street_line1 VARCHAR(255) NOT NULL,
+        street_line2 VARCHAR(255),
+
+        is_default BOOLEAN DEFAULT FALSE,
+        created_date DATETIME NOT NULL,                    -- 建立時間 (由後端寫入)
+        updated_date DATETIME NOT NULL,                    -- 更新時間 (由後端寫入)
+
+        FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
+        FOREIGN KEY (country_id) REFERENCES countries(id),
+        FOREIGN KEY (region_id) REFERENCES regions(id)
+    );
+
+    -- 貨幣表
+    CREATE TABLE currencies (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        country_id BIGINT NOT NULL,
+        code CHAR(3) NOT NULL UNIQUE,                      -- 貨幣碼 (TWD、USD、JPY...)
+        name VARCHAR(50) NOT NULL,                         -- 貨幣名稱 (新台幣、美元、日幣...)
+        symbol VARCHAR(10),                                -- 貨幣符號 (NT$、$、¥、€、£、₩、₽...)
+        FOREIGN KEY (country_id) REFERENCES countries(id)
+    );
+
+    -- 匯率表
+    CREATE TABLE exchange_rates (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+        base_currency_id BIGINT NOT NULL,                  -- 基準幣別 (USD)
+        quote_currency_id BIGINT NOT NULL,                 -- 報價幣別 (TWD)
+
+        rate DECIMAL(12,6) NOT NULL,                       -- 匯率 (例 1 USD = 30 TWD)
+        rate_date DATE NOT NULL,                           -- 匯率日期
+
+        created_date DATETIME NOT NULL,                    -- 建立時間 (由後端寫入)
+        updated_date DATETIME NOT NULL,                    -- 更新時間 (由後端寫入)
+
+        UNIQUE (base_currency_id, quote_currency_id, rate_date),
+
+        FOREIGN KEY (base_currency_id) REFERENCES currencies(id),
+        FOREIGN KEY (quote_currency_id) REFERENCES currencies(id)
+    );
+    
     -- 會員表
     CREATE TABLE members (
         id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -12,13 +82,10 @@
         name                VARCHAR(100) NOT NULL,
         phone               VARCHAR(20) NOT NULL,
         birthday            DATE,
-        street              VARCHAR(255),
-        city                VARCHAR(100),
-        state               VARCHAR(100),
-        zip_code            VARCHAR(20),
-        country             VARCHAR(100) DEFAULT 'USA',
+        address_id          BIGINT NOT NULL,
         created_date        DATETIME NOT NULL,
-        last_modified_date  DATETIME NOT NULL
+        last_modified_date  DATETIME NOT NULL,
+        FOREIGN KEY (address_id) REFERENCES addresses(id)
     );
 
     -- 角色表
@@ -185,11 +252,7 @@
         shipping_fee        DECIMAL(10,2) DEFAULT 0.00,
         total_amount        DECIMAL(10,2) NOT NULL,
         shipping_phone      VARCHAR(20) NOT NULL,
-        shipping_street     VARCHAR(255),
-        shipping_city       VARCHAR(100),
-        shipping_state      VARCHAR(100),
-        shipping_zip        VARCHAR(20),
-        shipping_country    VARCHAR(100) DEFAULT 'USA',
+        address_id          BIGINT NOT NULL,
         payment_method_id   BIGINT NOT NULL,
         shipping_method_id  BIGINT NOT NULL,
         order_status_id     BIGINT NOT NULL,
@@ -197,9 +260,10 @@
         created_date        DATETIME NOT NULL,
         last_modified_date  DATETIME NOT NULL,
         FOREIGN KEY (member_id) REFERENCES members(id),
+        FOREIGN KEY (address_id) REFERENCES addresses(id),
         FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id),
         FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id),
-        FOREIGN KEY (order_status_id) REFERENCES members(order_status),
+        FOREIGN KEY (order_status_id) REFERENCES order_status(id)
     );
 
     -- 訂單明細表
@@ -228,19 +292,49 @@
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
     );
 
+    -- 折扣類型表
+    CREATE TABLE discount_types (
+        id                     BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        name                   VARCHAR(100)  NOT NULL,
+        created_date           DATETIME      NOT NULL,
+        last_modified_date     DATETIME      NOT NULL
+    );
+
     -- 折扣表
     CREATE TABLE discounts (
         id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
         name                VARCHAR(100) NOT NULL,
         code                VARCHAR(50) UNIQUE,
-        discount_type ENUM('FIXED','PERCENTAGE') NOT NULL,
+        discount_type_id    BIGINT NOT NULL,
         discount_value      DECIMAL(10,2),
         min_order_amount    DECIMAL(10,2) DEFAULT 0.00,
         total_usage_limit   INT,
+        is_stackable BOOLEAN DEFAULT FALSE
+        is_auto_apply BOOLEAN DEFAULT FALSE
+        priority INT DEFAULT 0
         start_date          DATETIME,
         end_date            DATETIME,
         created_date        DATETIME NOT NULL,
-        last_modified_date  DATETIME NOT NULL
+        last_modified_date  DATETIME NOT NULL,
+        FOREIGN KEY (discount_type_id) REFERENCES discount_types(id),
+    );
+
+    -- 折扣條件表
+    CREATE TABLE discount_conditions (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        discount_id BIGINT NOT NULL,
+        condition_type VARCHAR(50),
+        condition_value VARCHAR(255),
+        FOREIGN KEY (discount_id) REFERENCES discounts(id)
+    );
+
+    -- 會員與折扣關聯表
+    CREATE TABLE member_has_discount ( 
+        member_id              BIGINT        NOT NULL, 
+        discount_id            BIGINT        NOT NULL, 
+        PRIMARY KEY (member_id, discount_id), 
+        FOREIGN KEY (member_id) REFERENCES members(id), 
+        FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE CASCADE 
     );
     
     -- 折扣使用表
@@ -253,6 +347,33 @@
         FOREIGN KEY (discount_id) REFERENCES discounts(id),
         FOREIGN KEY (member_id) REFERENCES members(id),
         FOREIGN KEY (order_id) REFERENCES orders(id)
+    );
+
+    -- 折扣與角色關聯表
+    CREATE TABLE discount_role (
+        discount_id            BIGINT        NOT NULL,
+        role_id                BIGINT        NOT NULL,
+        PRIMARY KEY (discount_id, role_id),
+        FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE CASCADE,
+        FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+    );
+
+    -- 折扣與產品關聯表
+    CREATE TABLE discount_product (
+        discount_id            BIGINT        NOT NULL,
+        product_id             BIGINT        NOT NULL,
+        PRIMARY KEY (discount_id, product_id),
+        FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    );
+
+    -- 折扣與產品類型關聯表
+    CREATE TABLE discount_product_type (
+        discount_id            BIGINT        NOT NULL,
+        product_type_id        BIGINT        NOT NULL,
+        PRIMARY KEY (discount_id, product_type_id),
+        FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_type_id) REFERENCES product_types(id) ON DELETE CASCADE
     );
 
     -- 發票表
@@ -268,7 +389,8 @@
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL,
         UNIQUE KEY uniq_invoice_order (order_id),
-        FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+        FOREIGN KEY (order_id) REFERENCES orders(id)
+
     );
 
 
@@ -518,8 +640,8 @@
         member_id              BIGINT        NOT NULL, 
         discount_id            BIGINT        NOT NULL, 
         PRIMARY KEY (member_id, discount_id), 
-        FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE, 
-        FOREIGN KEY (discount_id) REFERENCES order_discount(discount_id) ON DELETE CASCADE 
+        FOREIGN KEY (member_id) REFERENCES members(id), 
+        FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE CASCADE 
     );
 
     -- 會員折扣使用紀錄表
@@ -545,8 +667,8 @@
 
     -- 折扣與產品關聯表
     CREATE TABLE discount_product (
-        discount_id            INT           NOT NULL,
-        product_id             INT           NOT NULL,
+        discount_id            BIGINT        NOT NULL,
+        product_id             BIGINT        NOT NULL,
         PRIMARY KEY (discount_id, product_id),
         FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE CASCADE,
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
