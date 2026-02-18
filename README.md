@@ -4,8 +4,8 @@
 
 ![資料表關聯圖](https://github.com/WilliamHsieh615/fruit-and-essence/blob/main/demo/%E8%B3%87%E6%96%99%E8%A1%A8%E9%97%9C%E8%81%AF%E5%9C%96.png?raw=true)
 
-    -- 會員資料表
-    CREATE TABLE member (
+    -- 會員表
+    CREATE TABLE members (
         id                     BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
         email                  VARCHAR(255)  NOT NULL UNIQUE,
         password               VARCHAR(255)  NOT NULL,
@@ -17,7 +17,7 @@
         last_modified_date     DATETIME      NOT NULL
     );
 
-    -- 角色權限表
+    -- 角色表
     CREATE TABLE roles (
         id                     BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
         name                   VARCHAR(256)  NOT NULL UNIQUE,
@@ -31,8 +31,8 @@
         member_id              BIGINT        NOT NULL,
         role_id                BIGINT        NOT NULL,
         PRIMARY KEY (member_id, role_id),
-        FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
-        FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE
+        FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
+        FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
     );
 
     -- 會員訂閱表
@@ -64,7 +64,7 @@
         id                     BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
         name                   VARCHAR(50)   NOT NULL,
         note                   VARCHAR(255),
-        avtive                 BOOLEAN       NOT NULL DEFAULT FALSE,
+        active                 BOOLEAN       NOT NULL DEFAULT FALSE,
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL
     );
@@ -77,7 +77,7 @@
         description            TEXT,
         created_date           DATETIME      NOT NULL,
         last_modified_date     DATETIME      NOT NULL,
-        FOREIGN KEY (product_type_id) REFERENCES product_types(id),
+        FOREIGN KEY (product_type_id) REFERENCES product_types(id)
     );
 
     -- 產品價格表
@@ -112,7 +112,7 @@
         sku                    VARCHAR(100)  NOT NULL UNIQUE,
         barcode                VARCHAR(100),
         created_date           DATETIME      NOT NULL,
-        last_modified_date     DATETIME      NOT NULL
+        last_modified_date     DATETIME      NOT NULL,
         FOREIGN KEY (product_id) REFERENCES product(product_id) ON DELETE CASCADE,
         FOREIGN KEY (product_price_id) REFERENCES product_price(id),
         UNIQUE KEY uniq_product_variant_barcode (barcode)
