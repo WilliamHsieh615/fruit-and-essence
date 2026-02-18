@@ -309,14 +309,14 @@
         discount_value      DECIMAL(10,2),
         min_order_amount    DECIMAL(10,2) DEFAULT 0.00,
         total_usage_limit   INT,
-        is_stackable BOOLEAN DEFAULT FALSE
-        is_auto_apply BOOLEAN DEFAULT FALSE
-        priority INT DEFAULT 0
+        is_stackable BOOLEAN DEFAULT FALSE,
+        is_auto_apply BOOLEAN DEFAULT FALSE,
+        priority INT DEFAULT 0,
         start_date          DATETIME,
         end_date            DATETIME,
         created_date        DATETIME NOT NULL,
         last_modified_date  DATETIME NOT NULL,
-        FOREIGN KEY (discount_type_id) REFERENCES discount_types(id),
+        FOREIGN KEY (discount_type_id) REFERENCES discount_types(id)
     );
 
     -- 折扣條件表
@@ -378,8 +378,8 @@
 
     -- 發票表
     CREATE TABLE invoice (
-        invoice_id             INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        order_id               INT           NOT NULL,
+        invoice_id             BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        order_id               BIGINT        NOT NULL,
         invoice_number         VARCHAR(50)   NULL UNIQUE,
         invoice_carrier        VARCHAR(50),
         invoice_donation_code  VARCHAR(10),
