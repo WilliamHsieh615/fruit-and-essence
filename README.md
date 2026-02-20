@@ -734,25 +734,86 @@
         last_modified_date               DATETIME      NOT NULL     -- 更新時間
     );
 
+    -- 第三方金流表
+    CREATE TABLE payment_gateways (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- STRIPE, LINEPAY, ECPAY
+        name                             VARCHAR(100)  NOT NULL,    -- Stripe、LINE Pay、綠界、藍新
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+    );
+
     -- 付款交易紀錄表
     CREATE TABLE payment_transactions (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         order_id                         BIGINT        NOT NULL,
-        payment_gateway                  VARCHAR(50)   NOT NULL,
-        transaction_id                   VARCHAR(255)  NOT NULL,
+        payment_gateway_id               BIGINT        NOT NULL,    -- 第三方金流
+
+        gateway_transaction_number       VARCHAR(255)  NOT NULL,    -- 第三方金流核發的交易編號(識別碼)
         amount                           DECIMAL(10,2) NOT NULL,
         currency_id                      BIGINT        NOT NULL,
+        
         payment_transaction_status_id    BIGINT        NOT NULL,
-        paid_at                          DATETIME,
-        created_date                     DATETIME      NOT NULL,
+        
+        authorized_at                    DATETIME,    -- 授權時間
+        captured_at                      DATETIME,    -- 請款時間
+        paid_at                          DATETIME,    -- 付款時間
+        
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+
+        UNIQUE (payment_gateway_id, gateway_transaction_id),
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (payment_gateway_id) REFERENCES payment_gateways(id),
         FOREIGN KEY (currency_id) REFERENCES currencies(id),
         FOREIGN KEY (payment_transaction_status_id) REFERENCES payment_transaction_status(id)
     );
 
+    -- 付款交易狀態紀錄表
+    CREATE TABLE payment_transaction_status_history (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        payment_transaction_id           BIGINT        NOT NULL,
+        payment_transaction_status_id    BIGINT        NOT NULL,
+        note                             VARCHAR(255),
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+
+        FOREIGN KEY (payment_transaction_id) REFERENCES payment_transactions(id),
+        FOREIGN KEY (payment_transaction_status_id) REFERENCES payment_transaction_status(id)
+    );
+
+    -- 退款原因表
+    CREATE TABLE refund_transaction_reasons (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL,
+        name                             VARCHAR(100)  NOT NULL,
+        note                             VARCHAR(255),
+
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+    );
+
+
+    -- 退款交易表
+    CREATE TABLE refund_transactions (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        payment_transaction_id           BIGINT        NOT NULL,
+        refund_transaction_reason_id     BIGINT        NOT NULL,
+
+        refund_amount                    DECIMAL(10,2) NOT NULL,
+        refunded_at                      DATETIME,
+
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+
+        FOREIGN KEY (payment_transaction_id) REFERENCES payment_transactions(id),
+        FOREIGN KEY (refund_transaction_reason_id) REFERENCES refund_transaction_reasons(id)
+    );
+
+
     -- 折扣類型表
     CREATE TABLE discount_types (
-        id                               BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL,
         name                             VARCHAR(100)  NOT NULL,
         created_date                     DATETIME      NOT NULL,
