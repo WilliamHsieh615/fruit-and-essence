@@ -279,6 +279,8 @@
         street_line1        VARCHAR(255) NOT NULL,
         street_line2        VARCHAR(255),
 
+        is_remote           BOOLEAN DEFAULT FALSE,    -- 是否偏遠地區
+
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
     );
 
@@ -330,6 +332,8 @@
         order_status_id     BIGINT NOT NULL,    -- 訂單狀態
         
         tracking_number     VARCHAR(100),    -- 物流單號
+        
+        note                VARCHAR(255),    -- 備注
         
         created_date        DATETIME NOT NULL,    -- 建立時間 (由後端寫入)
         last_modified_date  DATETIME NOT NULL,    -- 更新時間 (由後端寫入)
