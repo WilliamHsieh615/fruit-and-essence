@@ -164,9 +164,8 @@
         created_date    DATETIME NOT NULL,
         last_modified_date DATETIME NOT NULL,
 
-        UNIQUE (product_variant_id currency_id),
-
-        FOREIGN KEY (variant_id) REFERENCES product_variants(id) ON DELETE CASCADE,
+        UNIQUE (product_variant_id, currency_id),
+        FOREIGN KEY (product_variant_id) REFERENCES product_variants(id) ON DELETE CASCADE,
         FOREIGN KEY (currency_id) REFERENCES currencies(id)
     );
 
@@ -285,7 +284,7 @@
     );
 
     -- 稅種表
-    CREATE TABLE tax_type (
+    CREATE TABLE tax_types (
         id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
         code VARCHAR(50)    NOT NULL UNIQUE,  -- VAT、SALES_TAX
         name VARCHAR(100)   NOT NULL    -- 加值稅、營業稅
