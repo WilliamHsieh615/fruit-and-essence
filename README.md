@@ -276,14 +276,11 @@
         FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id)
     );
 
-
     -- 運送方式種類表
     CREATE TABLE shipping_method_types (
         id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        code                             VARCHAR(100) NOT NULL UNIQUE,    -- 系統代碼
-        name                             VARCHAR(100) NOT NULL    -- 類別名稱 (陸運、海運、空運),
-        UNIQUE (country_id, code),
-        UNIQUE (country_id, name)
+        code                             VARCHAR(100) NOT NULL UNIQUE,    -- 系統代碼 (LAND, SEA, AIR)
+        name                             VARCHAR(100) NOT NULL    -- 類別名稱 (陸運、海運、空運)
     );
 
     -- 運送方式表
@@ -295,18 +292,14 @@
         name                             VARCHAR(50) NOT NULL UNIQUE,    -- 名稱 (宅配、黑貓...)
         code                             VARCHAR(50) NOT NULL UNIQUE,    -- 系統代碼 (HOME_DELIVERY, FEDEX...)
         provider_code                    VARCHAR(50),    -- 外部物流代號
-        estimated_days                   INT,            -- 預估天數
-        
-        base_fee                         DECIMAL(10,2) DEFAULT 0.00,    -- 基本運費
-        extra_fee_per_kg                 DECIMAL(10,2) DEFAULT 0.00,    -- 超過重量的額外費用(每公斤)
-        is_cold_chain                    BOOLEAN DEFAULT FALSE,         -- 是否低溫運送
-        cold_chain_fee                   DECIMAL(10,2) DEFAULT 0.00,    -- 低溫運送額外費用
-        cold_chain_rule                  VARCHAR(255) DEFAULT NULL,     -- 低溫運送規則或說明
-        is_remote_area                   BOOLEAN DEFAULT FALSE,         -- 是否偏遠地區運送
-        remote_area_fee                  DECIMAL(10,2) DEFAULT 0.00,    -- 偏遠地區額外費用
-        remote_area_rule                 VARCHAR(255) DEFAULT NULL,     -- 偏遠地區判斷規則或說明
-        
         description                      VARCHAR(255),
+        
+        estimated_days                   INT,            -- 預估天數
+        base_fee                         DECIMAL(10,2) DEFAULT 0.00,    -- 基本運費
+        
+        is_cold_chain                    BOOLEAN DEFAULT FALSE,         -- 是否可低溫運送
+        is_remote_area                   BOOLEAN DEFAULT FALSE,         -- 是否可偏遠地區運送
+        
         is_active                        BOOLEAN DEFAULT TRUE,    -- 是否啟用
         created_date                     DATETIME NOT NULL,
         last_modified_date               DATETIME NOT NULL,
@@ -315,6 +308,75 @@
         UNIQUE (country_id, name),
         FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (shipping_method_type_id) REFERENCES shipping_method_types(id)
+    );
+
+    -- 運送方式子表 (重量費用)
+    CREATE TABLE shipping_method_weight_fees (
+        id                      BIGINT PRIMARY KEY AUTO_INCREMENT,
+        shipping_method_id      BIGINT NOT NULL,
+
+        min_weight              DECIMAL(10,2) NOT NULL,
+        max_weight              DECIMAL(10,2) DEFAULT NULL,
+        extra_fee               DECIMAL(10,2) NOT NULL,
+
+        created_date            DATETIME NOT NULL,
+        last_modified_date      DATETIME NOT NULL,
+
+        FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id) ON DELETE CASCADE
+    );
+
+
+    -- 運送方式子表 (低溫運送)
+    CREATE TABLE shipping_method_cold_chain_fee (
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        shipping_method_id               BIGINT NOT NULL,
+        
+        min_temp                         DECIMAL(5,2) DEFAULT NULL,    -- 最低溫度限制
+        max_temp                         DECIMAL(5,2) DEFAULT NULL,    -- 最高溫度限制
+        extra_fee                        DECIMAL(10,2) DEFAULT 0.00,   -- 額外費用
+        description                      VARCHAR(255) DEFAULT NULL,
+        
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL,
+        FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id) ON DELETE CASCADE
+    );
+
+    -- 運送方式子表 (運送區域)
+    CREATE TABLE shipping_method_regions (
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        region_id                        BIGINT NOT NULL,
+        shipping_method_id               BIGINT NOT NULL,
+        
+        extra_fee                        DECIMAL(10,2) DEFAULT 0.00,
+        description                      VARCHAR(255) DEFAULT NULL,
+        
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL,
+        FOREIGN KEY (region_id) REFERENCES regions(id),
+        FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id) ON DELETE CASCADE
+    );
+
+    -- 運送附加服務種類表
+    CREATE TABLE shipping_method_service_types (
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50) NOT NULL UNIQUE,    -- 系統代碼 (INSURANCE, COD, EXPRESS)
+        name                             VARCHAR(100) NOT NULL UNIQUE    -- 顯示名稱 (保險、代收貨款、加急等)
+    );
+
+    -- 運送方式子表 (運送附加服務表)
+    CREATE TABLE shipping_method_services (
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        shipping_method_id               BIGINT NOT NULL,
+        shipping_method_service_type_id  BIGINT NOT NULL,
+        
+        fee_percent                      DECIMAL(5,2) DEFAULT 0.00,    -- 百分比手續費
+        fee_fixed                        DECIMAL(10,2) DEFAULT 0.00,   -- 固定手續費
+        
+        is_active                        BOOLEAN DEFAULT TRUE,
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL,
+        FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id) ON DELETE CASCADE,
+        FOREIGN KEY (shipping_method_service_type_id) REFERENCES shipping_method_service_types(id)
     );
 
     -- 訂單狀態表
