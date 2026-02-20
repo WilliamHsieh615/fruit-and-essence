@@ -190,43 +190,56 @@
 
     -- 營養成分表
     CREATE TABLE product_nutrition_facts (
-        id              BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_id      BIGINT NOT NULL,
-        serving_size    VARCHAR(50),
-        calories        INT,
-        protein         DECIMAL(10,2),
-        fat             DECIMAL(10,2),
-        carbohydrates   DECIMAL(10,2),
-        sugar           DECIMAL(10,2),
-        fiber           DECIMAL(10,2),
-        sodium          DECIMAL(10,2),
-        vitamin_c       DECIMAL(10,2),
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT DEFAULT NULL,    -- 可指定國家標示規範，NULL 表示通用
+        product_id                       BIGINT NOT NULL,    -- 綁定商品，不綁變體，尺寸不同不影響營養
+        serving_size                     VARCHAR(50),      -- 份量
+        calories                         INT,              -- 熱量 (kcal)
+        protein                          DECIMAL(10,2),    -- 蛋白質 (g)
+        fat                              DECIMAL(10,2),    -- 總脂肪 (g)
+        saturated_fat                    DECIMAL(10,2),    -- 飽和脂肪 (g)
+        trans_fat                        DECIMAL(10,2),    -- 反式脂肪 (g)
+        cholesterol                      DECIMAL(10,2),    -- 膽固醇 (mg)
+        carbohydrates                    DECIMAL(10,2),    -- 總碳水化合物 (g)
+        fiber                            DECIMAL(10,2),    -- 膳食纖維 (g)
+        sugar                            DECIMAL(10,2),    -- 糖 (g)
+        added_sugars                     DECIMAL(10,2),    -- 添加糖 (g)
+        sodium                           DECIMAL(10,2),    -- 鈉 (mg)
+        vitamin_c                        DECIMAL(10,2),    -- 維生素 C (mg)
+        vitamin_d                        DECIMAL(10,2),    -- 維生素 D (μg)
+        calcium                          DECIMAL(10,2),    -- 鈣 (mg)
+        iron                             DECIMAL(10,2),    -- 鐵 (mg)
+        potassium                        DECIMAL(10,2),    -- 鉀 (mg)
+        created_date                     DATETIME NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME NOT NULL,    -- 更新時間
+        FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
+
     -- 成分表
     CREATE TABLE product_ingredients (
-        id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_id  BIGINT NOT NULL,
-        name        VARCHAR(100) NOT NULL,
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        product_id                       BIGINT NOT NULL,
+        name                             VARCHAR(100) NOT NULL,
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
     -- 商品圖片表
     CREATE TABLE product_images (
-        id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_id  BIGINT NOT NULL,
-        image_url   VARCHAR(255) NOT NULL,
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        product_id                       BIGINT NOT NULL,
+        image_url                        VARCHAR(255) NOT NULL,
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
     -- 付款方式表
     CREATE TABLE payment_methods (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        name                VARCHAR(50) NOT NULL UNIQUE,
-        description         VARCHAR(255),
-        created_date        DATETIME NOT NULL,
-        last_modified_date  DATETIME NOT NULL
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        name                             VARCHAR(50) NOT NULL UNIQUE,
+        description                      VARCHAR(255),
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL
     );
 
     -- 運送方式表
