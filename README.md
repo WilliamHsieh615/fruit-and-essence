@@ -114,6 +114,10 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         product_type_id                  BIGINT        NOT NULL,
         name                             VARCHAR(255)  NOT NULL,
+        expiration_days                  INT NOT NULL,    -- 保存期限
+        requires_refrigeration           BOOLEAN DEFAULT FALSE,    -- 是否需要冷藏
+        storage_temp_min                 DECIMAL(5,2) DEFAULT NULL,    -- 最低儲存溫度
+        storage_temp_max                 DECIMAL(5,2) DEFAULT NULL,    -- 最高儲存溫度
         description                      TEXT,
         is_active                        BOOLEAN       DEFAULT TRUE,
         created_date                     DATETIME      NOT NULL,
@@ -126,7 +130,8 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         product_id                       BIGINT        NOT NULL,
         size                             VARCHAR(50)   NOT NULL,
-        unit                             VARCHAR(50),
+        weight                           DECIMAL(10,2) NOT NULL,
+        unit                             VARCHAR(50)   NOT NULL,
         stock                            INT           NOT NULL DEFAULT 0,    -- 商品庫存 (需對應product_stock_history.stock最後一筆)
         sku                              VARCHAR(100)  NOT NULL UNIQUE,
         barcode                          VARCHAR(100)  UNIQUE,
@@ -181,8 +186,13 @@
         id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
         product_variant_id               BIGINT NOT NULL,
         product_stock_history_reason_id  BIGINT NOT NULL,
+
+        lot_number                       BIGINT NOT NULL UNIQUE,
         change_amount                    INT NOT NULL,
         stock                            INT NOT NULL,
+        manufacturing_date               DATETIME NOT NULL,
+        expiration_date                  DATETIME NOT NULL,
+        
         created_date                     DATETIME NOT NULL,
         FOREIGN KEY (product_variant_id) REFERENCES product_variants(id) ON DELETE CASCADE,
         FOREIGN KEY (product_stock_history_reason_id) REFERENCES product_stock_history_reason(id)
@@ -489,6 +499,17 @@
         FOREIGN KEY (product_variant_id) REFERENCES product_variants(id)
     );
 
+    -- 訂單與稅費關聯表
+    CREATE TABLE order_tax (
+        order_id                         BIGINT        NOT NULL,
+        tax_type_id,                     BIGINT        NOT NULL,
+        tax_rate                         DECIMAL(5,4)  NOT NULL,,
+        tax_amount                       DECIMAL(12,2) NOT NULL,
+        PRIMARY KEY (order_id, tax_type_id),
+        FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (tax_type_id) REFERENCES tax_types(id) ON DELETE CASCADE
+    );
+
     -- 付款交易狀態表
     CREATE TABLE payment_transaction_status (
         id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -506,11 +527,12 @@
         payment_gateway                  VARCHAR(50) NOT NULL,
         transaction_id                   VARCHAR(255) NOT NULL,
         amount                           DECIMAL(10,2) NOT NULL,
-        currency                         VARCHAR(10) DEFAULT 'USD',
+        currency_id                      BIGINT NOT NULL,
         payment_transaction_status_id    BIGINT NOT NULL,
         paid_at                          DATETIME,
         created_date                     DATETIME NOT NULL,
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (currency_id) REFERENCES currencies(id),
         FOREIGN KEY (payment_transaction_status_id) REFERENCES payment_transaction_status(id)
     );
 
