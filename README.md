@@ -2,8 +2,6 @@
 
 # Fruit & Essence
 
-![資料表關聯圖](https://github.com/WilliamHsieh615/fruit-and-essence/blob/main/demo/%E8%B3%87%E6%96%99%E8%A1%A8%E9%97%9C%E8%81%AF%E5%9C%96.png?raw=true)
-
     -- 國別表
     CREATE TABLE countries (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
@@ -59,26 +57,26 @@
 
     -- 公司表
     CREATE TABLE companies (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        country_id BIGINT NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        registration_number VARCHAR(100) NULL,
-        address VARCHAR(500) NOT NULL,
-        tel VARCHAR(20)   NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
+        name                             VARCHAR(255)  NOT NULL,
+        registration_number              VARCHAR(100)  NOT NULL UNIQUE,
+        address                          VARCHAR(500)  NOT NULL,
+        tel                              VARCHAR(20)   NOT NULL,
+        created_at                       DATETIME      NOT NULL,
         FOREIGN KEY (country_id) REFERENCES countries(id)
     );
 
     -- 倉庫表
     CREATE TABLE warehouses (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        country_id BIGINT NOT NULL,
-        company_id BIGINT NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        address VARCHAR(500),
-        tel VARCHAR(20)   NOT NULL,
-        is_cold_storage BOOLEAN DEFAULT TRUE,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
+        company_id                       BIGINT        NOT NULL,
+        name                             VARCHAR(255)  NOT NULL,
+        address                          VARCHAR(500)  NOT NULL,
+        tel                              VARCHAR(20)   NOT NULL,
+        is_cold_storage                  BOOLEAN       DEFAULT TRUE,
+        created_at                       DATETIME      NOT NULL,
         FOREIGN KEY (company_id) REFERENCES companies(id),
         FOREIGN KEY (country_id) REFERENCES countries(id)
     );
@@ -87,13 +85,15 @@
     -- 會員表
     CREATE TABLE members (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
         email                            VARCHAR(255)  NOT NULL UNIQUE,
         password                         VARCHAR(255)  NOT NULL,
         name                             VARCHAR(100)  NOT NULL,
         phone                            VARCHAR(20)   NOT NULL,
         birthday                         DATE,
         created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL
+        last_modified_date               DATETIME      NOT NULL,
+        FOREIGN KEY (country_id) REFERENCES countries(id)
     );
 
     -- 角色表
@@ -124,12 +124,14 @@
         user_agent                       VARCHAR(255),
         ip_address                       VARCHAR(50),
         success                          BOOLEAN       NOT NULL DEFAULT FALSE,
+        FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL
     );
 
     -- 商品分類表
     CREATE TABLE product_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL,
         name                             VARCHAR(100)  NOT NULL,
         note                             VARCHAR(255),
         is_active                        BOOLEAN       NOT NULL DEFAULT TRUE,
@@ -169,15 +171,15 @@
 
     -- 商品價格表
     CREATE TABLE product_variant_prices (
-        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_variant_id               BIGINT NOT NULL,
-        currency_id                      BIGINT NOT NULL,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        product_variant_id               BIGINT        NOT NULL,
+        currency_id                      BIGINT        NOT NULL,
         
         price                            DECIMAL(10,2) NOT NULL,    -- 商品價格 (需對應 product_price_history.price 最後一筆)
         discount_price                   DECIMAL(10,2),    -- 商品促銷價格 (不一定會有，需對應 product_price_history.discount_price 最後一筆)
                                                            -- 當有 price 與 discount_price 同時存在時，以 discount_price 為主
-        created_date                     DATETIME NOT NULL,
-        last_modified_date               DATETIME NOT NULL,
+        created_date                     DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL,
 
         UNIQUE (product_variant_id, currency_id),
         FOREIGN KEY (product_variant_id) REFERENCES product_variants(id) ON DELETE CASCADE,
@@ -186,16 +188,16 @@
 
     -- 價格歷史紀錄表
     CREATE TABLE product_price_history (
-        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_variant_id               BIGINT NOT NULL,
-        currency_id                      BIGINT NOT NULL,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        product_variant_id               BIGINT        NOT NULL,
+        currency_id                      BIGINT        NOT NULL,
         
         price                            DECIMAL(10,2) NOT NULL,
         discount_price                   DECIMAL(10,2),    -- 當有 price 與 discount_price 同時存在時，以 discount_price 為主
         
-        start_date                       DATETIME NOT NULL,
+        start_date                       DATETIME      NOT NULL,
         end_date                         DATETIME,
-        created_date                     DATETIME NOT NULL,
+        created_date                     DATETIME      NOT NULL,
 
         FOREIGN KEY (product_variant_id) REFERENCES product_variants(id) ON DELETE CASCADE,
         FOREIGN KEY (currency_id) REFERENCES currencies(id)
@@ -203,21 +205,23 @@
 
     -- 商品批號表
     CREATE TABLE product_lots (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_variant_id BIGINT NOT NULL,
-        lot_number VARCHAR(100) NOT NULL,
-        manufacturing_date DATETIME NOT NULL,
-        expiration_date DATETIME NOT NULL,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        product_variant_id               BIGINT        NOT NULL,
+        
+        lot_number                       VARCHAR(100)  NOT NULL,
+        manufacturing_date               DATETIME      NOT NULL,
+        expiration_date                  DATETIME      NOT NULL,
+        
         UNIQUE (product_variant_id, lot_number),
         FOREIGN KEY (product_variant_id) REFERENCES product_variants(id)
     );
 
     -- 倉庫存貨表
     CREATE TABLE warehouse_inventory (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        warehouse_id BIGINT NOT NULL,
-        product_lot_id BIGINT NOT NULL,
-        stock INT NOT NULL DEFAULT 0,    -- 最新庫存
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        warehouse_id                     BIGINT        NOT NULL,
+        product_lot_id                   BIGINT        NOT NULL,
+        stock                            INT           NOT NULL DEFAULT 0,    -- 最新庫存
         UNIQUE (warehouse_id, product_lot_id),
         FOREIGN KEY (warehouse_id) REFERENCES warehouses(id),
         FOREIGN KEY (product_lot_id) REFERENCES product_lots(id)
@@ -225,20 +229,20 @@
 
     -- 庫存異動原因表
     CREATE TABLE product_stock_history_reason (
-        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        code                             VARCHAR(100) NOT NULL,
-        name                             VARCHAR(100) NOT NULL
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL,
+        name                             VARCHAR(100)  NOT NULL
     );
 
     -- 庫存異動紀錄表
     CREATE TABLE product_stock_history (
-        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        warehouse_id                     BIGINT NOT NULL,
-        product_lot_id                   BIGINT NOT NULL,
-        product_stock_history_reason_id  BIGINT NOT NULL,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        warehouse_id                     BIGINT        NOT NULL,
+        product_lot_id                   BIGINT        NOT NULL,
+        product_stock_history_reason_id  BIGINT        NOT NULL,
 
-        change_amount                    INT NOT NULL,
-        created_date                     DATETIME NOT NULL,
+        change_amount                    INT           NOT NULL,
+        created_date                     DATETIME      NOT NULL,
         
         FOREIGN KEY (warehouse_id) REFERENCES warehouses(id),
         FOREIGN KEY (product_lot_id) REFERENCES product_lots(id),
@@ -247,9 +251,10 @@
 
     -- 商品營養成分表
     CREATE TABLE product_nutrition_facts (
-        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        country_id                       BIGINT DEFAULT NULL,    -- 可指定國家標示規範，NULL 表示通用
-        product_id                       BIGINT NOT NULL,    -- 綁定商品，不綁變體，尺寸不同不影響營養
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        DEFAULT NULL,    -- 可指定國家標示規範，NULL 表示通用
+        product_id                       BIGINT        NOT NULL,    -- 綁定商品，不綁變體，尺寸不同不影響營養
+        
         serving_size                     VARCHAR(50),      -- 份量
         calories                         INT,              -- 熱量 (kcal)
         protein                          DECIMAL(10,2),    -- 蛋白質 (g)
@@ -267,8 +272,10 @@
         calcium                          DECIMAL(10,2),    -- 鈣 (mg)
         iron                             DECIMAL(10,2),    -- 鐵 (mg)
         potassium                        DECIMAL(10,2),    -- 鉀 (mg)
-        created_date                     DATETIME NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME NOT NULL,    -- 更新時間
+        
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        
         FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
@@ -276,54 +283,55 @@
 
     -- 商品成分表
     CREATE TABLE product_ingredients (
-        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_id                       BIGINT NOT NULL,
-        name                             VARCHAR(100) NOT NULL,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        product_id                       BIGINT        NOT NULL,
+        name                             VARCHAR(100)  NOT NULL,
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
     -- 商品過敏原表
     CREATE TABLE product_allergens (
-        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_id                       BIGINT NOT NULL,
-        name                             VARCHAR(100) NOT NULL,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        product_id                       BIGINT        NOT NULL,
+        name                             VARCHAR(100)  NOT NULL,
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
     -- 認證表
     CREATE TABLE certifications (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        country_id BIGINT NOT NULL,
-        code VARCHAR(50) NOT NULL UNIQUE,   -- ORGANIC_USDA
-        name VARCHAR(100) NOT NULL,    -- Organic、Non-GMO、HACCP、ISO22000
-        level ENUM('company','product') NOT NULL,
-        issuing_body VARCHAR(255) NULL,
-        logo_url VARCHAR(500),
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,   -- ORGANIC_USDA
+        name                             VARCHAR(100)  NOT NULL,    -- Organic、Non-GMO、HACCP、ISO22000
+        level                            VARCHAR(50)   NOT NULL,
+        issuing_body                     VARCHAR(255),
+        logo_url                         VARCHAR(500),
         FOREIGN KEY (country_id) REFERENCES countries(id)
     );
 
     -- 公司認證表
     CREATE TABLE company_certifications (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        company_id BIGINT NOT NULL,
-        certification_id BIGINT NOT NULL,
-        certificate_number VARCHAR(100),
-        issued_date DATE,
-        expiration_date DATE,
-        certificate_file_url VARCHAR(500),
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        company_id                       BIGINT        NOT NULL,
+        certification_id                 BIGINT        NOT NULL,
+        certificate_number               VARCHAR(100)  NULL,    -- 認證字號
+        issued_date                      DATE          NULL,    -- 認證日期
+        expiration_date                  DATE          NULL,    -- 認證有效日期
+        certificate_file_url             VARCHAR(500),
+        UNIQUE (company_id, certification_id),
         FOREIGN KEY (company_id) REFERENCES companies(id),
         FOREIGN KEY (certification_id) REFERENCES certifications(id)
     );
 
     -- 商品認證表
     CREATE TABLE product_certifications (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_id BIGINT NOT NULL,
-        certification_id BIGINT NOT NULL,
-        certificate_number VARCHAR(100) NULL,    -- 認證字號
-        issued_date DATE NULL,    -- 認證日期
-        expiration_date DATE NULL,    -- 認證有效日期
-        certificate_file_url VARCHAR(500) NULL,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        product_id                       BIGINT        NOT NULL,
+        certification_id                 BIGINT        NOT NULL,
+        certificate_number               VARCHAR(100)  NULL,    -- 認證字號
+        issued_date                      DATE          NULL,    -- 認證日期
+        expiration_date                  DATE          NULL,    -- 認證有效日期
+        certificate_file_url             VARCHAR(500),
         UNIQUE (product_id, certification_id),
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
         FOREIGN KEY (certification_id) REFERENCES certifications(id)
@@ -331,9 +339,9 @@
 
     -- 商品圖片表
     CREATE TABLE product_images (
-        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_id                       BIGINT NOT NULL,
-        image_url                        VARCHAR(255) NOT NULL,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        product_id                       BIGINT        NOT NULL,
+        image_url                        VARCHAR(255)  NOT NULL,
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
