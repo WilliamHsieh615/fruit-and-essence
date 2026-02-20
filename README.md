@@ -335,6 +335,8 @@
         last_modified_date  DATETIME NOT NULL,    -- 更新時間 (由後端寫入)
         
         FOREIGN KEY (member_id) REFERENCES members(id),
+        FOREIGN KEY (currency_id) REFERENCES currencies(id),
+        FOREIGN KEY (tax_rate_id) REFERENCES tax_rates(id),
         FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id),
         FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id),
         FOREIGN KEY (order_status_id) REFERENCES order_status(id)
