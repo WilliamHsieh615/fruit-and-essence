@@ -236,22 +236,36 @@
     -- 付款方式表
     CREATE TABLE payment_methods (
         id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        name                             VARCHAR(50) NOT NULL UNIQUE,
-        description                      VARCHAR(255),
+        country_id                       BIGINT NOT NULL,
+        name                             VARCHAR(50) NOT NULL UNIQUE,    -- 名稱 (信用卡、PayPal...)
+        code                             VARCHAR(50) NOT NULL UNIQUE,    -- 系統代碼 (CARD, PAYPAL...)，方便程式判斷
+        description                      VARCHAR(255),    -- 說明
+        is_active                        BOOLEAN DEFAULT TRUE,    -- 是否啟用
         created_date                     DATETIME NOT NULL,
-        last_modified_date               DATETIME NOT NULL
+        last_modified_date               DATETIME NOT NULL,
+        FOREIGN KEY (country_id) REFERENCES countries(id)
     );
 
-    -- 運送方式表
     CREATE TABLE shipping_methods (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        name                VARCHAR(50) NOT NULL UNIQUE,
-        provider_code       VARCHAR(50),
-        is_cold_chain       BOOLEAN DEFAULT FALSE,    -- 是否低溫運送
-        estimated_days      INT,    -- 估計天數
-        description         VARCHAR(255),
-        created_date        DATETIME NOT NULL,
-        last_modified_date  DATETIME NOT NULL
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT NOT NULL,
+        name                             VARCHAR(50) NOT NULL UNIQUE,    -- 名稱 (宅配、黑貓...)
+        code                             VARCHAR(50) NOT NULL UNIQUE,    -- 系統代碼 (HOME_DELIVERY, FEDEX...)
+        provider_code                    VARCHAR(50),    -- 外部物流代號
+        estimated_days                   INT,    -- 預估天數
+        base_fee                         DECIMAL(10,2) DEFAULT 0.00,    -- 基本運費
+        extra_fee_per_kg                 DECIMAL(10,2) DEFAULT 0.00,    -- 超過重量的額外費用(每公斤)
+        is_cold_chain                    BOOLEAN DEFAULT FALSE,    -- 是否低溫運送
+        cold_chain_rule                  VARCHAR(255) DEFAULT NULL,    -- 低溫運送規則或說明
+        cold_chain_fee                   DECIMAL(10,2) DEFAULT 0.00,    -- 低溫運送額外費用
+        is_remote_area                   BOOLEAN DEFAULT FALSE,    -- 是否偏遠地區運送
+        remote_area_rule                 VARCHAR(255) DEFAULT NULL,    -- 偏遠地區判斷規則或說明
+        remote_area_fee                  DECIMAL(10,2) DEFAULT 0.00,    -- 偏遠地區額外費用
+        description                      VARCHAR(255),
+        is_active                        BOOLEAN DEFAULT TRUE,    -- 是否啟用
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL,
+        FOREIGN KEY (country_id) REFERENCES countries(id)
     );
 
     -- 訂單狀態表
