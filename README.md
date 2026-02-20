@@ -6,41 +6,41 @@
 
     -- 國別表
     CREATE TABLE countries (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        code                CHAR(2) NOT NULL UNIQUE,    -- ISO 3166-1國別碼 (TW、US、JP...)
-        name                VARCHAR(50) NOT NULL,    -- 國籍名稱 (台灣、美國、日本...)
-        image_url           VARCHAR(255)    -- 國旗
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        code                             CHAR(2) NOT NULL UNIQUE,    -- ISO 3166-1國別碼 (TW、US、JP...)
+        name                             VARCHAR(50) NOT NULL,    -- 國籍名稱 (台灣、美國、日本...)
+        image_url                        VARCHAR(255)    -- 國旗
     );
 
     -- 地區表
     CREATE TABLE regions (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        country_id          BIGINT NOT NULL,
-        code                VARCHAR(20) NOT NULL,
-        name                VARCHAR(100) NOT NULL,
-        image_url           VARCHAR(255),
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT NOT NULL,
+        code                             VARCHAR(20) NOT NULL,
+        name                             VARCHAR(100) NOT NULL,
+        image_url                        VARCHAR(255),
         UNIQUE (country_id, code),
         FOREIGN KEY (country_id) REFERENCES countries(id)
     );
 
     -- 地址表
     CREATE TABLE addresses (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        member_id           BIGINT NOT NULL,
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        member_id                        BIGINT NOT NULL,
 
-        country_id          BIGINT NOT NULL,
-        region_id           BIGINT NOT NULL,
+        country_id                       BIGINT NOT NULL,
+        region_id                        BIGINT NOT NULL,
 
-        city                VARCHAR(100),
-        district            VARCHAR(100),
-        postal_code         VARCHAR(20),
+        city                             VARCHAR(100),
+        district                         VARCHAR(100),
+        postal_code                      VARCHAR(20),
 
-        street_line1        VARCHAR(255) NOT NULL,
-        street_line2        VARCHAR(255),
+        street_line1                     VARCHAR(255) NOT NULL,
+        street_line2                     VARCHAR(255),
 
-        is_default          BOOLEAN DEFAULT FALSE,
-        created_date        DATETIME NOT NULL,    -- 建立時間 (由後端寫入)
-        last_modified_date  DATETIME NOT NULL,    -- 更新時間 (由後端寫入)
+        is_default                       BOOLEAN DEFAULT FALSE,
+        created_date                     DATETIME NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
         FOREIGN KEY (country_id) REFERENCES countries(id),
@@ -49,58 +49,39 @@
 
     -- 貨幣表
     CREATE TABLE currencies (
-        id BIGINT AUTO_INCREMENT PRIMARY KEY,
-        country_id BIGINT NOT NULL,
-        code CHAR(3) NOT NULL UNIQUE,                      -- 貨幣碼 (TWD、USD、JPY...)
-        name VARCHAR(50) NOT NULL,                         -- 貨幣名稱 (新台幣、美元、日幣...)
-        symbol VARCHAR(10),                                -- 貨幣符號 (NT$、$、¥、€、£、₩、₽...)
+        id                               BIGINT AUTO_INCREMENT PRIMARY KEY,
+        country_id                       BIGINT NOT NULL,
+        code                             CHAR(3) NOT NULL UNIQUE,    -- 貨幣碼 (TWD、USD、JPY...)
+        name                             VARCHAR(50) NOT NULL,    -- 貨幣名稱 (新台幣、美元、日幣...)
+        symbol                           VARCHAR(10),    -- 貨幣符號 (NT$、$、¥、€、£、₩、₽...)
         FOREIGN KEY (country_id) REFERENCES countries(id)
-    );
-
-    -- 匯率表
-    CREATE TABLE exchange_rates (
-        id BIGINT AUTO_INCREMENT PRIMARY KEY,
-
-        base_currency_id BIGINT NOT NULL,                  -- 基準幣別 (USD)
-        quote_currency_id BIGINT NOT NULL,                 -- 報價幣別 (TWD)
-
-        rate DECIMAL(12,6) NOT NULL,                       -- 匯率 (例 1 USD = 30 TWD)
-        rate_date DATE NOT NULL,                           -- 匯率日期
-
-        created_date DATETIME NOT NULL,                    -- 建立時間 (由後端寫入)
-        updated_date DATETIME NOT NULL,                    -- 更新時間 (由後端寫入)
-
-        UNIQUE (base_currency_id, quote_currency_id, rate_date),
-
-        FOREIGN KEY (base_currency_id) REFERENCES currencies(id),
-        FOREIGN KEY (quote_currency_id) REFERENCES currencies(id)
     );
     
     -- 會員表
     CREATE TABLE members (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        email               VARCHAR(255) NOT NULL UNIQUE,
-        password            VARCHAR(255) NOT NULL,
-        name                VARCHAR(100) NOT NULL,
-        phone               VARCHAR(20) NOT NULL,
-        birthday            DATE,
-        created_date        DATETIME NOT NULL,
-        last_modified_date  DATETIME NOT NULL
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        email                            VARCHAR(255) NOT NULL UNIQUE,
+        password                         VARCHAR(255) NOT NULL,
+        name                             VARCHAR(100) NOT NULL,
+        phone                            VARCHAR(20) NOT NULL,
+        birthday                         DATE,
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL
     );
 
     -- 角色表
     CREATE TABLE roles (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        name                VARCHAR(100) NOT NULL UNIQUE,
-        active              BOOLEAN NOT NULL DEFAULT TRUE,
-        created_date        DATETIME NOT NULL,
-        last_modified_date  DATETIME NOT NULL
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        name                             VARCHAR(100) NOT NULL UNIQUE,
+        is_active                        BOOLEAN NOT NULL DEFAULT TRUE,
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL
     );
 
     -- 會員角色關聯表
     CREATE TABLE member_has_roles (
-        member_id BIGINT NOT NULL,
-        role_id   BIGINT NOT NULL,
+        member_id                        BIGINT NOT NULL,
+        role_id                          BIGINT NOT NULL,
         PRIMARY KEY (member_id, role_id),
         FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
         FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
@@ -108,61 +89,63 @@
 
     -- 登入紀錄表
     CREATE TABLE login_history (
-        id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-        member_id   BIGINT,
-        email       VARCHAR(255) NOT NULL,
-        login_time  DATETIME NOT NULL,
-        user_agent  VARCHAR(255),
-        ip_address  VARCHAR(45),
-        success     BOOLEAN NOT NULL DEFAULT FALSE,
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        member_id                        BIGINT,
+        email                            VARCHAR(255) NOT NULL,
+        login_time                       DATETIME NOT NULL,    -- 登入時間
+        user_agent                       VARCHAR(255),
+        ip_address                       VARCHAR(45),
+        success                          BOOLEAN NOT NULL DEFAULT FALSE,
         FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL
     );
 
     -- 商品分類表
     CREATE TABLE product_types (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        name                VARCHAR(100) NOT NULL,
-        note                VARCHAR(255),
-        active              BOOLEAN NOT NULL DEFAULT TRUE,
-        created_date        DATETIME NOT NULL,
-        last_modified_date  DATETIME NOT NULL
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        name                             VARCHAR(100) NOT NULL,
+        note                             VARCHAR(255),
+        is_active                        BOOLEAN NOT NULL DEFAULT TRUE,
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL
     );
 
     -- 商品表
     CREATE TABLE products (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_type_id     BIGINT NOT NULL,
-        name                VARCHAR(255) NOT NULL,
-        description         TEXT,
-        active              BOOLEAN DEFAULT TRUE,
-        created_date        DATETIME NOT NULL,
-        last_modified_date  DATETIME NOT NULL,
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        product_type_id                  BIGINT NOT NULL,
+        name                             VARCHAR(255) NOT NULL,
+        description                      TEXT,
+        is_active                        BOOLEAN DEFAULT TRUE,
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL,
         FOREIGN KEY (product_type_id) REFERENCES product_types(id)
     );
 
     -- 商品變體表
     CREATE TABLE product_variants (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_id          BIGINT NOT NULL,
-        size                VARCHAR(50) NOT NULL,
-        unit                VARCHAR(50),
-        stock               INT NOT NULL DEFAULT 0,
-        sku                 VARCHAR(100) NOT NULL UNIQUE,
-        barcode             VARCHAR(100) UNIQUE,
-        created_date        DATETIME NOT NULL,
-        last_modified_date  DATETIME NOT NULL,
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        product_id                       BIGINT NOT NULL,
+        size                             VARCHAR(50) NOT NULL,
+        unit                             VARCHAR(50),
+        stock                            INT NOT NULL DEFAULT 0,    -- 商品庫存 (需對應product_stock_history.stock最後一筆)
+        sku                              VARCHAR(100) NOT NULL UNIQUE,
+        barcode                          VARCHAR(100) UNIQUE,
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL,
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
     -- 商品價格表
     CREATE TABLE product_variant_prices (
-        id              BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_variant_id      BIGINT NOT NULL,
-        currency_id     BIGINT NOT NULL,
-        price           DECIMAL(10,2) NOT NULL,
-        discount_price  DECIMAL(10,2),
-        created_date    DATETIME NOT NULL,
-        last_modified_date DATETIME NOT NULL,
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        product_variant_id               BIGINT NOT NULL,
+        currency_id                      BIGINT NOT NULL,
+        
+        price                            DECIMAL(10,2) NOT NULL,    -- 商品價格 (需對應 product_price_history.price 最後一筆)
+        discount_price                   DECIMAL(10,2),    -- 商品促銷價格 (不一定會有，需對應 product_price_history.discount_price 最後一筆)
+                                                           -- 當有 price 與 discount_price 同時存在時，以 discount_price 為主
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL,
 
         UNIQUE (product_variant_id, currency_id),
         FOREIGN KEY (product_variant_id) REFERENCES product_variants(id) ON DELETE CASCADE,
@@ -171,28 +154,38 @@
 
     -- 價格歷史紀錄表
     CREATE TABLE product_price_history (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_variant_id BIGINT NOT NULL,
-        currency_id     BIGINT NOT NULL,
-        price           DECIMAL(10,2) NOT NULL,
-        discount_price  DECIMAL(10,2),
-        start_date      DATETIME NOT NULL,
-        end_date        DATETIME,
-        created_date    DATETIME NOT NULL,
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        product_variant_id               BIGINT NOT NULL,
+        currency_id                      BIGINT NOT NULL,
+        
+        price                            DECIMAL(10,2) NOT NULL,
+        discount_price                   DECIMAL(10,2),    -- 當有 price 與 discount_price 同時存在時，以 discount_price 為主
+        
+        start_date                       DATETIME NOT NULL,
+        end_date                         DATETIME,
+        created_date                     DATETIME NOT NULL,
 
         FOREIGN KEY (product_variant_id) REFERENCES product_variants(id) ON DELETE CASCADE,
         FOREIGN KEY (currency_id) REFERENCES currencies(id)
     );
 
+    -- 庫存異動原因表
+    CREATE TABLE product_stock_history_reason (
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        name                             VARCHAR(100) NOT NULL,
+        code                             VARCHAR(100) NOT NULL
+    );
+
     -- 庫存異動紀錄表
     CREATE TABLE product_stock_history (
-        id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-        product_variant_id  BIGINT NOT NULL,
-        change_amount       INT NOT NULL,
-        stock_after         INT NOT NULL,
-        reason              VARCHAR(100) NOT NULL,
-        created_date        DATETIME NOT NULL,
-        FOREIGN KEY (product_variant_id) REFERENCES product_variants(id) ON DELETE CASCADE
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        product_variant_id               BIGINT NOT NULL,
+        product_stock_history_reason_id  BIGINT NOT NULL,
+        change_amount                    INT NOT NULL,
+        stock                            INT NOT NULL,
+        created_date                     DATETIME NOT NULL,
+        FOREIGN KEY (product_variant_id) REFERENCES product_variants(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_stock_history_reason_id) REFERENCES product_stock_history_reason(id)
     );
 
     -- 營養成分表
@@ -317,7 +310,6 @@
         
         member_id           BIGINT NOT NULL,
         currency_id         BIGINT NOT NULL,    -- 訂單幣別
-        exchange_rate       DECIMAL(12,6) NOT NULL,    -- 下單時匯率
         
         subtotal            DECIMAL(10,2) NOT NULL,    -- 小計
         tax_amount          DECIMAL(10,2) DEFAULT 0.00,    -- 稅額
