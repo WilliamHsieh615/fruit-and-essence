@@ -172,8 +172,8 @@
     -- 庫存異動原因表
     CREATE TABLE product_stock_history_reason (
         id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
-        name                             VARCHAR(100) NOT NULL,
-        code                             VARCHAR(100) NOT NULL
+        code                             VARCHAR(100) NOT NULL,
+        name                             VARCHAR(100) NOT NULL
     );
 
     -- 庫存異動紀錄表
@@ -233,39 +233,88 @@
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
+    -- 付款方式種類表
+    CREATE TABLE payment_method_types (
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(100) NOT NULL UNIQUE,     -- 系統代碼，方便程式判斷
+        name                             VARCHAR(100) NOT NULL             -- 類別名稱 (信用卡、第三方支付)
+    );
+
     -- 付款方式表
     CREATE TABLE payment_methods (
         id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT NOT NULL,
-        name                             VARCHAR(50) NOT NULL UNIQUE,    -- 名稱 (信用卡、PayPal...)
+        payment_method_type_id           BIGINT NOT NULL,    -- 所屬類型
+        
+        name                             VARCHAR(50) NOT NULL UNIQUE,    -- 名稱 (現金、信用卡、PayPal...)
         code                             VARCHAR(50) NOT NULL UNIQUE,    -- 系統代碼 (CARD, PAYPAL...)，方便程式判斷
+        
+        processing_fee_percent           DECIMAL(5,2) DEFAULT 0.00,    -- 百分比手續費
+        processing_fee_fixed             DECIMAL(10,2) DEFAULT 0.00,    -- 固定手續費
+        
         description                      VARCHAR(255),    -- 說明
         is_active                        BOOLEAN DEFAULT TRUE,    -- 是否啟用
         created_date                     DATETIME NOT NULL,
         last_modified_date               DATETIME NOT NULL,
-        FOREIGN KEY (country_id) REFERENCES countries(id)
+        FOREIGN KEY (country_id) REFERENCES countries(id),
+        FOREIGN KEY (payment_method_type_id) REFERENCES payment_method_types(id)
     );
 
+    -- 付款方式子表 (分期付款)
+    CREATE TABLE payment_method_installments (
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        payment_method_id                BIGINT NOT NULL,          -- 對應付款方式
+        
+        installment_month                INT NOT NULL,             -- 分期期數，例如 3、6、12
+        installment_min_amount           DECIMAL(10,2) NOT NULL,    -- 分期門檻金額
+        installment_fee_percent          DECIMAL(5,2) DEFAULT 0.00,    -- 分期百分比手續費，例如 1.5 = 1.5%
+        installment_fee_fixed            DECIMAL(10,2) DEFAULT 0.00,    -- 分期固定手續費
+        is_active                        BOOLEAN DEFAULT TRUE,    -- 是否啟用此分期方案
+        
+        created_date                     DATETIME NOT NULL,
+        last_modified_date               DATETIME NOT NULL,
+        FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id)
+    );
+
+
+    -- 運送方式種類表
+    CREATE TABLE shipping_method_types (
+        id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(100) NOT NULL UNIQUE,    -- 系統代碼
+        name                             VARCHAR(100) NOT NULL    -- 類別名稱 (陸運、海運、空運),
+        UNIQUE (country_id, code),
+        UNIQUE (country_id, name)
+    );
+
+    -- 運送方式表
     CREATE TABLE shipping_methods (
         id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT NOT NULL,
+        shipping_method_type_id          BIGINT NOT NULL,    -- 運送方式類型
+        
         name                             VARCHAR(50) NOT NULL UNIQUE,    -- 名稱 (宅配、黑貓...)
         code                             VARCHAR(50) NOT NULL UNIQUE,    -- 系統代碼 (HOME_DELIVERY, FEDEX...)
         provider_code                    VARCHAR(50),    -- 外部物流代號
-        estimated_days                   INT,    -- 預估天數
+        estimated_days                   INT,            -- 預估天數
+        
         base_fee                         DECIMAL(10,2) DEFAULT 0.00,    -- 基本運費
         extra_fee_per_kg                 DECIMAL(10,2) DEFAULT 0.00,    -- 超過重量的額外費用(每公斤)
-        is_cold_chain                    BOOLEAN DEFAULT FALSE,    -- 是否低溫運送
-        cold_chain_rule                  VARCHAR(255) DEFAULT NULL,    -- 低溫運送規則或說明
+        is_cold_chain                    BOOLEAN DEFAULT FALSE,         -- 是否低溫運送
         cold_chain_fee                   DECIMAL(10,2) DEFAULT 0.00,    -- 低溫運送額外費用
-        is_remote_area                   BOOLEAN DEFAULT FALSE,    -- 是否偏遠地區運送
-        remote_area_rule                 VARCHAR(255) DEFAULT NULL,    -- 偏遠地區判斷規則或說明
+        cold_chain_rule                  VARCHAR(255) DEFAULT NULL,     -- 低溫運送規則或說明
+        is_remote_area                   BOOLEAN DEFAULT FALSE,         -- 是否偏遠地區運送
         remote_area_fee                  DECIMAL(10,2) DEFAULT 0.00,    -- 偏遠地區額外費用
+        remote_area_rule                 VARCHAR(255) DEFAULT NULL,     -- 偏遠地區判斷規則或說明
+        
         description                      VARCHAR(255),
         is_active                        BOOLEAN DEFAULT TRUE,    -- 是否啟用
         created_date                     DATETIME NOT NULL,
         last_modified_date               DATETIME NOT NULL,
-        FOREIGN KEY (country_id) REFERENCES countries(id)
+        
+        UNIQUE (country_id, code),
+        UNIQUE (country_id, name),
+        FOREIGN KEY (country_id) REFERENCES countries(id),
+        FOREIGN KEY (shipping_method_type_id) REFERENCES shipping_method_types(id)
     );
 
     -- 訂單狀態表
