@@ -117,6 +117,7 @@
     -- 登入紀錄表
     CREATE TABLE login_history (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
         member_id                        BIGINT,
         email                            VARCHAR(255)  NOT NULL,
         login_time                       DATETIME      NOT NULL,    -- 登入時間
@@ -159,7 +160,6 @@
         size                             VARCHAR(50)   NOT NULL,
         weight                           DECIMAL(10,2) NOT NULL,
         unit                             VARCHAR(50)   NOT NULL,
-        stock                            INT           NOT NULL DEFAULT 0,    -- 商品庫存 (需對應product_stock_history.stock最後一筆)
         sku                              VARCHAR(100)  NOT NULL UNIQUE,
         barcode                          VARCHAR(100)  UNIQUE,
         created_date                     DATETIME      NOT NULL,
@@ -305,11 +305,13 @@
     -- 公司認證表
     CREATE TABLE company_certifications (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        company_id BIGINT NOT NULL,
         certification_id BIGINT NOT NULL,
         certificate_number VARCHAR(100),
         issued_date DATE,
         expiration_date DATE,
         certificate_file_url VARCHAR(500),
+        FOREIGN KEY (company_id) REFERENCES companies(id),
         FOREIGN KEY (certification_id) REFERENCES certifications(id)
     );
 
@@ -322,6 +324,7 @@
         issued_date DATE NULL,    -- 認證日期
         expiration_date DATE NULL,    -- 認證有效日期
         certificate_file_url VARCHAR(500) NULL,
+        UNIQUE (product_id, certification_id),
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
         FOREIGN KEY (certification_id) REFERENCES certifications(id)
     );
@@ -528,7 +531,7 @@
     CREATE TABLE tax_rates (
         id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT NOT NULL,
-        region_id                        BIGINT NOT NULL,
+        region_id                        BIGINT,
         tax_type_id                      BIGINT NOT NULL,
 
         rate                             DECIMAL(5,4) NOT NULL,    -- 稅率，如 0.0500
@@ -547,6 +550,7 @@
     -- 訂單表
     CREATE TABLE orders (
         id                               BIGINT PRIMARY KEY AUTO_INCREMENT,
+        company_id                       BIGINT NOT NULL,
         order_number                     VARCHAR(50) NOT NULL UNIQUE,    -- 訂單編號
         
         member_id                        BIGINT NOT NULL,
@@ -569,7 +573,8 @@
         
         created_date                     DATETIME NOT NULL,    -- 建立時間 (由後端寫入)
         last_modified_date               DATETIME NOT NULL,    -- 更新時間 (由後端寫入)
-        
+
+        FOREIGN KEY (company_id) REFERENCES companies(id),
         FOREIGN KEY (member_id) REFERENCES members(id),
         FOREIGN KEY (currency_id) REFERENCES currencies(id),
         FOREIGN KEY (tax_rate_id) REFERENCES tax_rates(id),
@@ -586,7 +591,7 @@
         
         product_name                     VARCHAR(255) NOT NULL,
         sku                              VARCHAR(100) NOT NULL,
-        barcode                          VARCHAR(100)  UNIQUE,
+        barcode                          VARCHAR(100),
         
         quantity                         INT NOT NULL,
         price                            DECIMAL(10,2) NOT NULL,
@@ -598,7 +603,7 @@
     -- 訂單與稅費關聯表
     CREATE TABLE order_tax (
         order_id                         BIGINT        NOT NULL,
-        tax_type_id,                     BIGINT        NOT NULL,
+        tax_type_id                      BIGINT        NOT NULL,
         tax_rate                         DECIMAL(5,4)  NOT NULL,
         tax_amount                       DECIMAL(12,2) NOT NULL,
         PRIMARY KEY (order_id, tax_type_id),
@@ -720,7 +725,7 @@
 
     -- 發票表
     CREATE TABLE invoice (
-        invoice_id                       BIGINT        NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         order_id                         BIGINT        NOT NULL,
         invoice_number                   VARCHAR(50)   NULL UNIQUE,
         invoice_carrier                  VARCHAR(50),
