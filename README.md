@@ -483,10 +483,10 @@
     CREATE TABLE shipping_method_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- 系統代碼 (LAND, SEA, AIR)
-        name                             VARCHAR(100)  NOT NULL    -- 類別名稱 (陸運、海運、空運)
+        name                             VARCHAR(100)  NOT NULL,    -- 類別名稱 (陸運、海運、空運)
 
         created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間
     );
 
     -- 運送方式表
@@ -570,10 +570,10 @@
     CREATE TABLE shipping_method_service_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL,    -- 系統代碼 (INSURANCE, COD, EXPRESS)
-        name                             VARCHAR(100)  NOT NULL    -- 顯示名稱 (保險、代收貨款、加急等)
+        name                             VARCHAR(100)  NOT NULL,    -- 顯示名稱 (保險、代收貨款、加急等)
 
         created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間
     );
 
     -- 運送方式子表 (運送附加服務表)
@@ -636,7 +636,7 @@
     CREATE TABLE tax_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,  -- VAT、SALES_TAX
-        name                             VARCHAR(100)  NOT NULL    -- 加值稅、營業稅
+        name                             VARCHAR(100)  NOT NULL,    -- 加值稅、營業稅
 
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL     -- 更新時間
@@ -944,7 +944,7 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- MIN_AMOUNT / MEMBER_LEVEL / FIRST_ORDER
         name                             VARCHAR(100)  NOT NULL,    -- 最小金額、會員等級、第一筆訂單
         created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL
     );
 
     -- 折扣條件表
@@ -1021,7 +1021,7 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- GOVERNMENT_ASSIGNED、MERCHANT_GENERATED、NONE
         name                             VARCHAR(100)  NOT NULL,    -- 政府分配、店家生成、無
         created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL
     );
 
     CREATE TABLE invoice_rules (
@@ -1031,7 +1031,7 @@
         code                             VARCHAR(50)   NOT NULL,
         name                             VARCHAR(100)  NOT NULL,
 
-        numbering_type_id                VARCHAR(30)   NOT NULL,    -- 編號類型 GOVERNMENT_ASSIGNED、MERCHANT_GENERATED、NONE
+        numbering_type_id                BIGINT        NOT NULL,    -- 編號類型 GOVERNMENT_ASSIGNED、MERCHANT_GENERATED、NONE
         number_length                    INT,                       -- 發票號碼長度
 
         requires_tax_id_number           BOOLEAN       DEFAULT FALSE,    -- 是否強制稅號
@@ -1060,7 +1060,7 @@
     -- 發票狀態表
     CREATE TABLE invoice_statuses (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        code                             VARCHAR(50)   NOT NULL UNIQUE, -- DRAFT、ISSUED、VOID、CANCELLED
+        code                             VARCHAR(50)   NOT NULL UNIQUE, -- DRAFT、ISSUING、ISSUED、CONFIRMED、VOIDED、FAILED
         name                             VARCHAR(100)  NOT NULL, -- 擬訂、開立、作廢、註銷
         note                             VARCHAR(255),
         
@@ -1072,7 +1072,7 @@
     CREATE TABLE invoice_carrier_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- MOBILE_BARCODE、CITIZEN_CERT、MEMBER_CARRIER、NONE
-        name                             VARCHAR(100)  NOT NULL,    -- 手機條碼、自然人憑證、會員載具、不使用
+        name                             VARCHAR(100)  NOT NULL,    -- 草稿、開立中、已開立、買方已確認、已作廢、開立失敗
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL,
     );
@@ -1084,11 +1084,13 @@
         country_id                       BIGINT        NOT NULL,    -- 發票適用國家
         invoice_rule_id                  BIGINT        NOT NULL,    -- 使用哪個國家規則
         
+        invoice_type_id                  BIGINT        NOT NULL,    -- 發票類型 (INVOICE、RECEIPT)
         invoice_number                   VARCHAR(50)   UNIQUE,      -- 發票號碼
         invoice_random_code              VARCHAR(10),               -- 發票隨機碼
-        invoice_type_id                  BIGINT        NOT NULL,    -- 發票類型 (INVOICE、RECEIPT)
         invoice_status_id                VARCHAR(30)   NOT NULL,    -- 發票狀態
 
+        buyer_name                       VARCHAR(255),              -- 買受人
+        buyer_email                      VARCHAR(255),              -- 買受人電子信箱
         invoice_carrier_type_id          BIGINT,                    -- 載具種類
         invoice_carrier_code             VARCHAR(100),              -- 載具號碼
         
@@ -1110,9 +1112,23 @@
         FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (invoice_rule_id) REFERENCES invoice_rules(id),
         FOREIGN KEY (invoice_type_id) REFERENCES invoice_types(id),
-        FOREIGN KEY (invoice_status_id) REFERENCES invoice_statuses(id)
+        FOREIGN KEY (invoice_status_id) REFERENCES invoice_statuses(id),
+        FOREIGN KEY (invoice_carrier_type_id) REFERENCES invoice_carrier_types(id)
     );
 
+    -- 發票明細表
+    CREATE TABLE invoice_items (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        invoice_id                       BIGINT        NOT NULL,
+
+        product_name                     VARCHAR(255)  NOT NULL,
+        quantity                         INT           NOT NULL,
+        unit_price                       DECIMAL(12,2) NOT NULL,
+        tax_amount                       DECIMAL(12,2) NOT NULL,
+        total_amount                     DECIMAL(12,2) NOT NULL,
+
+        FOREIGN KEY (invoice_id) REFERENCES invoices(id)
+    );
 
     -- 發票號段表 (numbering_type = GOVERNMENT_ASSIGNED 才會用)
     CREATE TABLE invoice_number_batches (
@@ -1174,23 +1190,51 @@
     
     );
 
+    -- 折讓原因表
+    CREATE TABLE credit_note_reasons (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
+
+        code                             VARCHAR(50)   NOT NULL,
+        name                             VARCHAR(100)  NOT NULL,
+        description                      VARCHAR(255),
+
+        created_date                     DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL
+    );
+
+    -- 折讓狀態表
+    CREATE TABLE credit_note_statuses (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- DRAFT、ISSUING、ISSUED、CONFIRMED、VOIDED、FAILED
+        name                             VARCHAR(100)  NOT NULL,    -- 草稿、開立中、已開立、買方已確認、已作廢、開立失敗
+        
+        created_date                     DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL
+    );
+
     -- 折讓單表
     CREATE TABLE credit_notes (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         invoice_id                       BIGINT        NOT NULL,
 
-        credit_number                    VARCHAR(50)   UNIQUE,
+        credit_number                    VARCHAR(50)   UNIQUE,    -- 折讓單序號
         total_credit_amount              DECIMAL(12,2) NOT NULL,
 
-        reason                           VARCHAR(255),
-        status                           VARCHAR(30)   NOT NULL,
+        credit_note_reason_id            BIGINT        NOT NULL,
+        credit_note_status_id            BIGINT        NOT NULL,
 
-        issued_date                      DATETIME,
+        issued_date                      DATETIME,    -- 開立日期
+        voided_date                      DATETIME,    -- 作廢日期
 
-        created_date                     DATETIME NOT NULL,
-        last_modified_date               DATETIME NOT NULL,
+        government_track_number          VARCHAR(100),    -- 政府追蹤序號
 
-        FOREIGN KEY (invoice_id) REFERENCES invoices(id)
+        created_date                     DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL,
+
+        FOREIGN KEY (invoice_id) REFERENCES invoices(id),
+        FOREIGN KEY (credit_note_reason_id) REFERENCES credit_note_reasons(id),
+        FOREIGN KEY (credit_note_status_id) REFERENCES credit_note_statuses(id)
     );
 
 
