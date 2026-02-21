@@ -452,7 +452,7 @@
         processing_fee_percent           DECIMAL(5,2)  DEFAULT 0.00,    -- 百分比手續費
         processing_fee_fixed             DECIMAL(10,2) DEFAULT 0.00,    -- 固定手續費
         
-        description                      VARCHAR(255), -- 說明
+        note                             VARCHAR(255),
         is_active                        BOOLEAN       DEFAULT TRUE,    -- 是否啟用
         
         created_date                     DATETIME      NOT NULL,    -- 建立時間
@@ -498,7 +498,7 @@
         name                             VARCHAR(100)  NOT NULL UNIQUE,    -- 名稱 (宅配、黑貓...)
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- 系統代碼 (HOME_DELIVERY, FEDEX...)
         provider_code                    VARCHAR(50),    -- 外部物流代號
-        description                      VARCHAR(255),
+        note                             VARCHAR(255),
         
         estimated_days                   INT,    -- 預估天數
         base_fee                         DECIMAL(10,2) DEFAULT 0.00,    -- 基本運費
@@ -525,7 +525,7 @@
         min_weight                       DECIMAL(10,2) NOT NULL,
         max_weight                       DECIMAL(10,2) DEFAULT NULL,
         extra_fee                        DECIMAL(10,2) NOT NULL,
-        description                      VARCHAR(255)  DEFAULT NULL,
+        note                             VARCHAR(255),
 
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
@@ -542,7 +542,7 @@
         min_temp                         DECIMAL(5,2)  DEFAULT NULL,    -- 最低溫度限制
         max_temp                         DECIMAL(5,2)  DEFAULT NULL,    -- 最高溫度限制
         extra_fee                        DECIMAL(10,2) DEFAULT 0.00,   -- 額外費用
-        description                      VARCHAR(255)  DEFAULT NULL,
+        note                             VARCHAR(255),
         
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
@@ -557,7 +557,7 @@
         shipping_method_id               BIGINT        NOT NULL,
         
         extra_fee                        DECIMAL(10,2) DEFAULT 0.00,
-        description                      VARCHAR(255)  DEFAULT NULL,
+        note                             VARCHAR(255),
         
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
@@ -1197,7 +1197,7 @@
 
         code                             VARCHAR(50)   NOT NULL,
         name                             VARCHAR(100)  NOT NULL,
-        description                      VARCHAR(255),
+        note                             VARCHAR(255),
 
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL
@@ -1206,8 +1206,10 @@
     -- 折讓狀態表
     CREATE TABLE credit_note_statuses (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- DRAFT、ISSUING、ISSUED、CONFIRMED、VOIDED、FAILED
         name                             VARCHAR(100)  NOT NULL,    -- 草稿、開立中、已開立、買方已確認、已作廢、開立失敗
+        note                             VARCHAR(255),
         
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL
