@@ -157,7 +157,7 @@
     -- 商品分類表
     CREATE TABLE product_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        code                             VARCHAR(50)   NOT NULL,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
         note                             VARCHAR(255),
         is_active                        BOOLEAN       NOT NULL DEFAULT TRUE,
@@ -282,7 +282,7 @@
     -- 庫存異動原因表
     CREATE TABLE product_stock_history_reasons (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        code                             VARCHAR(50)   NOT NULL,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
         note                             VARCHAR(255),
         
@@ -430,14 +430,42 @@
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
-    -- 付款方式種類表
+    -- 付款方式類型表
     CREATE TABLE payment_method_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,     -- 系統代碼
         name                             VARCHAR(100)  NOT NULL,            -- 類別名稱 (信用卡、第三方支付)
-
+        note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL     -- 更新時間
+    );
+
+    -- 第三方金流表
+    CREATE TABLE payment_gateways (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- STRIPE, LINEPAY, ECPAY
+        name                             VARCHAR(100)  NOT NULL,    -- Stripe、LINE Pay、綠界、藍新
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+    );
+
+    -- 金流憑證表
+    CREATE TABLE payment_gateway_credentials (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
+        payment_gateway_id               BIGINT        NOT NULL,
+        
+        merchant_id                      VARCHAR(255),
+        api_key                          VARBINARY(512), -- 加密存
+        api_secret                       VARBINARY(512),
+        webhook_secret                   VARBINARY(512),
+
+        is_active                        BOOLEAN       DEFAULT TRUE,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+
+        FOREIGN KEY (country_id) REFERENCES countries(id),
+        FOREIGN KEY (payment_gateway_id) REFERENCES payment_gateways(id)
     );
 
     -- 付款方式表
@@ -445,6 +473,7 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT        NOT NULL,
         payment_method_type_id           BIGINT        NOT NULL,    -- 所屬類型
+        payment_gateway_id               BIGINT        NOT NULL,    -- 第三方金流
         
         name                             VARCHAR(100)  NOT NULL UNIQUE,    -- 名稱 (現金、信用卡、PayPal...)
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- 系統代碼 (CARD, PAYPAL...)，方便程式判斷
@@ -459,7 +488,8 @@
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
         
         FOREIGN KEY (country_id) REFERENCES countries(id),
-        FOREIGN KEY (payment_method_type_id) REFERENCES payment_method_types(id)
+        FOREIGN KEY (payment_method_type_id) REFERENCES payment_method_types(id),
+        FOREIGN KEY (payment_gateway_id) REFERENCES payment_gateways(id)
     );
 
     -- 付款方式子表 (分期付款)
@@ -479,12 +509,12 @@
         FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id)
     );
 
-    -- 運送方式種類表
+    -- 運送方式類型表
     CREATE TABLE shipping_method_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- 系統代碼 (LAND, SEA, AIR)
         name                             VARCHAR(100)  NOT NULL,    -- 類別名稱 (陸運、海運、空運)
-
+        note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL     -- 更新時間
     );
@@ -494,9 +524,9 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT        NOT NULL,
         shipping_method_type_id          BIGINT        NOT NULL,    -- 運送方式類型
-        
-        name                             VARCHAR(100)  NOT NULL UNIQUE,    -- 名稱 (宅配、黑貓...)
-        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- 系統代碼 (HOME_DELIVERY, FEDEX...)
+
+        code                             VARCHAR(50)   NOT NULL,    -- 系統代碼 (HOME_DELIVERY, FEDEX...)
+        name                             VARCHAR(100)  NOT NULL,    -- 名稱 (宅配、黑貓...)
         provider_code                    VARCHAR(50),    -- 外部物流代號
         note                             VARCHAR(255),
         
@@ -512,7 +542,6 @@
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
         
         UNIQUE (country_id, code),
-        UNIQUE (country_id, name),
         FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (shipping_method_type_id) REFERENCES shipping_method_types(id)
     );
@@ -566,12 +595,12 @@
         FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id) ON DELETE CASCADE
     );
 
-    -- 運送附加服務種類表
+    -- 運送附加服務類型表
     CREATE TABLE shipping_method_service_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        code                             VARCHAR(50)   NOT NULL,    -- 系統代碼 (INSURANCE, COD, EXPRESS)
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- 系統代碼 (INSURANCE, COD, EXPRESS)
         name                             VARCHAR(100)  NOT NULL,    -- 顯示名稱 (保險、代收貨款、加急等)
-
+        note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL     -- 更新時間
     );
@@ -637,7 +666,7 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,  -- VAT、SALES_TAX
         name                             VARCHAR(100)  NOT NULL,    -- 加值稅、營業稅
-
+        note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL     -- 更新時間
     );
@@ -744,15 +773,6 @@
         last_modified_date               DATETIME      NOT NULL     -- 更新時間
     );
 
-    -- 第三方金流表
-    CREATE TABLE payment_gateways (
-        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- STRIPE, LINEPAY, ECPAY
-        name                             VARCHAR(100)  NOT NULL,    -- Stripe、LINE Pay、綠界、藍新
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL     -- 更新時間
-    );
-
     -- 付款交易紀錄表
     CREATE TABLE payment_transactions (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
@@ -796,7 +816,7 @@
     -- 退款原因表
     CREATE TABLE refund_transaction_reasons (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        code                             VARCHAR(50)   NOT NULL,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
         note                             VARCHAR(255),
 
@@ -870,6 +890,7 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- PERCENTAGE、FIXED
         name                             VARCHAR(100)  NOT NULL,    -- 百分比、固定
+        note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL
     );
@@ -877,8 +898,8 @@
     -- 折扣表
     CREATE TABLE discounts (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
-        code                             VARCHAR(50)   UNIQUE,
         
         discount_type_id                 BIGINT        NOT NULL,
         discount_value                   DECIMAL(10,2) NOT NULL,
@@ -904,6 +925,7 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- LOGICAL、COMPARISON、ARITHMETIC
         name                             VARCHAR(100)  NOT NULL,    -- 邏輯運算、比較運算、算數運算
+        note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL
         
@@ -944,6 +966,7 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- MIN_AMOUNT / MEMBER_LEVEL / FIRST_ORDER
         name                             VARCHAR(100)  NOT NULL,    -- 最小金額、會員等級、第一筆訂單
+        note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL
     );
@@ -1021,15 +1044,17 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- GOVERNMENT_ASSIGNED、MERCHANT_GENERATED、NONE
         name                             VARCHAR(100)  NOT NULL,    -- 政府分配、店家生成、無
+        note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL
     );
 
+    -- 發票規則表
     CREATE TABLE invoice_rules (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT        NOT NULL,
 
-        code                             VARCHAR(50)   NOT NULL,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
 
         numbering_type_id                BIGINT        NOT NULL,    -- 編號類型 GOVERNMENT_ASSIGNED、MERCHANT_GENERATED、NONE
@@ -1054,6 +1079,7 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- INVOICE、RECEIPT
         name                             VARCHAR(100)  NOT NULL,    -- 發票、收據
+        note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL,
     );
@@ -1074,6 +1100,7 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- MOBILE_BARCODE、CITIZEN_CERT、MEMBER_CARRIER、NONE
         name                             VARCHAR(100)  NOT NULL,    -- 草稿、開立中、已開立、買方已確認、已作廢、開立失敗
+        note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL,
     );
@@ -1088,11 +1115,11 @@
         invoice_type_id                  BIGINT        NOT NULL,    -- 發票類型 (INVOICE、RECEIPT)
         invoice_number                   VARCHAR(50)   UNIQUE,      -- 發票號碼
         invoice_random_code              VARCHAR(10),               -- 發票隨機碼
-        invoice_status_id                VARCHAR(30)   NOT NULL,    -- 發票狀態
+        invoice_status_id                BIGINT        NOT NULL,    -- 發票狀態
 
         buyer_name                       VARCHAR(255),              -- 買受人
         buyer_email                      VARCHAR(255),              -- 買受人電子信箱
-        invoice_carrier_type_id          BIGINT,                    -- 載具種類
+        invoice_carrier_type_id          BIGINT,                    -- 載具類型
         invoice_carrier_code             VARCHAR(100),              -- 載具號碼
         
         donation_code                    VARCHAR(10),               -- 捐贈碼
@@ -1191,12 +1218,31 @@
     
     );
 
+    -- 電子發票憑證表
+    CREATE TABLE e_invoice_credentials (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
+        company_id                       BIGINT        NOT NULL,
+
+        app_id                           VARCHAR(255),
+        api_key                          VARBINARY(512),
+        certificate_path                 VARCHAR(255), -- pfx 檔
+        certificate_password             VARBINARY(512),
+
+        is_active                        BOOLEAN DEFAULT TRUE,
+        created_date                     DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL,
+
+        FOREIGN KEY (country_id) REFERENCES countries(id),
+        FOREIGN KEY (company_id) REFERENCES companies(id)
+    );
+
     -- 折讓原因表
     CREATE TABLE credit_note_reasons (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT        NOT NULL,
 
-        code                             VARCHAR(50)   NOT NULL,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
         note                             VARCHAR(255),
 
