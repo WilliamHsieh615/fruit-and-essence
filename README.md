@@ -255,19 +255,29 @@
 
     -- 倉庫存貨表
     CREATE TABLE warehouse_inventory (
-        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        warehouse_id                     BIGINT        NOT NULL,
-        product_lot_id                   BIGINT        NOT NULL,
-        
-        stock                            INT           NOT NULL DEFAULT 0,    -- 最新庫存
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
-        
+        warehouse_id BIGINT NOT NULL,
+        product_lot_id BIGINT NOT NULL,
+
+        physical_stock INT NOT NULL DEFAULT 0,    -- 實體庫存
+        reserved_stock INT NOT NULL DEFAULT 0,    -- 已被訂單鎖定（未出貨）
+        available_stock INT NOT NULL DEFAULT 0,    -- 可販售庫存（可用）
+
+        safety_stock INT NOT NULL DEFAULT 0,    -- 安全庫存
+        version INT NOT NULL DEFAULT 0,    -- 樂觀鎖版本號
+
+        last_calculated_date DATETIME NOT NULL,    -- 最後盤點日
+
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+
         UNIQUE (warehouse_id, product_lot_id),
+
         FOREIGN KEY (warehouse_id) REFERENCES warehouses(id),
         FOREIGN KEY (product_lot_id) REFERENCES product_lots(id)
     );
+
 
     -- 庫存異動原因表
     CREATE TABLE product_stock_history_reason (
@@ -424,7 +434,7 @@
     CREATE TABLE payment_method_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,     -- 系統代碼
-        name                             VARCHAR(100)  NOT NULL             -- 類別名稱 (信用卡、第三方支付)
+        name                             VARCHAR(100)  NOT NULL,            -- 類別名稱 (信用卡、第三方支付)
 
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL     -- 更新時間
@@ -762,7 +772,7 @@
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
 
-        UNIQUE (payment_gateway_id, gateway_transaction_id),
+        UNIQUE (payment_gateway_id, gateway_transaction_number),
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
         FOREIGN KEY (payment_gateway_id) REFERENCES payment_gateways(id),
         FOREIGN KEY (currency_id) REFERENCES currencies(id),
@@ -810,12 +820,59 @@
         FOREIGN KEY (refund_transaction_reason_id) REFERENCES refund_transaction_reasons(id)
     );
 
+    -- 訂單出貨狀態表
+    CREATE TABLE order_shipment_status (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- PENDING / SHIPPED / DELIVERED / RETURNED
+        name                             VARCHAR(100)  NOT NULL,    -- 待出貨、已出貨、已送達、已退貨
+        note                             VARCHAR(255),
+        
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+    );
+
+    -- 訂單出貨表
+    CREATE TABLE order_shipments (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+        order_id BIGINT NOT NULL,
+        warehouse_id BIGINT NOT NULL,
+
+        shipping_method_type_id BIGINT NOT NULL,
+
+        order_shipment_status_id BIGINT NOT NULL,
+
+        tracking_number VARCHAR(255),
+
+        shipped_at DATETIME,
+        delivered_at DATETIME,
+
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+
+        FOREIGN KEY (order_id) REFERENCES orders(id),
+        FOREIGN KEY (warehouse_id) REFERENCES warehouses(id),
+        FOREIGN KEY (order_shipment_status_id) REFERENCES order_shipment_status(id)
+    );
+
+    -- 訂單出貨明細表
+    CREATE TABLE order_shipment_items (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+        order_shipment_id BIGINT NOT NULL,
+        order_item_id BIGINT NOT NULL,
+
+        quantity INT NOT NULL,
+
+        FOREIGN KEY (order_shipment_id) REFERENCES order_shipments(id),
+        FOREIGN KEY (order_item_id) REFERENCES order_items(id)
+    );
 
     -- 折扣類型表
     CREATE TABLE discount_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        code                             VARCHAR(50)   NOT NULL,
-        name                             VARCHAR(100)  NOT NULL,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- PERCENTAGE、FIXED
+        name                             VARCHAR(100)  NOT NULL,    -- 百分比、固定
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL
     );
@@ -825,27 +882,93 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         name                             VARCHAR(100)  NOT NULL,
         code                             VARCHAR(50)   UNIQUE,
+        
         discount_type_id                 BIGINT        NOT NULL,
-        discount_value                   DECIMAL(10,2),
-        min_order_amount                 DECIMAL(10,2) DEFAULT 0.00,
+        discount_value                   DECIMAL(10,2) NOT NULL,
+        
         total_usage_limit                INT,
+        used_count                       INT           DEFAULT 0,
+        
         is_stackable                     BOOLEAN       DEFAULT FALSE,
         is_auto_apply                    BOOLEAN       DEFAULT FALSE,
         priority                         INT           DEFAULT 0,
+        
         start_date                       DATETIME,
         end_date                         DATETIME,
+        
         created_date                     DATETIME      NOT NULL,
         last_modified_date               DATETIME      NOT NULL,
+        
         FOREIGN KEY (discount_type_id) REFERENCES discount_types(id)
+    );
+
+    -- 運算方式類型表
+    CREATE TABLE operator_types (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- LOGICAL、COMPARISON、ARITHMETIC
+        name                             VARCHAR(100)  NOT NULL,    -- 邏輯運算、比較運算、算數運算
+        created_date                     DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL
+        
+    );
+
+    -- 運算方式表
+    CREATE TABLE operators (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        operator_type_id                 BIGINT        NOT NULL,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- LOGICAL：AND、OR
+                                                                           -- COMPARISON：=、>=、<=、>、<、IN、BETWEEN
+                                                                           -- ARITHMETIC：+、-、*、/
+        name                             VARCHAR(100)  NOT NULL,    -- 邏輯運算：和、或
+                                                                    -- 比較運算：等於、大於等於、小於等於、大於、小於、在什麼之內、介於什麼之間
+                                                                    -- 算數運算：加、減、乘、除
+        created_date                     DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL
+    );
+
+    -- 折扣條件組表
+    CREATE TABLE discount_condition_groups (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        discount_id                      BIGINT        NOT NULL,
+        discount_condition_group_id      BIGINT        NULL,    -- 自我關聯(實現多條件並行)
+        
+        operator_id                      BIGINT        NOT NULL,    -- AND、OR
+        
+        created_date                     DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL,
+
+        FOREIGN KEY (discount_id) REFERENCES discounts(id),
+        FOREIGN KEY (discount_condition_group_id) REFERENCES discount_condition_groups(id),
+        FOREIGN KEY (operator_id) REFERENCES operators(id)
+    );
+
+    -- 折扣條件類型表
+    CREATE TABLE discount_condition_types (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- MIN_AMOUNT / MEMBER_LEVEL / FIRST_ORDER
+        name                             VARCHAR(100)  NOT NULL,    -- 最小金額、會員等級、第一筆訂單
+        created_date                     DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL,
     );
 
     -- 折扣條件表
     CREATE TABLE discount_conditions (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        discount_id                      BIGINT        NOT NULL,
-        condition_type                   VARCHAR(50),
-        condition_value                  VARCHAR(255),
-        FOREIGN KEY (discount_id) REFERENCES discounts(id)
+        discount_condition_group_id      BIGINT        NOT NULL,
+        discount_condition_type_id       BIGINT        NOT NULL,    -- MIN_AMOUNT / MEMBER_LEVEL / FIRST_ORDER
+        operator_id                      BIGINT        NOT NULL,    -- =、>=、<=、>、<、IN、BETWEEN
+
+        value_string                     VARCHAR(255),
+        value_number                     DECIMAL(15,2),
+        value_date                       DATETIME,
+        priority                         INT           NOT NULL DEFAULT 0,    -- 折扣順序 (越小越先執行)
+
+        created_date                     DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL,
+
+        FOREIGN KEY (discount_condition_group_id) REFERENCES discount_condition_groups(id),
+        FOREIGN KEY (discount_condition_type_id) REFERENCES discount_condition_types(id),
+        FOREIGN KEY (operator_id) REFERENCES operators(id)
     );
 
     -- 會員與折扣關聯表
