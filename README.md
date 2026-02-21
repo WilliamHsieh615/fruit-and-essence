@@ -453,6 +453,7 @@
     CREATE TABLE payment_gateway_credentials (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT        NOT NULL,
+        company_id                       BIGINT        NOT NULL,
         payment_gateway_id               BIGINT        NOT NULL,
         
         merchant_id                      VARCHAR(255),
@@ -465,6 +466,7 @@
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
 
         FOREIGN KEY (country_id) REFERENCES countries(id),
+        FOREIGN KEY (company_id) REFERENCES companies(id),
         FOREIGN KEY (payment_gateway_id) REFERENCES payment_gateways(id)
     );
 
@@ -473,7 +475,7 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT        NOT NULL,
         payment_method_type_id           BIGINT        NOT NULL,    -- 所屬類型
-        payment_gateway_id               BIGINT        NOT NULL,    -- 第三方金流
+        payment_gateway_id               BIGINT,    -- 第三方金流
         
         name                             VARCHAR(100)  NOT NULL UNIQUE,    -- 名稱 (現金、信用卡、PayPal...)
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- 系統代碼 (CARD, PAYPAL...)，方便程式判斷
@@ -777,6 +779,7 @@
     CREATE TABLE payment_transactions (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         order_id                         BIGINT        NOT NULL,
+        payment_method_id                BIGINT        NOT NULL,
         payment_gateway_id               BIGINT        NOT NULL,    -- 第三方金流
 
         gateway_transaction_number       VARCHAR(255)  NOT NULL,    -- 第三方金流核發的交易編號(識別碼)
@@ -794,6 +797,7 @@
 
         UNIQUE (payment_gateway_id, gateway_transaction_number),
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id),
         FOREIGN KEY (payment_gateway_id) REFERENCES payment_gateways(id),
         FOREIGN KEY (currency_id) REFERENCES currencies(id),
         FOREIGN KEY (payment_transaction_status_id) REFERENCES payment_transaction_statuses(id)
@@ -824,6 +828,16 @@
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
     );
 
+    -- 退款狀態表
+    CREATE TABLE refund_transaction_statuses (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- PENDING、SUCCESS、FAILED
+        name                             VARCHAR(100)  NOT NULL,    -- 待退款、退款成功、退款失敗
+        note                             VARCHAR(255),
+        
+        created_date                     DATETIME      NOT NULL,    -- 建立時間
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+    );
 
     -- 退款交易表
     CREATE TABLE refund_transactions (
@@ -834,11 +848,14 @@
         refund_amount                    DECIMAL(10,2) NOT NULL,
         refunded_date                    DATETIME,
 
+        refund_transaction_status_id     BIGINT        NOT NULL,
+
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
 
         FOREIGN KEY (payment_transaction_id) REFERENCES payment_transactions(id),
-        FOREIGN KEY (refund_transaction_reason_id) REFERENCES refund_transaction_reasons(id)
+        FOREIGN KEY (refund_transaction_reason_id) REFERENCES refund_transaction_reasons(id),
+        FOREIGN KEY (refund_transaction_status_id) REFERENCES refund_transaction_statuses(id)
     );
 
     -- 訂單出貨狀態表
@@ -870,6 +887,7 @@
 
         FOREIGN KEY (order_id) REFERENCES orders(id),
         FOREIGN KEY (warehouse_id) REFERENCES warehouses(id),
+        FOREIGN KEY (shipping_method_type_id) REFERENCES shipping_method_types(id),
         FOREIGN KEY (order_shipment_status_id) REFERENCES order_shipment_statuses(id)
     );
 
@@ -1081,7 +1099,7 @@
         name                             VARCHAR(100)  NOT NULL,    -- 發票、收據
         note                             VARCHAR(255),
         created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        last_modified_date               DATETIME      NOT NULL
     );
 
     -- 發票狀態表
