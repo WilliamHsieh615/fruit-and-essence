@@ -785,6 +785,7 @@
         payment_transaction_id           BIGINT        NOT NULL,
         payment_transaction_status_id    BIGINT        NOT NULL,
         note                             VARCHAR(255),
+        
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
 
