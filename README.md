@@ -225,8 +225,8 @@
         product_variant_id               BIGINT        NOT NULL,
         currency_id                      BIGINT        NOT NULL,
         
-        price                            DECIMAL(10,2) NOT NULL,    -- 商品價格 (需對應 product_price_histories.price 最後一筆)
-        discount_price                   DECIMAL(10,2),    -- 商品促銷價格 (不一定會有，需對應 product_price_histories.discount_price 最後一筆)
+        price                            DECIMAL(12,2) NOT NULL,    -- 商品價格 (需對應 product_price_histories.price 最後一筆)
+        discount_price                   DECIMAL(12,2),    -- 商品促銷價格 (不一定會有，需對應 product_price_histories.discount_price 最後一筆)
                                                            -- 當有 price 與 discount_price 同時存在時，以 discount_price 為主
         created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
@@ -242,8 +242,8 @@
         product_variant_id               BIGINT        NOT NULL,
         currency_id                      BIGINT        NOT NULL,
         
-        price                            DECIMAL(10,2) NOT NULL,
-        discount_price                   DECIMAL(10,2),    -- 當有 price 與 discount_price 同時存在時，以 discount_price 為主
+        price                            DECIMAL(12,2) NOT NULL,
+        discount_price                   DECIMAL(12,2),    -- 當有 price 與 discount_price 同時存在時，以 discount_price 為主
         
         start_date                       DATETIME      NOT NULL,
         end_date                         DATETIME,
@@ -440,6 +440,56 @@
         created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    );
+
+    -- 購物車狀態表
+    CREATE TABLE shopping_cart_statuses (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL UNIQUE, -- ACTIVE、CHECKED_OUT、ABANDONED
+        name                             VARCHAR(100)  NOT NULL, -- 有效、已結帳、廢棄
+        note                             VARCHAR(255),
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
+    );
+
+    -- 購物車表
+    CREATE TABLE shopping_carts (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        user_id                          BIGINT,
+        currency_id                      BIGINT        NOT NULL,
+        
+        shopping_cart_status_id          BIGINT        NOT NULL,
+        expires_date                     DATETIME      NOT NULL,    -- 保留日期 (三天)
+
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
+
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (currency_id) REFERENCES currencies(id),
+        FOREIGN KEY (shopping_cart_status_id) REFERENCES shopping_cart_statuses(id)
+    );
+
+    -- 購物車明細表
+    CREATE TABLE cart_items (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        currency_id                      BIGINT        NOT NULL,
+        cart_id                          BIGINT        NOT NULL,
+        product_variant_id               BIGINT        NOT NULL,
+
+        product_name                     VARCHAR(255)  NOT NULL,
+        sku                              VARCHAR(100)  NOT NULL,
+        barcode                          VARCHAR(100),
+        
+        quantity                         INT           NOT NULL,
+        unit_price                       DECIMAL(12,2) NOT NULL,
+        
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
+
+        UNIQUE(cart_id, product_variant_id),
+        FOREIGN KEY (cart_id) REFERENCES shopping_carts(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_variant_id) REFERENCES product_variants(id),
+        FOREIGN KEY (currency_id) REFERENCES currencies(id)
     );
 
     -- 付款方式類型表
@@ -716,11 +766,11 @@
         member_id                        BIGINT        NOT NULL,
         currency_id                      BIGINT        NOT NULL,    -- 訂單幣別
         
-        subtotal                         DECIMAL(10,2) NOT NULL,    -- 小計
-        tax_amount                       DECIMAL(10,2) DEFAULT 0.00,    -- 稅額
-        discount_amount                  DECIMAL(10,2) DEFAULT 0.00,    -- 折扣金額
-        shipping_fee                     DECIMAL(10,2) DEFAULT 0.00,    -- 運費
-        total_amount                     DECIMAL(10,2) NOT NULL,    -- 總額
+        net_amount                       DECIMAL(12,2) NOT NULL,   -- 未稅總額
+        tax_amount                       DECIMAL(12,2) NOT NULL,   -- 總稅額
+        discount_amount                  DECIMAL(12,2) NOT NULL,   -- 折扣總金額
+        shipping_fee                     DECIMAL(12,2) NOT NULL,   -- 總運費
+        gross_amount                     DECIMAL(12,2) NOT NULL    -- 含稅總額
 
         tax_rate_id                      BIGINT        NOT NULL,    -- 税別
         payment_method_id                BIGINT        NOT NULL,    -- 付款方式
@@ -753,9 +803,11 @@
         sku                              VARCHAR(100)  NOT NULL,
         barcode                          VARCHAR(100),
         
-        quantity                         INT           NOT NULL,
-        price                            DECIMAL(10,2) NOT NULL,
-        item_total                       DECIMAL(10,2) NOT NULL,
+        quantity                         INT           NOT NULL,    -- 數量
+        unit_price                       DECIMAL(12,2) NOT NULL,    -- 單價
+        item_net_amount                  DECIMAL(12,2) NOT NULL,    -- 項目未稅小計
+        item_tax_amount                  DECIMAL(12,2) NOT NULL,    -- 項目稅額
+        item_gross_amount                DECIMAL(12,2) NOT NULL,    -- 項目含稅小計
 
         created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
@@ -1155,9 +1207,10 @@
         buyer_company_name               VARCHAR(255),              -- 買家公司名稱
         buyer_tax_id_number              VARCHAR(50),               -- 買方稅籍號碼 (統一編號)
 
-        total_amount                     DECIMAL(12,2) NOT NULL,    -- 含稅總額
-        total_tax_amount                 DECIMAL(12,2) NOT NULL,    -- 總稅額
-
+        net_amount                       DECIMAL(12,2) NOT NULL,   -- 未稅總額
+        tax_amount                       DECIMAL(12,2) NOT NULL,   -- 總稅額
+        gross_amount                     DECIMAL(12,2) NOT NULL,   -- 含稅總額
+        
         issued_date                      DATETIME,    -- 開立時間
         voided_date                      DATETIME,    -- 作廢時間
 
@@ -1178,10 +1231,14 @@
         invoice_id                       BIGINT        NOT NULL,
 
         product_name                     VARCHAR(255)  NOT NULL,
-        quantity                         INT           NOT NULL,
-        unit_price                       DECIMAL(12,2) NOT NULL,
-        tax_amount                       DECIMAL(12,2) NOT NULL,
-        total_amount                     DECIMAL(12,2) NOT NULL,
+        sku                              VARCHAR(100)  NOT NULL,
+        barcode                          VARCHAR(100),
+        
+        quantity                         INT           NOT NULL,    -- 數量
+        unit_price                       DECIMAL(12,2) NOT NULL,    -- 單價
+        item_net_amount                  DECIMAL(12,2) NOT NULL,    -- 項目未稅小計
+        item_tax_amount                  DECIMAL(12,2) NOT NULL,    -- 項目稅額
+        item_gross_amount                DECIMAL(12,2) NOT NULL,    -- 項目含稅小計
 
         created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
