@@ -1356,6 +1356,40 @@
         FOREIGN KEY (credit_note_status_id) REFERENCES credit_note_statuses(id)
     );
 
+    -- 商品評論狀態表
+    CREATE TABLE product_review_statuses (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        code                             VARCHAR(50)   NOT NULL UNIQUE, -- PENDING、APPROVED、REJECTED
+        name                             VARCHAR(100)  NOT NULL,    -- 待處理、已允許、已拒絕
+        note                             VARCHAR(255),
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
+    );
+
+    -- 商品評論表
+    CREATE TABLE product_reviews (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
+        product_id                       BIGINT        NOT NULL,
+        user_id                          BIGINT        NOT NULL,
+        order_id                         BIGINT,    -- 確認已購買
+
+        rating                           TINYINT       NOT NULL CHECK (rating BETWEEN 1 AND 5),
+        title                            VARCHAR(255),
+        content                          TEXT,
+        product_review_status_id         BIGINT        NOT NULL,
+
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
+
+        UNIQUE(product_id, user_id),
+        FOREIGN KEY (country_id) REFERENCES countries(id),
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (order_id) REFERENCES orders(id),
+        FOREIGN KEY (product_review_status_id) REFERENCES product_review_statuses(id)
+    );
+
     -- 登入紀錄表
     CREATE TABLE login_logs (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
