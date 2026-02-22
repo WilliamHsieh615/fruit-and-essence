@@ -158,20 +158,6 @@
         FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
     );
 
-    -- 登入紀錄表
-    CREATE TABLE login_logs (
-        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        country_id                       BIGINT        NOT NULL,
-        member_id                        BIGINT,
-        email                            VARCHAR(255)  NOT NULL,
-        login_time                       DATETIME      NOT NULL,    -- 登入時間
-        user_agent                       VARCHAR(255),
-        ip_address                       VARCHAR(50),
-        success                          BOOLEAN       NOT NULL DEFAULT FALSE,
-        FOREIGN KEY (country_id) REFERENCES countries(id),
-        FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL
-    );
-
     -- 商品分類表
     CREATE TABLE product_types (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
@@ -1368,6 +1354,54 @@
         FOREIGN KEY (invoice_id) REFERENCES invoices(id),
         FOREIGN KEY (credit_note_reason_id) REFERENCES credit_note_reasons(id),
         FOREIGN KEY (credit_note_status_id) REFERENCES credit_note_statuses(id)
+    );
+
+    -- 登入紀錄表
+    CREATE TABLE login_logs (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
+        member_id                        BIGINT,
+        email                            VARCHAR(255)  NOT NULL,
+        login_time                       DATETIME      NOT NULL,    -- 登入時間
+        user_agent                       VARCHAR(255),
+        ip_address                       VARCHAR(45),
+        success                          BOOLEAN       NOT NULL DEFAULT FALSE,
+        FOREIGN KEY (country_id) REFERENCES countries(id),
+        FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL
+    );
+
+    -- JWT 短效 TOKEN 表 (30分鐘)
+    CREATE TABLE login_tokens (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        user_id                          BIGINT        NOT NULL,
+        token_hash                       VARCHAR(255)  NOT NULL, -- 不要存明文
+        ip_address                       VARCHAR(45),
+        user_agent                       VARCHAR(500),
+        expires_date                     DATETIME      NOT NULL,
+        revoked                          BOOLEAN       NOT NULL DEFAULT FALSE,
+
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
+
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    -- JWT 長效 TOKEN 表 (30天)
+    CREATE TABLE refresh_tokens (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        user_id                          BIGINT        NOT NULL,
+        token_hash                       VARCHAR(255)  NOT NULL,
+        device_name                      VARCHAR(100),
+        ip_address                       VARCHAR(45),
+        user_agent                       VARCHAR(500),
+        expires_date                     DATETIME      NOT NULL,
+        revoked                          BOOLEAN       NOT NULL DEFAULT FALSE,
+        revoked_at                       DATETIME      NULL,
+
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
+
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
 
