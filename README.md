@@ -7,7 +7,9 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(10)   NOT NULL UNIQUE,    -- ISO 3166-1國別碼 (TW、US、JP...)
         name                             VARCHAR(50)   NOT NULL,    -- 國籍名稱 (台灣、美國、日本...)
-        image_url                        VARCHAR(255)    -- 國旗
+        image_url                        VARCHAR(255),    -- 國旗
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 地區表
@@ -17,6 +19,8 @@
         code                             VARCHAR(20)   NOT NULL,
         name                             VARCHAR(100)  NOT NULL,
         image_url                        VARCHAR(255),
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         UNIQUE (country_id, code),
         FOREIGN KEY (country_id) REFERENCES countries(id)
     );
@@ -27,11 +31,11 @@
         member_id                        BIGINT        NOT NULL,
 
         country_id                       BIGINT        NOT NULL,
-        region_id                        BIGINT        NOT NULL,
+        region_id                        BIGINT,
 
-        city                             VARCHAR(100),
-        district                         VARCHAR(100),
-        postal_code                      VARCHAR(20),
+        city                             VARCHAR(100),    -- 城市
+        district                         VARCHAR(100),    -- 區域
+        postal_code                      VARCHAR(20),     -- 郵遞區號
 
         street_line1                     VARCHAR(255)  NOT NULL,
         street_line2                     VARCHAR(255),
@@ -52,6 +56,20 @@
         code                             VARCHAR(10)   NOT NULL UNIQUE,    -- 貨幣碼 (TWD、USD、JPY...)
         name                             VARCHAR(50)   NOT NULL,    -- 貨幣名稱 (新台幣、美元、日幣...)
         symbol                           VARCHAR(10)   NOT NULL,    -- 貨幣符號 (NT$、$、¥、€、£、₩、₽...)
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
+        FOREIGN KEY (country_id) REFERENCES countries(id)
+    );
+
+    -- 語言表
+    CREATE TABLE languages (
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
+        country_id                       BIGINT        NOT NULL,
+        code                             VARCHAR(10)   NOT NULL UNIQUE, -- zh-TW, en-US
+        name                             VARCHAR(50)   NOT NULL,
+        is_active                        BOOLEAN       NOT NULL DEFAULT TRUE,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         FOREIGN KEY (country_id) REFERENCES countries(id)
     );
 
@@ -141,7 +159,7 @@
     );
 
     -- 登入紀錄表
-    CREATE TABLE login_histories (
+    CREATE TABLE login_logs (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT        NOT NULL,
         member_id                        BIGINT,
@@ -218,7 +236,7 @@
         FOREIGN KEY (currency_id) REFERENCES currencies(id)
     );
 
-    -- 價格歷史紀錄表
+    -- 價格紀錄表
     CREATE TABLE product_price_histories (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         product_variant_id               BIGINT        NOT NULL,
@@ -254,7 +272,7 @@
     );
 
     -- 倉庫存貨表
-    CREATE TABLE warehouse_inventory (
+    CREATE TABLE warehouse_inventories (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
         warehouse_id BIGINT NOT NULL,
@@ -278,14 +296,12 @@
         FOREIGN KEY (product_lot_id) REFERENCES product_lots(id)
     );
 
-
     -- 庫存異動原因表
     CREATE TABLE product_stock_history_reasons (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
         note                             VARCHAR(255),
-        
         created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
         last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
@@ -331,23 +347,22 @@
         iron                             DECIMAL(10,2),    -- 鐵 (mg)
         potassium                        DECIMAL(10,2),    -- 鉀 (mg)
         
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
-        
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
+
+        UNIQUE(product_id, country_id),
         FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
-
 
     -- 商品成分表
     CREATE TABLE product_ingredients (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         product_id                       BIGINT        NOT NULL,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
-        
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
-        
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
@@ -355,11 +370,10 @@
     CREATE TABLE product_allergens (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         product_id                       BIGINT        NOT NULL,
+        code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
-
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
-        
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
@@ -374,8 +388,8 @@
         issuing_body                     VARCHAR(255),
         logo_url                         VARCHAR(500),
 
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         FOREIGN KEY (country_id) REFERENCES countries(id)
     );
@@ -391,8 +405,8 @@
         expiration_date                  DATE          NULL,    -- 認證有效日期
         certificate_file_url             VARCHAR(500),
 
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         UNIQUE (company_id, certification_id),
         FOREIGN KEY (company_id) REFERENCES companies(id),
@@ -410,8 +424,8 @@
         expiration_date                  DATE          NULL,    -- 認證有效日期
         certificate_file_url             VARCHAR(500),
 
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         UNIQUE (product_id, certification_id),
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
@@ -423,10 +437,8 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         product_id                       BIGINT        NOT NULL,
         image_url                        VARCHAR(255)  NOT NULL,
-
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
-        
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
@@ -436,17 +448,17 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,     -- 系統代碼
         name                             VARCHAR(100)  NOT NULL,            -- 類別名稱 (信用卡、第三方支付)
         note                             VARCHAR(255),
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 第三方金流表
     CREATE TABLE payment_gateways (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- STRIPE, LINEPAY, ECPAY
+        code                             VARCHAR(50)   NOT NULL UNIQUE,    -- STRIPE、LINEPAY、ECPAY
         name                             VARCHAR(100)  NOT NULL,    -- Stripe、LINE Pay、綠界、藍新
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 金流憑證表
@@ -457,13 +469,13 @@
         payment_gateway_id               BIGINT        NOT NULL,
         
         merchant_id                      VARCHAR(255),
-        api_key                          VARBINARY(512), -- 加密存
+        api_key                          VARBINARY(512),    -- 加密存
         api_secret                       VARBINARY(512),
         webhook_secret                   VARBINARY(512),
 
         is_active                        BOOLEAN       DEFAULT TRUE,
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (company_id) REFERENCES companies(id),
@@ -486,8 +498,8 @@
         note                             VARCHAR(255),
         is_active                        BOOLEAN       DEFAULT TRUE,    -- 是否啟用
         
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (payment_method_type_id) REFERENCES payment_method_types(id),
@@ -505,8 +517,8 @@
         installment_fee_fixed            DECIMAL(10,2) DEFAULT 0.00,    -- 分期固定手續費
         is_active                        BOOLEAN       DEFAULT TRUE,    -- 是否啟用此分期方案
         
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id)
     );
@@ -517,8 +529,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- 系統代碼 (LAND, SEA, AIR)
         name                             VARCHAR(100)  NOT NULL,    -- 類別名稱 (陸運、海運、空運)
         note                             VARCHAR(255),
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 運送方式表
@@ -540,8 +552,8 @@
         
         is_active                        BOOLEAN       DEFAULT TRUE,    -- 是否啟用
         
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         UNIQUE (country_id, code),
         FOREIGN KEY (country_id) REFERENCES countries(id),
@@ -558,15 +570,15 @@
         extra_fee                        DECIMAL(10,2) NOT NULL,
         note                             VARCHAR(255),
 
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id) ON DELETE CASCADE
     );
 
 
     -- 運送方式子表 (低溫運送)
-    CREATE TABLE shipping_method_cold_chain_fee (
+    CREATE TABLE shipping_method_cold_chain_fees (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         shipping_method_id               BIGINT        NOT NULL,
         
@@ -575,8 +587,8 @@
         extra_fee                        DECIMAL(10,2) DEFAULT 0.00,   -- 額外費用
         note                             VARCHAR(255),
         
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id) ON DELETE CASCADE
     );
@@ -590,8 +602,8 @@
         extra_fee                        DECIMAL(10,2) DEFAULT 0.00,
         note                             VARCHAR(255),
         
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         FOREIGN KEY (region_id) REFERENCES regions(id),
         FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id) ON DELETE CASCADE
@@ -603,8 +615,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- 系統代碼 (INSURANCE, COD, EXPRESS)
         name                             VARCHAR(100)  NOT NULL,    -- 顯示名稱 (保險、代收貨款、加急等)
         note                             VARCHAR(255),
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 運送方式子表 (運送附加服務表)
@@ -616,8 +628,8 @@
         fee_percent                      DECIMAL(5,2)  DEFAULT 0.00,    -- 百分比手續費
         fee_fixed                        DECIMAL(10,2) DEFAULT 0.00,   -- 固定手續費
         
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id) ON DELETE CASCADE,
         FOREIGN KEY (shipping_method_service_type_id) REFERENCES shipping_method_service_types(id)
@@ -629,9 +641,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE, -- PENDING、PAID、SHIPPED、DELIVERED、CANCELLED、REFUNDED
         name                             VARCHAR(100)  NOT NULL, -- 待處理、已付款、已出貨、已送達、已取消、已退款
         note                             VARCHAR(255),
-        
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
     );
 
     -- 訂單聯絡表
@@ -657,8 +668,8 @@
 
         is_remote                        BOOLEAN       DEFAULT FALSE,    -- 是否偏遠地區
 
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
     );
@@ -669,8 +680,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,  -- VAT、SALES_TAX
         name                             VARCHAR(100)  NOT NULL,    -- 加值稅、營業稅
         note                             VARCHAR(255),
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 稅率表
@@ -688,8 +699,8 @@
         effective_from                   DATETIME      NOT NULL,    -- 有限時間(起)
         effective_to                     DATETIME,    -- 有限時間(迄)
 
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (region_id) REFERENCES regions(id),
@@ -746,15 +757,15 @@
         price                            DECIMAL(10,2) NOT NULL,
         item_total                       DECIMAL(10,2) NOT NULL,
 
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
         FOREIGN KEY (product_variant_id) REFERENCES product_variants(id)
     );
 
     -- 訂單與稅費關聯表
-    CREATE TABLE order_tax (
+    CREATE TABLE order_taxes (
         order_id                         BIGINT        NOT NULL,
         tax_type_id                      BIGINT        NOT NULL,
         tax_rate                         DECIMAL(5,4)  NOT NULL,
@@ -770,9 +781,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- PENDING、AUTHORIZED、SUCCESS、FAILED、REFUNDED、CANCELLED
         name                             VARCHAR(100)  NOT NULL,    -- 待付款、已授權、付款成功、付款失敗、已退款、已取消
         note                             VARCHAR(255),
-        
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 付款交易紀錄表
@@ -792,8 +802,8 @@
         captured_date                    DATETIME,    -- 請款時間
         paid_date                        DATETIME,    -- 付款時間
         
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         UNIQUE (payment_gateway_id, gateway_transaction_number),
         FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
@@ -810,8 +820,8 @@
         payment_transaction_status_id    BIGINT        NOT NULL,
         note                             VARCHAR(255),
         
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (payment_transaction_id) REFERENCES payment_transactions(id),
         FOREIGN KEY (payment_transaction_status_id) REFERENCES payment_transaction_statuses(id)
@@ -823,9 +833,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
         note                             VARCHAR(255),
-
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
     );
 
     -- 退款狀態表
@@ -834,9 +843,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- PENDING、SUCCESS、FAILED
         name                             VARCHAR(100)  NOT NULL,    -- 待退款、退款成功、退款失敗
         note                             VARCHAR(255),
-        
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 退款交易表
@@ -850,8 +858,8 @@
 
         refund_transaction_status_id     BIGINT        NOT NULL,
 
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (payment_transaction_id) REFERENCES payment_transactions(id),
         FOREIGN KEY (refund_transaction_reason_id) REFERENCES refund_transaction_reasons(id),
@@ -864,9 +872,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- PENDING / SHIPPED / DELIVERED / RETURNED
         name                             VARCHAR(100)  NOT NULL,    -- 待出貨、已出貨、已送達、已退貨
         note                             VARCHAR(255),
-        
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL     -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 訂單出貨表
@@ -874,7 +881,7 @@
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         order_id                         BIGINT        NOT NULL,
         warehouse_id                     BIGINT        NOT NULL,
-        shipping_method_type_id          BIGINT        NOT NULL,
+        shipping_method_id               BIGINT        NOT NULL,
         order_shipment_status_id         BIGINT        NOT NULL,
 
         tracking_number                  VARCHAR(255),
@@ -882,12 +889,12 @@
         shipped_date                     DATETIME,
         delivered_date                   DATETIME,
 
-        created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (order_id) REFERENCES orders(id),
         FOREIGN KEY (warehouse_id) REFERENCES warehouses(id),
-        FOREIGN KEY (shipping_method_type_id) REFERENCES shipping_method_types(id),
+        FOREIGN KEY (shipping_method_id) REFERENCES shipping_methods(id),
         FOREIGN KEY (order_shipment_status_id) REFERENCES order_shipment_statuses(id)
     );
 
@@ -899,6 +906,9 @@
 
         quantity                         INT           NOT NULL,
 
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
+
         FOREIGN KEY (order_shipment_id) REFERENCES order_shipments(id),
         FOREIGN KEY (order_item_id) REFERENCES order_items(id)
     );
@@ -909,8 +919,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- PERCENTAGE、FIXED
         name                             VARCHAR(100)  NOT NULL,    -- 百分比、固定
         note                             VARCHAR(255),
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 折扣表
@@ -932,8 +942,8 @@
         start_date                       DATETIME,
         end_date                         DATETIME,
         
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         
         FOREIGN KEY (discount_type_id) REFERENCES discount_types(id)
     );
@@ -944,9 +954,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- LOGICAL、COMPARISON、ARITHMETIC
         name                             VARCHAR(100)  NOT NULL,    -- 邏輯運算、比較運算、算數運算
         note                             VARCHAR(255),
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL
-        
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 運算方式表
@@ -959,8 +968,8 @@
         name                             VARCHAR(100)  NOT NULL,    -- 邏輯運算：和、或
                                                                     -- 比較運算：等於、大於等於、小於等於、大於、小於、在什麼之內、介於什麼之間
                                                                     -- 算數運算：加、減、乘、除
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 折扣條件組表
@@ -971,8 +980,8 @@
         
         operator_id                      BIGINT        NOT NULL,    -- AND、OR
         
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (discount_id) REFERENCES discounts(id),
         FOREIGN KEY (discount_condition_group_id) REFERENCES discount_condition_groups(id),
@@ -985,8 +994,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- MIN_AMOUNT / MEMBER_LEVEL / FIRST_ORDER
         name                             VARCHAR(100)  NOT NULL,    -- 最小金額、會員等級、第一筆訂單
         note                             VARCHAR(255),
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 折扣條件表
@@ -1001,8 +1010,8 @@
         value_date                       DATETIME,
         priority                         INT           NOT NULL DEFAULT 0,    -- 折扣順序 (越小越先執行)
 
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (discount_condition_group_id) REFERENCES discount_condition_groups(id),
         FOREIGN KEY (discount_condition_type_id) REFERENCES discount_condition_types(id),
@@ -1010,7 +1019,7 @@
     );
 
     -- 會員與折扣關聯表
-    CREATE TABLE member_has_discount ( 
+    CREATE TABLE member_has_discounts ( 
         member_id                        BIGINT        NOT NULL, 
         discount_id                      BIGINT        NOT NULL, 
         PRIMARY KEY (member_id, discount_id), 
@@ -1024,7 +1033,9 @@
         discount_id                      BIGINT        NOT NULL,
         member_id                        BIGINT        NOT NULL,
         order_id                         BIGINT        NOT NULL,
-        used_date                        DATETIME      NOT NULL,
+        used_date                        DATETIME      NOT NULL,    -- 使用時間
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
         FOREIGN KEY (discount_id) REFERENCES discounts(id),
         FOREIGN KEY (member_id) REFERENCES members(id),
         FOREIGN KEY (order_id) REFERENCES orders(id)
@@ -1063,8 +1074,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- GOVERNMENT_ASSIGNED、MERCHANT_GENERATED、NONE
         name                             VARCHAR(100)  NOT NULL,    -- 政府分配、店家生成、無
         note                             VARCHAR(255),
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 發票規則表
@@ -1085,8 +1096,8 @@
         supports_credit_note             BOOLEAN       DEFAULT TRUE,    -- 是否支援折讓
         requires_tax_breakdown           BOOLEAN       DEFAULT TRUE,    -- 是否必須分開列稅
 
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (numbering_type_id) REFERENCES numbering_types(id)
@@ -1098,8 +1109,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- INVOICE、RECEIPT
         name                             VARCHAR(100)  NOT NULL,    -- 發票、收據
         note                             VARCHAR(255),
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 發票狀態表
@@ -1108,9 +1119,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE, -- DRAFT、ISSUING、ISSUED、CONFIRMED、VOIDED、FAILED
         name                             VARCHAR(100)  NOT NULL, -- 擬訂、開立、作廢、註銷
         note                             VARCHAR(255),
-        
         created_date                     DATETIME      NOT NULL,    -- 建立時間
-        last_modified_date               DATETIME      NOT NULL,    -- 更新時間
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間
     );
 
     -- 發票載具類型表
@@ -1119,8 +1129,8 @@
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- MOBILE_BARCODE、CITIZEN_CERT、MEMBER_CARRIER、NONE
         name                             VARCHAR(100)  NOT NULL,    -- 草稿、開立中、已開立、買方已確認、已作廢、開立失敗
         note                             VARCHAR(255),
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 發票表
@@ -1151,8 +1161,8 @@
         issued_date                      DATETIME,    -- 開立時間
         voided_date                      DATETIME,    -- 作廢時間
 
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (order_id) REFERENCES orders(id),
         FOREIGN KEY (country_id) REFERENCES countries(id),
@@ -1172,6 +1182,9 @@
         unit_price                       DECIMAL(12,2) NOT NULL,
         tax_amount                       DECIMAL(12,2) NOT NULL,
         total_amount                     DECIMAL(12,2) NOT NULL,
+
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (invoice_id) REFERENCES invoices(id)
     );
@@ -1194,8 +1207,8 @@
 
         is_active                        BOOLEAN       DEFAULT TRUE,
 
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (invoice_rule_id) REFERENCES invoice_rules(id)
     );
@@ -1210,8 +1223,8 @@
         taxable_amount                   DECIMAL(12,2) NOT NULL,
         tax_amount                       DECIMAL(12,2) NOT NULL,
 
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (invoice_id) REFERENCES invoices(id),
         FOREIGN KEY (tax_type_id) REFERENCES tax_types(id)
@@ -1227,8 +1240,8 @@
         invoice_status_id                BIGINT        NOT NULL,
         used_date                        DATETIME,
 
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (invoice_batch_id) REFERENCES invoice_number_batches(id),
         FOREIGN KEY (invoice_id) REFERENCES invoices(id),
@@ -1247,9 +1260,9 @@
         certificate_path                 VARCHAR(255), -- pfx 檔
         certificate_password             VARBINARY(512),
 
-        is_active                        BOOLEAN DEFAULT TRUE,
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        is_active                        BOOLEAN       DEFAULT TRUE,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (country_id) REFERENCES countries(id),
         FOREIGN KEY (company_id) REFERENCES companies(id)
@@ -1259,25 +1272,21 @@
     CREATE TABLE credit_note_reasons (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
         country_id                       BIGINT        NOT NULL,
-
         code                             VARCHAR(50)   NOT NULL UNIQUE,
         name                             VARCHAR(100)  NOT NULL,
         note                             VARCHAR(255),
-
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
     );
 
     -- 折讓狀態表
     CREATE TABLE credit_note_statuses (
         id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
-        
         code                             VARCHAR(50)   NOT NULL UNIQUE,    -- DRAFT、ISSUING、ISSUED、CONFIRMED、VOIDED、FAILED
         name                             VARCHAR(100)  NOT NULL,    -- 草稿、開立中、已開立、買方已確認、已作廢、開立失敗
         note                             VARCHAR(255),
-        
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL     -- 更新時間 (由後端寫入)
     );
 
     -- 折讓單表
@@ -1296,8 +1305,8 @@
 
         government_track_number          VARCHAR(100),    -- 政府追蹤序號
 
-        created_date                     DATETIME      NOT NULL,
-        last_modified_date               DATETIME      NOT NULL,
+        created_date                     DATETIME      NOT NULL,    -- 建立時間 (由後端寫入)
+        last_modified_date               DATETIME      NOT NULL,    -- 更新時間 (由後端寫入)
 
         FOREIGN KEY (invoice_id) REFERENCES invoices(id),
         FOREIGN KEY (credit_note_reason_id) REFERENCES credit_note_reasons(id),
