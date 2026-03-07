@@ -259,19 +259,19 @@
 
     -- 倉庫存貨表
     CREATE TABLE warehouse_inventories (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        id                               BIGINT        PRIMARY KEY AUTO_INCREMENT,
 
-        warehouse_id BIGINT NOT NULL,
-        product_lot_id BIGINT NOT NULL,
+        warehouse_id                     BIGINT        NOT NULL,
+        product_lot_id                   BIGINT        NOT NULL,
 
-        physical_stock INT NOT NULL DEFAULT 0,    -- 實體庫存
-        reserved_stock INT NOT NULL DEFAULT 0,    -- 已被訂單鎖定（未出貨）
-        available_stock INT NOT NULL DEFAULT 0,    -- 可販售庫存（可用）
+        physical_stock                   INT           NOT NULL DEFAULT 0,    -- 實體庫存
+        reserved_stock                   INT           NOT NULL DEFAULT 0,    -- 已被訂單鎖定（未出貨）
+        available_stock                  INT           NOT NULL DEFAULT 0,    -- 可販售庫存（可用）
 
-        safety_stock INT NOT NULL DEFAULT 0,    -- 安全庫存
-        version INT NOT NULL DEFAULT 0,    -- 樂觀鎖版本號
+        safety_stock                     INT           NOT NULL DEFAULT 0,    -- 安全庫存
+        version                          INT           NOT NULL DEFAULT 0,    -- 樂觀鎖版本號
 
-        last_calculated_date DATETIME NOT NULL,    -- 最後盤點日
+        last_calculated_date             DATETIME      NOT NULL,    -- 最後盤點日
 
         created_date                     DATETIME      NOT NULL,    -- 建立時間
         last_modified_date               DATETIME      NOT NULL,    -- 更新時間
